@@ -1,0 +1,11 @@
+# http://module-build.sourceforge.net/META-spec.html
+#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
+name:         autobox-Core
+version:      0.1
+version_from: Core.pm
+installdirs:  site
+requires:
+    autobox:                       0.11
+
+distribution_type: module
+generated_by: ExtUtils::MakeMaker version 6.21_01

@@ -1,0 +1,6 @@
+Revision history for Perl extension autobox::Core.
+
+0.1  Tue Mar 30 06:45:49 2004
+	- original version; created by h2xs 1.21 with options
+		-A -n autobox::Core -v 0.1
+
