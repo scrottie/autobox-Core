@@ -1,11 +1,18 @@
 package autobox::Core;
 
+# XXX ARRAY and HASH should AUTOLOAD, and that AUTOLOAD should look for an array
+# or hash element (double checking with exists) of that method name. This would
+# allow for xmath's ` style dereferences, or javascript's arr.0 and hash.foo 
+# style dereferences. in perl, you could say $hashref->foo and $arrayref->5.
+# okey, $arrayref->5 is invalid syntax. you'd have to say $five = 5; $arrayref->$five.
+# hrm.
+
 use 5.8.0;
 
 use strict;
 use warnings;
 
-our $VERSION = '0.2';
+our $VERSION = '0.3';
 
 =pod
 
@@ -40,7 +47,8 @@ Besides built-ins that operate on hashes, arrays, scalars, and code references,
 some Perl 6-ish things were thrown in, and some keyword like C<foreach> have
 been turned into methods.
 
-=head3 What's Implemented?
+
+=head2 What's Implemented?
 
 All of the functions listed in L<perldoc> under the headings:
 "Functions for real @ARRAYs",
@@ -48,10 +56,11 @@ All of the functions listed in L<perldoc> under the headings:
 "Functions for list data",
 and "Functions for SCALARs or strings", plus a few taken from other sections
 and documented below. 
-Some things expected in Perl 6, such as C<last>, C<size>, and C<curry>, have been thrown in.
+Some things expected in Perl 6, such as C<last>, C<elems>, and C<curry>, have been thrown in.
+For use in conjuction with L<Perl6::Contexts>, C<flatten> explicitly flattens an array.
 
 Of the built-in stuff, the things you use most often on data are all implemented. 
-A small sample:
+Here's a small sample:
 
   print [10, 20, 30, 40, 50]->pop(), "\n";
   print [10, 20, 30, 40, 50]->shift(), "\n";
@@ -90,6 +99,15 @@ This is the same as C<< @{$array_ref} >>.
 
   my $arr = [ 1 .. 10 ];
   print join " -- ", $arr->flatten, "\n";
+
+Under L<Perl6::Contexts>, you'll often need to write code equivalent to the follow:
+
+  use Perl6::Contexts;
+  use autobox;
+  use autobox::Core;
+
+  my @arr = ( 1 .. 10 );
+  do_something(@arr->flatten);
 
 Array references can be iterated on using C<for> and C<foreach>. Both take a code
 reference as the body of the for statement. 
@@ -146,7 +164,7 @@ You may C<curry> code references:
 
 That's it.
 
-=head3 What's Missing?
+=head2 What's Missing?
 
 Operators. I'm tired. I'll do it in the morning. Maybe. Send me a patch.
 
@@ -170,19 +188,260 @@ or don't make sense as part of the string, number, array, hash, or code API.
 C<srand> because you probably shouldn't be using it. 
 C<each> on hashes. There is no good reason it is missing.
 
-=head1 EXAMPLE
+
+=head2 Autoboxing
+
+I<This section quotes four pages from the manuscript of Perl 6 Now: The Core Ideas Illustrated with Perl 5 by myself, Scott Walters. The text appears in the book starting at page 248. This copy lacks the benefit of copyedit - the finished product is of higher quality. See the shameless plug in the SEE ALSO section for information on ordering Perl 6 Now.>
+
+A I<box> is an object that contains a primitive variable.
+Boxes are used to endow primitive types with the capabilities of objects.
+This is essential in strongly typed languages but never strictly required in Perl.
+Programmers might write something like C<< my $number = Int->new(5) >>.
+This is manual boxing.
+To I<autobox> is to convert a simple type into an object type automatically, or only conceptually.
+This is done by the language.
+It makes a language look to programmers as if everything is an object while the interpreter
+is free to implement data storage however it pleases.
+Autoboxing is really making simple types such as numbers, strings, and arrays appear to be objects.
+
+C<int>, C<num>, C<bit>, C<str>, and other types with lower case names, are primitives.
+They're fast to operate on, and require no more memory to store than the data held strictly requires.
+C<Int>, C<Num>, C<Bit>, C<Str>, and other types with an initial capital letter, are objects.
+These may be subclassed (inherited from) and accept traits, among other things.
+These objects are provided by the system for the sole purpose of representing primitive types as objects,
+though this has many ancillary benefits such as making C<is> and C<has> work.
+Perl provides C<Int> to encapsulate an C<int>, C<Num> to encapsulate a C<num>, C<Bit> to encapsulate a C<bit>, and so on.
+As Perl's implementations of hashes and dynamically expandable arrays store any type, not just objects, Perl
+programmers almost never are required to box primitive types in objects.
+Perl's power makes this feature less essential than it is in other languages.
+
+X<autobox>ing makes primitive objects and they're boxed versions equivalent.
+An C<int> may be used as an C<Int> with no constructor call, no passing, nothing.
+This applies to constants too, not just variables:
+
+  # Perl 6 - autoboxing associates classes with primitives types:
+
+  print 4.sqrt, "\n";
+
+This is perfectly valid Perl 6.
+
+All of this applies to hashes and arrays, as well:
+
+  # Perl 6 - autoboxing associates classes with primitive types:
+
+  print [ 1 .. 20 ].elems, "\n";
+
+The language is free to implement data storage however it wishes but the programmer
+sees the variables as objects. 
+
+Expressions using autoboxing read somewhat like Latin suffixes. 
+In the autoboxing mind-set, you might not say that something is "made more mnemonic",
+but has been "mnemonicified".
+
+Autoboxing may be mixed with normal function calls. 
+In the case where the methods are available as functions and the functions are 
+available as methods, it is only a matter of personal taste how the expression should be written:
+
+  # Calling methods on numbers and strings, these three lines are equivalent
+  # Perl 6
+
+  print sqrt 4;
+  print 4.sqrt;
+  4.sqrt.print;
+
+The first of these three equivalents assumes that a global C<sqrt()> function exists. 
+This first example would fail to operate if this global function were removed and only
+a method in the C<Num> package was left.
+
+Perl 5 had the beginnings of autoboxing with filehandles:
+
+  use IO::Handle;
+  open my $file, '<', 'file.txt' or die $!;
+  $file->read(my $data, -s $file);
+
+Here, C<read> is a method on a filehandle we opened but I<never blessed>. 
+This lets us say things like C<< $file->print(...) >> rather than the often ambagious
+
+C<< print $file ... >>. 
+To many people, much of the time, it makes more conceptual sense as well.
+
+
+=head3 Reasons to Box Primitive Types
+
+What good is all of this?
+
+=over 1
+
+=item Makes conceptual sense to programmers used to object interfaces as I<the> way
+to perform options. 
+
+=item Alternative idiom. Doesn't require the programmer
+to write or read expressions with complex precedence rules or strange operators.
+
+=item Many times that parenthesis would otherwise have to span a large expression, the expression
+may be rewritten such that the parenthesis span only a few primitive types.
+
+=item Code may often be written with fewer temporary variables.
+
+=item Autoboxing provides the benefits of boxed types without the memory bloat of 
+actually using objects to represent primitives. Autoboxing "fakes it".
+
+=item Strings, numbers, arrays, hashes, and so on, each have their own API.
+Documentation for an C<exists> method for arrays doesn't have to explain how hashes are
+handled and vice versa.
+ 
+=item Perl tries to accommodate the notion that the "subject" of a statement 
+should be the first thing on the line, and autoboxing furthers this agenda.
+
+=back
+
+Perl is an idiomatic language and this is an important idiom.
+
+=head3 Subject First: An Aside
+
+Perl's design philosophy promotes the idea that the language should be flexible enough
+to allow programmers to place the X<subject> of a statement first. 
+For example, C<< die $! unless read $file, 60 >> looks like the primary purpose of the statement is
+to C<die>. 
+While that might be the programmers primary goal, when it isn't, the programmer
+can communicate his real primary intention to programmers by reversing the order of 
+clauses while keeping the exact same logic: C<< read $file, 60 or die $! >>.
+Autoboxing is another way of putting the subject first. 
+Nouns make good subjects, and in programming, variables, constants, and object names are the nouns.
+Function and method names are verbs. 
+C<< $noun->verb() >> focuses the readers attention on the thing being acted on rather than the action being performed. 
+Compare to C<< $verb($noun) >>.
+
+
+=head3 Autoboxing and Method Results
+
+In Chapter 11 [Subroutines], we had examples of ways an expression could be
+written. 
+Here it is again:
+
+  # Various ways to do the same thing:
+
+  print(reverse(sort(keys(%hash))));          # Perl 5 - pathological parenthetic
+  print reverse sort keys %hash;              # Perl 5 - no unneeded parenthesis
+
+  print(reverse(sort(%hash,keys))));          # Perl 6 - pathological
+  print reverse sort %hash.keys;              # Perl 6 - no unneeded parenthesis
+
+  %hash.keys ==> sort ==> reverse ==> print;  # Perl 6 - pipeline operator
+
+  %hash.keys.sort.reverse.print;              # Perl 6 - autobox
+
+  %hash->keys->sort->reverse->print;          # Perl 5 - autobox
+
+This section deals with the last two of these equivalents.
+These are method calls 
+  use autobox;
+  use autobox::Core;
+  use Perl6::Contexts;
+
+  my %hash = (foo => 'bar', baz => 'quux');
+
+  %hash->keys->sort->reverse->print;          # Perl 5 - autobox
+
+  # prints "foo baz"
+
+Each method call returns an array reference, in this example.
+Another method call is immediately performed on this value.
+This feeding of the next method call with the result of the previous call is the common mode
+of use of autoboxing.
+Providing no other arguments to the method calls, however, is not common.
+
+F<Perl6::Contexts> recognizes object context as provided by C<< -> >> and
+coerces C<%hash> into a reference, suitable for use with F<autobox>.
+F<autobox> associates primitive types, such as references of various sorts, with classes.
+F<autobox::Core> throws into those classes methods wrapping Perl's built-in functions.
+In the interest of full disclosure, F<Perl6::Contexts> and F<autobox::Core> are my creations.
+
+
+=head3 Autobox to Simplify Expressions
+
+One of my pet peeves in programming is parenthesis that span large expression.
+It seems like about the time I'm getting ready to close the parenthesis I opened
+on the other side of the line, I realize that I've forgotten something, and I have to
+arrow back over or grab the mouse.
+When the expression is too long to fit on a single line, it gets broken up, then
+I must decide how to indent it if it grows to 3 or more lines.
+
+  # Perl 5 - a somewhat complex expression
+
+  print join("\n", map { CGI::param($_) } @cgi_vars), "\n";
+  # Perl 5 - again, using autobox:
+
+  @cgi_vars->map(sub { CGI::param($_[0]) })->join("\n")->concat("\n")->print;
+
+The autoboxed version isn't shorter, but it reads from left to right, and
+the parenthesis from the C<join()> don't span nearly as many characters.
+The complex expression serving as the value being C<join()>ed in the non-autoboxed version 
+becomes, in the autoboxed version, a value to call the C<join()> method on.
+
+This C<print> statement takes a list of CGI parameter names, reads the values for
+each parameter, joins them together with newlines, and prints them with a newline
+after the last one.
+
+Pretending that this expression were much larger and it had to be broken to span
+several lines, or pretending that comments are to be placed after each part of 
+the expression, you might reformat it as such:
+ 
+  @cgi_vars->map(sub { CGI::param($_[0]) })  # turn CGI arg names into values
+           ->join("\n")                      # join with newlines
+           ->concat("\n")                    # give it a trailing newline
+           ->print;                          # print them all out
+
+This could also have been written:
+
+  sub { CGI::param($_[0]) }->map(@cgi_vars)  # turn CGI arg names into values
+           ->join("\n")                      # join with newlines
+           ->concat("\n")                    # give it a trailing newline
+           ->print;                          # print them all out
+
+C<map()> is X<polymorphic>. 
+The C<map()> method defined in the C<CODE> package takes for its arguments the things
+to map.
+The C<map()> method defined in the C<ARRAY> package takes for its argument a code reference
+to apply to each element of the array.
+
+I<Here ends the text quoted from the Perl 6 Now manuscript.>
+
 
 =head1 BUGS
 
 Yes. Report them to the author, L<scott@slowass.net>.
-This code is not well tested. The API is not yet stable - Perl 6-ish things
-and local extensions are still being renamed.
+This code is not well tested. 
+The API is not yet stable - Perl 6-ish things and local extensions are still being renamed.
+
+
+=head1 HISTORY
+
+Version 0.3 fixes a problem where C<unpack> wasn't sure it had enough arguments
+according to a test introduced in Perl 5.8.6 or perhaps 5.8.5.
+This problem was reported by Ron Reidy - thanks Ron!
+Version 0.3 also added the references to Perl 6 Now and the excerpt.
+
+Version 0.2 rounded out the API and introduced the beginnings of functional-ish methods.
+
+Version 0.1 was woefully incomplete.
+
 
 =head1 SEE ALSO
 
 L<autobox>. 
 
+L<Perl6::Contexts>.
+
 Perl 6: L<< http://dev.perl.org/perl6/apocalypse/ >>.
+
+(Shameless plug alert!) I<Perl 6 Now: The Core Ideas Illustrated with Perl 5>
+dedicates a sizable portion of Chapter 14, Objects, to autoboxing
+and the idea is used heavily throughout the book. Chapter 8, Data Structures,
+also has numerous examples. 
+See L<http://perl6now.com> or look for ISBN 1-59059-395-2 at your favorite
+bookstore for more information.
+
 
 =head1 AUTHOR
 
@@ -221,7 +480,7 @@ sub sprintf ($@)  { CORE::sprintf($_[0], $_[1], @_[2.. $#_]); }
 sub substr  ($@)  { CORE::substr($_[0], $_[1], @_[2 .. $#_]); }
 sub uc      ($)   { CORE::uc($_[0]); }
 sub ucfirst ($)   { CORE::ucfirst($_[0]); }
-sub unpack  ($;@) { CORE::unpack(@_); }
+sub unpack  ($;@) { CORE::unpack($_[0], @_[1..$#_]); }
 sub quotemeta ($) { CORE::quotemeta($_[0]); }
 sub vec     ($$$) { CORE::vec($_[0], $_[1], $_[2]); }
 sub undef   ($)   { $_[0] = undef }
@@ -318,8 +577,8 @@ sub sum (\@) { my $arr = CORE::shift; my $res = 0; while(@$arr) { $res += shift 
 #           "pop", "push", "shift", "splice", "unshift"
 
 sub pop (\@) { CORE::pop @{$_[0]}; }
-sub push (\@;@) { my $arr = CORE::shift; CORE::push @$arr, @_; }
-sub unshift (\@;@) { CORE::unshift @{$_[0]}, @_; }
+sub push (\@;@) { my $arr = CORE::shift; CORE::push @$arr, @_;  $arr; }
+sub unshift (\@;@) { CORE::unshift @{$_[0]}, @_; $_[0]; }
 sub exists (\@$) { my $arr = CORE::shift; CORE::exists $arr->[$_[0]] }
 sub delete (\@$) { my $arr = CORE::shift; CORE::delete $arr->[$_[0]] }
 sub shift (\@;@) { my $arr = CORE::shift; CORE::shift @$arr; } # last to prevent having to prefix normal shift calls with CORE::
@@ -337,6 +596,8 @@ sub ref   (\@)    { CORE::ref   $_[0] }
 
 sub last (\@) { my $arr = CORE::shift; $#$arr; }
 sub size (\@) { my $arr = CORE::shift; CORE::scalar @$arr; }
+sub elems (\@) { my $arr = CORE::shift; CORE::scalar @$arr; } # Larry announced it would be elems, not size
+sub length (\@) { my $arr = CORE::shift; CORE::scalar @$arr; }
 
 # misc
 
