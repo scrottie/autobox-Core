@@ -5,7 +5,7 @@ use 5.8.0;
 use strict;
 use warnings;
 
-our $VERSION = '0.1';
+our $VERSION = '0.2';
 
 =pod
 
@@ -74,7 +74,7 @@ C<bless>,
 and C<vec>, where they make sense. 
 C<tie>, C<tied>, and C<undef> don't work on code references, and C<bless> doesn't work on non-reference
 scalars.
-C<quotemeta> works on non-reference scalars.
+C<quotemeta> works on non-reference scalars, along with C<split>, C<m>, and C<s> for regular expression operations.
 
   my $arr = [ 1 .. 10 ];
   $arr->undef;
@@ -85,18 +85,17 @@ Array references can tell you how many elements they contain and the index of th
   print '$arr contains ', $arr->size, 
         ' elements, the last having an index of ', $arr->last, "\n";
 
-Array references have an C<elements> method to dump their elements.
+Array references have a C<flatten> method to dump their elements.
 This is the same as C<< @{$array_ref} >>.
 
   my $arr = [ 1 .. 10 ];
-  print join " -- ", $arr->elements, "\n";
+  print join " -- ", $arr->flatten, "\n";
 
 Array references can be iterated on using C<for> and C<foreach>. Both take a code
 reference as the body of the for statement. 
 C<foreach> passes the current element itself in each pass.
 C<for> passes the index of the current element in to that code block, and then
 the current element, and then a reference to the array itself.
-
 
   my $arr = [ 1 .. 10 ];
   $arr->foreach(sub { print $_[0], "\n" });
@@ -123,13 +122,15 @@ Pass a regular expression created with C<< qr// >> and specify flags to the regu
 as part of the regular expression using the C<< (?imsx-imsx) >> syntax documented in L<perlre>.
 C<m> returns an array reference so that things such as C<map> and C<grep> may be called on the result.
 
-  use autobox;
-  use autobox::Core;
-
   my ($street_number, $street_name, $apartment_number) =
       "1234 Robin Drive #101"->m(qr{(\d+) (.*)(?: #(\d+))?})->elements;
 
   print "$street_number $street_name $apartment_number\n";
+
+C<split> is called on a non-reference scalar with the regular expression passed in. This is
+done for consistency with C<m> and C<s>.
+
+  print "10, 20, 30, 40"->split(qr{, ?})->elements, "\n";
 
 You may C<curry> code references:
 
@@ -174,7 +175,8 @@ C<each> on hashes. There is no good reason it is missing.
 =head1 BUGS
 
 Yes. Report them to the author, L<scott@slowass.net>.
-This code is not well tested.
+This code is not well tested. The API is not yet stable - Perl 6-ish things
+and local extensions are still being renamed.
 
 =head1 SEE ALSO
 
@@ -225,6 +227,7 @@ sub vec     ($$$) { CORE::vec($_[0], $_[1], $_[2]); }
 sub undef   ($)   { $_[0] = undef }
 sub m       ($$)  { [ $_[0] =~ m{$_[1]} ] }
 sub s       ($$$) { $_[0] =~ s{$_[1]}{$_[2]} }
+sub split   ($$)  { [ split $_[1], $_[0] ] }
 
 #       Numeric functions
 #           "abs", "atan2", "cos", "exp", "hex", "int", "log",
@@ -244,7 +247,11 @@ sub sqrt    ($)  { CORE::sqrt($_[0]) }
 
 # doesn't minipulate scalars but works on scalars
 
-sub print   ($;@) { print @_; }
+sub print   ($;@) { CORE::print @_; }
+
+# operators that work on scalars:
+
+sub concat ($;@)   { CORE::join '', @_; }
 
 #
 # HASH
@@ -255,10 +262,10 @@ package HASH;
 #       Functions for real %HASHes
 #           "delete", "each", "exists", "keys", "values"
 
-sub delete (\%@) { my $hash = CORE::shift; my @res = (); CORE::foreach(@_) { push @res, CORE::delete $hash->{$_}; } CORE::wantarray ? @res : $res[-1] }
+sub delete (\%@) { my $hash = CORE::shift; my @res = (); CORE::foreach(@_) { push @res, CORE::delete $hash->{$_}; } CORE::wantarray ? @res : \@res }
 sub exists (\%$) { my $hash = CORE::shift; CORE::exists $hash->{$_[0]}; }
-sub keys (\%) { CORE::keys %{$_[0]} }
-sub values (\%) { CORE::values %{$_[0]} }
+sub keys (\%) { [ CORE::keys %{$_[0]} ] }
+sub values (\%) { [ CORE::values %{$_[0]} ] }
 
 # local
 
@@ -281,6 +288,12 @@ sub ref   (\%)    { CORE::ref   $_[0] }
 
 sub undef   ($)   { $_[0] = {} }
 
+# okey, ::Util stuff should be core
+
+use Hash::Util;
+
+sub lock_keys (\%) { Hash::Util::lock_keys(%{$_[0]}); $_[0]; }
+
 #
 # ARRAY
 #
@@ -291,11 +304,11 @@ package ARRAY;
 #           "grep", "join", "map", "qw/STRING/", "reverse",
 #           "sort", "unpack"
 
-sub grep (\@&) { my $arr = CORE::shift; my $sub = CORE::shift; CORE::grep { $sub->($_) } @$arr; }
+sub grep (\@&) { my $arr = CORE::shift; my $sub = CORE::shift; [ CORE::grep { $sub->($_) } @$arr ]; }
 sub join (\@$) { my $arr = CORE::shift; my $sep = CORE::shift; CORE::join $sep, @$arr; }
-sub map (\@&) { my $arr = CORE::shift; my $sub = shift; CORE::map { $sub->($_) } @$arr; }
-sub reverse (\@) { CORE::reverse @{$_[0]} }
-sub sort (\@;&) { my $arr = CORE::shift; my $sub = CORE::shift() || sub { $a <=> $b }; CORE::sort { $sub->($a, $b) } @$arr; } 
+sub map (\@&) { my $arr = CORE::shift; my $sub = shift; [ CORE::map { $sub->($_) } @$arr ]; }
+sub reverse (\@) { [ CORE::reverse @{$_[0]} ] }
+sub sort (\@;&) { my $arr = CORE::shift; my $sub = CORE::shift() || sub { $a cmp $b }; [ CORE::sort { $sub->($a, $b) } @$arr ]; } 
 
 # functionalish stuff
 
@@ -327,6 +340,14 @@ sub size (\@) { my $arr = CORE::shift; CORE::scalar @$arr; }
 
 # misc
 
+sub each (\@$) { 
+    # same as foreach(), apo12 mentions this
+    my $arr = CORE::shift; my $sub = CORE::shift; 
+    foreach my $i (@$arr) {
+        $sub->($i);
+    }
+}
+
 sub foreach (\@$) { 
     my $arr = CORE::shift; my $sub = CORE::shift; 
     foreach my $i (@$arr) {
@@ -341,9 +362,12 @@ sub for (\@$) {
     }
 }
 
+sub print   (\@) { my $arr = CORE::shift; my @arr = @$arr; CORE::print "@arr"; }
+
 # local
 
 sub elements (\@) { ( @{$_[0]} ) }
+sub flatten (\@) { ( @{$_[0]} ) }
 
 #
 # CODE
@@ -357,6 +381,10 @@ sub ref   ($)    { CORE::ref   $_[0] }
 # perl 6-isms
 
 sub curry (\&) { my $code = CORE::shift; my @args = @_; sub { CORE::unshift @_, @args; goto &$code; }; }
+
+# local - polymorphic
+
+sub map (&@) { my $code = CORE::shift; [ CORE::map { $code->($_) } @_ ]; }
 
 1;
 
@@ -384,3 +412,4 @@ __DATA__
 
 
 
+# XXX array.random
