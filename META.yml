@@ -1,11 +1,14 @@
-# http://module-build.sourceforge.net/META-spec.html
-#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
-name:         autobox-Core
-version:      0.3
-version_from: Core.pm
-installdirs:  site
-requires:
+--- #YAML:1.0
+name:                autobox-Core
+version:             0.4
+abstract:            Perl built-in functions exposed as methods in primitive types
+license:             ~
+generated_by:        ExtUtils::MakeMaker version 6.32
+distribution_type:   module
+requires:     
     autobox:                       0.11
-
-distribution_type: module
-generated_by: ExtUtils::MakeMaker version 6.17
+meta-spec:
+    url:     http://module-build.sourceforge.net/META-spec-v1.2.html
+    version: 1.2
+author:
+    - Scott Walters scott@slowass.net
