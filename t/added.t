@@ -1,5 +1,5 @@
-use Test;
-BEGIN { plan tests => 64 };
+use Test::More;
+BEGIN { plan tests => 65 };
 use autobox;
 use autobox::Core;
 
@@ -118,6 +118,11 @@ ok($h->get('h') == 8);
 $h->set('i', 9);
 ok($h->get('i') == 9);
 
+is_deeply(
+  [ sort $h->flatten ],
+  [ sort %$h ],
+  "flattening gets us all the contents",
+);
 
 #####################################################################
 # Array

@@ -6,6 +6,7 @@ package autobox::Core;
 # style dereferences. in perl, you could say $hashref->foo and $arrayref->5.
 # okey, $arrayref->5 is invalid syntax. you'd have to say $five = 5; $arrayref->$five.
 # hrm.
+# on second thought, I think that's a different module.
 
 # XXX support 'my IO::Handle $io; $io->open('<', $fn);'. undef values belonging to
 # SVs having associated types should dispatch to that class. of course, just using
@@ -18,13 +19,13 @@ use 5.8.0;
 use strict;
 use warnings;
 
-our $VERSION = '0.4';
+our $VERSION = '0.5';
 
 =pod
 
 =head1 NAME
 
-autobox::Core - Perl built-in functions exposed as methods in primitive types
+autobox::Core - Methods for core built-in functions in primitive types
 
 =head1 SYNOPSIS
 
@@ -36,8 +37,8 @@ autobox::Core - Perl built-in functions exposed as methods in primitive types
 =head1 DESCRIPTION
 
 Methods wrapping F<perl>'s built-in functions for minipulating numbers, strings, arrays,
-hashes, and code references. It is handy to use built-in functions as methods to avoid
-messy dereferencing syntaxes and parenthesis pile ups.
+hashes, and code references. It can be handy to use built-in functions as methods to avoid
+messy dereferencing syntaxes and parentheses pile ups.
 
 L<autobox> lets you call methods in scalars that aren't object references.
 Numbers, strings, scalars containing numbers, scalars containing strings,
@@ -423,11 +424,16 @@ I<Here ends the text quoted from the Perl 6 Now manuscript.>
 
 =head1 BUGS
 
-Yes. R eport them to the author, L<scott@slowass.net>.
+Yes. Report them to the author, L<scott@slowass.net>.
 The API is not yet stable -- Perl 6-ish things and local extensions are still being renamed.
 
 
 =head1 HISTORY
+
+Version 0.5 has an $arrayref->unshift bug fix and and a new flatten method for hashes.
+Also, this version is untested because my Hash::Util stopped working, dammit.
+
+Version 0.4 got numeric operations, if I remember.
 
 Version 0.3 fixes a problem where C<unpack> wasn't sure it had enough arguments
 according to a test introduced in Perl 5.8.6 or perhaps 5.8.5.
@@ -441,25 +447,33 @@ Version 0.1 was woefully incomplete.
 
 =head1 SEE ALSO
 
-L<autobox>.
+=over 1
 
-L<Perl6::Contexts>.
+=item L<autobox>
 
-Perl 6: L<< http://dev.perl.org/perl6/apocalypse/ >>.
+=item L<Moose::Autobox>
 
-(Shameless plug alert!) I<Perl 6 Now: The Core Ideas Illustrated with Perl 5>
+=item L<Perl6::Contexts>
+
+=item Perl 6: L<< http://dev.perl.org/perl6/apocalypse/ >>.
+
+=item (Shameless plug:) I<Perl 6 Now: The Core Ideas Illustrated with Perl 5>
 dedicates a sizable portion of Chapter 14, Objects, to autoboxing
 and the idea is used heavily throughout the book. Chapter 8, Data Structures,
 also has numerous examples.
 See L<http://perl6now.com> or look for ISBN 1-59059-395-2 at your favorite
 bookstore for more information.
 
+=back
+
 
 =head1 AUTHOR
 
 Scott Walters, L<scott@slowass.net>.
 Thanks to Matt Spear, who contributed tests and definitions for numeric operations.
-Thanks to chocolateboy for L<autobox> and for the encouragement!
+Ricardo SIGNES contributed patches.
+Mitchell N Charity reported a bug and sent a fix.
+Thanks to chocolateboy for L<autobox> and for the encouragement.
 
 =cut
 
@@ -594,6 +608,8 @@ sub get(\%@) { $_[0]->{@_[1..$#_]}; }
 sub put(\%%) { my $h = CORE::shift @_; my %h = @_; while(my ($k, $v) = CORE::each %h) { $h->{$k} = $v; }; $h; }
 sub set(\%%) { my $h = CORE::shift @_; my %h = @_; while(my ($k, $v) = CORE::each %h) { $h->{$k} = $v; }; $h; }
 
+sub flatten(\%) { %{$_[0]} }
+
 # local
 
 sub each (\%$) {
@@ -670,7 +686,7 @@ sub min(\@) { my $arr = CORE::shift; my $min = $arr->[0]; foreach (@$arr) {$min 
 
 sub pop (\@) { CORE::pop @{$_[0]}; }
 sub push (\@;@) { my $arr = CORE::shift; CORE::push @$arr, @_;  $arr; }
-sub unshift (\@;@) { CORE::unshift @{$_[0]}, @_; $_[0]; }
+sub unshift (\@;@) { my $a = CORE::shift; CORE::unshift(@$a, @_); $a; }
 sub delete (\@$) { my $arr = CORE::shift; CORE::delete $arr->[$_[0]] }
 sub vdelete(\@$) { my $arr = CORE::shift; @$arr = CORE::grep {$_ ne $_[0]} @$arr; }
 sub shift (\@;@) { my $arr = CORE::shift; CORE::shift @$arr; } # last to prevent having to prefix normal shift calls with CORE::

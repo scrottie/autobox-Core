@@ -1,14 +1,14 @@
 --- #YAML:1.0
 name:                autobox-Core
-version:             0.4
-abstract:            Perl built-in functions exposed as methods in primitive types
+version:             0.5
+abstract:            Methods for core built-in functions in primitive types
 license:             ~
-generated_by:        ExtUtils::MakeMaker version 6.32
+author:              
+    - Scott Walters scott@slowass.net
+generated_by:        ExtUtils::MakeMaker version 6.44
 distribution_type:   module
 requires:     
     autobox:                       0.11
 meta-spec:
-    url:     http://module-build.sourceforge.net/META-spec-v1.2.html
-    version: 1.2
-author:
-    - Scott Walters scott@slowass.net
+    url:     http://module-build.sourceforge.net/META-spec-v1.3.html
+    version: 1.3
