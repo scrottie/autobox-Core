@@ -19,7 +19,20 @@ use 5.8.0;
 use strict;
 use warnings;
 
-our $VERSION = '0.5';
+our $VERSION = '0.6';
+
+use base qw(autobox);
+
+# appending the user-supplied arguments allows autobox::Core options to be overridden
+# or extended in the same statement e.g.
+#
+#    use autobox::Core UNDEF     => 'MyUndef';          # also autobox undef
+#    use autobox::Core CODE      =>  undef;             # don't autobox CODE refs
+#    use autobox::Core UNIVERSAL => 'Data::Dumper';     # enable a Dumper() method for all types
+
+sub import {
+    shift->SUPER::import(DEFAULT => 'autobox::Core::', @_);
+}
 
 =pod
 
@@ -29,7 +42,6 @@ autobox::Core - Methods for core built-in functions in primitive types
 
 =head1 SYNOPSIS
 
-  use autobox;
   use autobox::Core;
 
   "Hello, World\n"->uc()->print();
@@ -111,7 +123,6 @@ This is the same as C<< @{$array_ref} >>.
 Under L<Perl6::Contexts>, you'll often need to write code equivalent to the follow:
 
   use Perl6::Contexts;
-  use autobox;
   use autobox::Core;
 
   my @arr = ( 1 .. 10 );
@@ -157,6 +168,8 @@ C<split> is called on a non-reference scalar with the regular expression passed 
 done for consistency with C<m> and C<s>.
 
   print "10, 20, 30, 40"->split(qr{, ?})->elements, "\n";
+
+C<strip> strips out whitespace from the beginning and end of a string.
 
 You may C<curry> code references:
 
@@ -349,7 +362,6 @@ Here it is again:
 
 This section deals with the last two of these equivalents.
 These are method calls
-  use autobox;
   use autobox::Core;
   use Perl6::Contexts;
 
@@ -366,7 +378,8 @@ of use of autoboxing.
 Providing no other arguments to the method calls, however, is not common.
 
 F<Perl6::Contexts> recognizes object context as provided by C<< -> >> and
-coerces C<%hash> into a reference, suitable for use with F<autobox>.
+coerces C<%hash> and C<@array> into references, suitable for use with F<autobox>.
+(Note that F<autobox> also does this automatically as of version 2.40.)
 F<autobox> associates primitive types, such as references of various sorts, with classes.
 F<autobox::Core> throws into those classes methods wrapping Perl's built-in functions.
 In the interest of full disclosure, F<Perl6::Contexts> and F<autobox::Core> are my creations.
@@ -414,9 +427,9 @@ This could also have been written:
            ->print;                          # print them all out
 
 C<map()> is X<polymorphic>.
-The C<map()> method defined in the C<CODE> package takes for its arguments the things
+The C<map()> method defined in the C<autobox::Core::CODE> package takes for its arguments the things
 to map.
-The C<map()> method defined in the C<ARRAY> package takes for its argument a code reference
+The C<map()> method defined in the C<autobox::Core::ARRAY> package takes for its argument a code reference
 to apply to each element of the array.
 
 I<Here ends the text quoted from the Perl 6 Now manuscript.>
@@ -429,6 +442,13 @@ The API is not yet stable -- Perl 6-ish things and local extensions are still be
 
 
 =head1 HISTORY
+
+Version 0.6 propogates arguments to C<autobox> and doesn't require you to use
+C<autobox>.  I still can't test it and am applying patches blindly.  Maybe I'll
+drop the Hash::Util dep in the next version since it and Scalar::Util are
+constantly wedging on my system.
+The documentation needs to be updated and mention of Perl6::Contexts mostly removed.
+Also, JJ contributed a C<strip> method for scalars - thanks JJ!
 
 Version 0.5 has an $arrayref->unshift bug fix and and a new flatten method for hashes.
 Also, this version is untested because my Hash::Util stopped working, dammit.
@@ -470,8 +490,9 @@ bookstore for more information.
 =head1 AUTHOR
 
 Scott Walters, L<scott@slowass.net>.
-Thanks to Matt Spear, who contributed tests and definitions for numeric operations.
+Also, JJ contributed a C<strip> method for scalars - thanks JJ!  (Is it wrong to cut and paste documentation?)
 Ricardo SIGNES contributed patches.
+Thanks to Matt Spear, who contributed tests and definitions for numeric operations.
 Mitchell N Charity reported a bug and sent a fix.
 Thanks to chocolateboy for L<autobox> and for the encouragement.
 
@@ -481,7 +502,7 @@ Thanks to chocolateboy for L<autobox> and for the encouragement.
 # SCALAR
 #
 
-package SCALAR;
+package autobox::Core::SCALAR;
 
 #       Functions for SCALARs or strings
 #          "chomp", "chop", "chr", "crypt", "hex", "index", "lc",
@@ -552,6 +573,7 @@ sub say     ($;@) { CORE::print @_, "\n"}
 # operators that work on scalars:
 
 sub concat ($;@)   { CORE::join '', @_; }
+sub strip  ($)     { my $s = CORE::shift; $s =~ s/^\s+//; $s =~ s/\s+$//; $s }
 
 # operator schizzle
 sub add($$) { $_[0] + $_[1]; }
@@ -593,7 +615,7 @@ sub xor($$) { $_[0] ^ $_[1]; }
 # HASH
 #
 
-package HASH;
+package autobox::Core::HASH;
 
 #       Functions for real %HASHes
 #           "delete", "each", "exists", "keys", "values"
@@ -641,7 +663,7 @@ sub lock_keys (\%) { Hash::Util::lock_keys(%{$_[0]}); $_[0]; }
 # ARRAY
 #
 ##############################################################################################
-package ARRAY;
+package autobox::Core::ARRAY;
 
 #       Functions for list data
 #           "grep", "join", "map", "qw/STRING/", "reverse",
@@ -752,7 +774,7 @@ sub flatten (\@) { ( @{$_[0]} ) }
 # CODE
 #
 
-package CODE;
+package autobox::Core::CODE;
 
 sub bless ($$)   { CORE::bless $_[0], $_[1] }
 sub ref   ($)    { CORE::ref   $_[0] }
