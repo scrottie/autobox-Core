@@ -1,5 +1,5 @@
 use Test::More;
-BEGIN { plan tests => 68 };
+BEGIN { plan tests => 69 };
 use autobox::Core;
 
 #####################################################################
@@ -159,7 +159,8 @@ $a = $a->uniq;
 ok($a->count(1) == 1 && $a->count(4) == 1);
 
 ok($a->first == 0);
-ok($a->first(sub { m/3/ }) == 3);
+ok($a->first(sub { m/4/ }) == 4);
+ok($a->first(qr/4/) == 4);
 
 $a = 1->to(10);
 $a->unshift(100);

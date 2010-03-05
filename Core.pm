@@ -166,6 +166,13 @@ C<mge> is C<< >= >>.  C<<mle>> is C<< <= >>.  I'm not sure where the "m" came fr
 
 C<sub> is subtract, I think, but it should not be named the same as the anonymous subroutine constructor XXX.
 
+*is_number = \&Scalar::Util::looks_like_number;
+sub is_positive         { $_[0]->is_number && $_[0] > 0 }
+sub is_negative         { $_[0]->is_number && $_[0] < 0 } 
+sub is_integer          { $_[0]->is_number && ((int($_[0]) - $_[0]) == 0) }
+*is_int = \&is_integer;
+sub is_decimal          { $_[0]->is_number && ((int($_[0]) - $_[0]) != 0) }
+
 That's it.
 
 
@@ -185,10 +192,6 @@ C<quotemeta> works on non-reference scalars, along with C<split>, C<m>, and C<s>
 C<ref> is the same as the C<ref> keyword in that it tells you what kind of a reference something is if it's a 
 reference; XXX there's currently no counterpart to the C<< \ >> operator, which takes something and gives you
 a reference to it.
-
-C<times> executes a coderef a given number of times:
-
-  5->times(sub { print "hi\n"});   # XXX likely to change but it's in the code so bloody doc it so I have incentive to rethink it
 
 
 =head3 Array Methods
@@ -232,6 +235,8 @@ Methods for array creation:  C<to>, C<upto>, and C<downto>.
 
 These wrap the C<..> operator.
 
+  $arr->first(sub { /5/ });
+
 
 =head3 Hash Methods
 
@@ -254,6 +259,9 @@ C<m> returns an array reference so that things such as C<map> and C<grep> may be
 
   print "$street_number $street_name $apartment_number\n";
 
+
+=head3 Code Methods
+
 You may C<curry> code references:
 
   $adding_up_numbers = sub {
@@ -265,6 +273,10 @@ You may C<curry> code references:
   my $adding_five_to_numbers = $adding_up_numbers->curry(5);
 
   $adding_five_to_numbers->(20)->print; "\n"->print;
+
+C<times> executes a coderef a given number of times:
+
+  5->times(sub { print "hi\n"});   # XXX likely to change but it's in the code so bloody doc it so I have incentive to rethink it
 
 XXX round this out
 
@@ -294,7 +306,7 @@ take no arguments,
 or don't make sense as part of the string, number, array, hash, or code API.
 C<srand> because you probably shouldn't be using it.
 
-C<each> on hashes. There is no good reason it is missing.
+C<each> on hashes. There is no good reason it is missing.  XXX.
 
 
 =head2 Autoboxing
@@ -524,12 +536,12 @@ The API is not yet stable -- Perl 6-ish things and local extensions are still be
 
 =head1 HISTORY
 
-Version 0.8 adds the LICENSE section, as requested.  
-Use C<< ~~ >> on C<< @array->grep >> if we're using 5.10 or newer.
-
 Version 0.7 uses autobox itself so you don't have to, as requested, and
 ... oh hell.  I started editing this to fix Schwern's reported v-string
 warning, but I'm not seeing it.
+Use C<< ~~ >> on C<< @array->grep >> if we're using 5.10 or newer.
+Add an explicit LICENSE section per request.
+Took many tests and utility functions from L<perl5i>.
 
 Version 0.6 propogates arguments to C<autobox> and doesn't require you to use
 C<autobox>.  I still can't test it and am applying patches blindly.  Maybe I'll
@@ -782,6 +794,29 @@ sub trim {
     
     return rtrim(ltrim($_[0], $charset), $charset);
 }
+
+# POSIX is huge
+#require POSIX;
+#*ceil  = \&POSIX::ceil;
+#*floor = \&POSIX::floor;
+#*round_up   = \&ceil;
+#*round_down = \&floor;
+#sub round {
+#    abs($_[0] - int($_[0])) < 0.5 ? round_down($_[0])
+#                                  : round_up($_[0])
+#}   
+    
+require Scalar::Util;
+*is_number = \&Scalar::Util::looks_like_number;
+sub is_positive         { $_[0]->is_number && $_[0] > 0 }
+sub is_negative         { $_[0]->is_number && $_[0] < 0 } 
+sub is_integer          { $_[0]->is_number && ((CORE::int($_[0]) - $_[0]) == 0) }
+*is_int = \&is_integer;
+sub is_decimal          { $_[0]->is_number && ((CORE::int($_[0]) - $_[0]) != 0) }
+
+
+##########################################################
+
 #
 # HASH
 #
@@ -884,7 +919,14 @@ sub grep {
         *grep = sub {
              my $arr = CORE::shift; 
              my $filter = CORE::shift; 
-             my @result = CORE::grep { $filter->($_) } @$arr;
+             my @result;
+             if( CORE::ref $filter eq 'Regexp' ) {
+                 @result = CORE::grep { m/$filter/ } @$arr;
+             } elsif( ! ref $filter ) {
+                 @result = CORE::grep { $filter eq $_ } @$arr;  # find all of the exact matches
+             } else {
+                 @result = CORE::grep { $filter->($_) } @$arr;
+             }
              return wantarray ? @result : \@result;
         };
     }
@@ -900,15 +942,23 @@ sub map {
 }
 
 sub join { my $arr = CORE::shift; my $sep = CORE::shift; CORE::join $sep, @$arr; }
-sub reverse { [ CORE::reverse @{$_[0]} ] }
-sub sort { my $arr = CORE::shift; my $sub = CORE::shift() || sub { $a cmp $b }; [ CORE::sort { $sub->($a, $b) } @$arr ]; }
+
+sub reverse { my @res = CORE::reverse @{$_[0]}; wantarray ? @res : \@res; }
+
+sub sort { 
+    my $arr = CORE::shift; 
+    my $sub = CORE::shift() || sub { $a cmp $b }; 
+    my @res = CORE::sort { $sub->($a, $b) } @$arr; 
+    return wantarray ? @res : \@res;
+}
 
 # functionalish stuff
 
 sub sum { my $arr = CORE::shift; my $res = 0; $res += $_ foreach(@$arr); $res; }
+
 sub mean { my $arr = CORE::shift; my $res = 0; $res += $_ foreach(@$arr); $res/@$arr; }
-sub var
-{
+
+sub var {
 	my $arr = CORE::shift;
 	my $mean = 0;
 	$mean += $_ foreach(@$arr);
@@ -917,8 +967,8 @@ sub var
 	$res += ($_-$mean)**2 foreach (@$arr);
 	$res/@$arr;
 }
-sub svar(\@)
-{
+
+sub svar(\@) {
 	my $arr = CORE::shift;
 	my $mean = 0;
 	$mean += $_ foreach(@$arr);
@@ -929,31 +979,44 @@ sub svar(\@)
 }
 
 sub max(\@) { my $arr = CORE::shift; my $max = $arr->[0]; foreach (@$arr) {$max = $_ if $_ > $max }; $max; }
+
 sub min(\@) { my $arr = CORE::shift; my $min = $arr->[0]; foreach (@$arr) {$min = $_ if $_ < $min }; $min; }
 
 #       Functions for real @ARRAYs
 #           "pop", "push", "shift", "splice", "unshift"
 
 sub pop (\@) { CORE::pop @{$_[0]}; }
+
 sub push (\@;@) { my $arr = CORE::shift; CORE::push @$arr, @_;  $arr; }
+
 sub unshift (\@;@) { my $a = CORE::shift; CORE::unshift(@$a, @_); $a; }
+
 sub delete (\@$) { my $arr = CORE::shift; CORE::delete $arr->[$_[0]] }
+
 sub vdelete(\@$) { my $arr = CORE::shift; @$arr = CORE::grep {$_ ne $_[0]} @$arr; }
+
 sub shift (\@;@) { my $arr = CORE::shift; CORE::shift @$arr; } # last to prevent having to prefix normal shift calls with CORE::
 
 sub undef   ($)   { $_[0] = [] }
 
 # doesn't modify array
+
 sub exists (\@$) { my $arr = CORE::shift; CORE::scalar(CORE::grep {$_ eq $_[0]} @$arr) > 0; }
+
 sub at(\@$) { my $arr = CORE::shift; $arr->[$_[0]]; }
+
 sub count(\@$) { my $arr = CORE::shift; scalar(CORE::grep {$_ eq $_[0]} @$arr); }
+
 sub uniq(\@) { my $arr = CORE::shift; my %h; [ CORE::map { $h{$_}++ == 0 ? $_ : () } @$arr ] } # shamelessly from List::MoreUtils
 
 # tied and blessed
 
 sub bless (\@$)   { CORE::bless $_[0], $_[1] }
+
 sub tie   (\@$;@) { CORE::tie   $_[0], @_[1 .. $#_] }
+
 sub tied  (\@)    { CORE::tied  $_[0] }
+
 sub ref   (\@)    { CORE::ref   $_[0] }
 
 # perl 6-ish extensions to Perl 5 core stuff
@@ -971,11 +1034,10 @@ sub first {
                  my ( $array, $filter ) = @_;
                  # Deep recursion and segfault (lines 90 and 91 in first.t) if we use
                  # the same elegant approach as in grep().
-                 if ( ! $filter ) {
+                 if ( @_ == 1 ) {
                      return $array->[0];
                  } elsif ( CORE::ref $filter eq "Regexp" ) {
-                     my @res = List::Util::first( sub { $_ ~~ $filter }, @$array );
-                     return wantarray ? @res : \@res;
+                     return List::Util::first( sub { $_ ~~ $filter }, @$array );
                  } else {
                      return List::Util::first( sub { $filter->() }, @$array );
                  }
@@ -984,25 +1046,28 @@ sub first {
     } else {
         *first = sub {
             my ( $array, $filter ) = @_;
-            if ( ! $filter ) {
-                 return $array->[0];
+            if ( @_ == 1 ) {
+                return $array->[0];
+            } elsif ( CORE::ref $filter eq "Regexp" ) {
+                return List::Util::first( sub { $_ =~ m/$filter/ }, @$array );
+            } else { 
+                return List::Util::first( sub { $filter->() }, @$array );
             }
-            my @res = List::Util::first( sub { $filter->() }, @$array );
-            return wantarray ? @res : \@res;
         };
     }
     autobox::Core::ARRAY::first(@_);
 }
 
-sub last_index (\@) { my $arr = CORE::shift; $#$arr; }
-sub size (\@) { my $arr = CORE::shift; CORE::scalar @$arr; }
-sub elems (\@) { my $arr = CORE::shift; CORE::scalar @$arr; } # Larry announced it would be elems, not size
-sub length (\@) { my $arr = CORE::shift; CORE::scalar @$arr; }
+sub last_index { my $arr = CORE::shift; $#$arr; }
+sub size { my $arr = CORE::shift; CORE::scalar @$arr; }
+sub elems { my $arr = CORE::shift; CORE::scalar @$arr; } # Larry announced it would be elems, not size
+sub length { my $arr = CORE::shift; CORE::scalar @$arr; }
 
 # misc
 
 sub each {
     # same as foreach(), apo12 mentions this
+    # XXX should we try to build a result list if we're in non-void context?
     my $arr = CORE::shift; my $sub = CORE::shift;
     foreach my $i (@$arr) {
         $sub->($i);
@@ -1039,16 +1104,16 @@ sub flatten { ( @{$_[0]} ) }
 
 package autobox::Core::CODE;
 
-sub bless ($$)   { CORE::bless $_[0], $_[1] }
-sub ref   ($)    { CORE::ref   $_[0] }
+sub bless    { CORE::bless $_[0], $_[1] }
+sub ref       { CORE::ref   $_[0] }
 
 # perl 6-isms
 
-sub curry (\&) { my $code = CORE::shift; my @args = @_; sub { CORE::unshift @_, @args; goto &$code; }; }
+sub curry  { my $code = CORE::shift; my @args = @_; sub { CORE::unshift @_, @args; goto &$code; }; }
 
 # local - polymorphic
 
-sub map (&@) { my $code = CORE::shift; [ CORE::map { $code->($_) } @_ ]; }
+sub map  { my $code = CORE::shift; my @res = CORE::map { $code->($_) } @_; wantarray ? @res : \@res; }
 
 1;
 
