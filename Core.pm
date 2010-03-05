@@ -29,7 +29,7 @@ package autobox::Core;
 # o. "If this goes over well, I'll make L<Langauge::Functional> a dependency and expose its function as methods on the correct data types. Or maybe I will do this anyway."
 # o. C<each> on hashes. There is no good reason it is missing.
 
-use 5.8.0;
+use 5.008;
 
 use strict;
 use warnings;
@@ -114,7 +114,60 @@ Here's a small sample:
 
 Of the built-in stuff, only a few stragglers such as C<srand> were excluded.
 
+
+=head3 Scalar String Related Methods
+
+C<concat> is the C<.> operator.
+
+C<strip> is not a built-in operator or function but is instead one of a number of user-defined
+convinience methods.
+C<strip> strips out whitespace from the beginning and end of a string.
+This is redundant and subtely different from C<trim> XXX.
+
+C<trim> strips out whitespace from the beginning and end of a string.
+
 C<title_case>, C<center>, C<ltrim>, C<rtrim>, and C<trim> were taken from L<perl5i>.
+
+C<split> is called on a non-reference scalar with the regular expression passed in. This is
+done for consistency with C<m> and C<s>.
+
+  print "10, 20, 30, 40"->split(qr{, ?})->elements, "\n";
+
+C<chomp>, C<chop>, C<chr>, C<crypt>, C<index>, C<lc>, C<lcfirst>, C<length>, C<ord>,
+C<pack>, C<reverse>, C<rindex>, C<sprintf>, C<substr>, 
+C<uc>, C<ucfirst>, C<unpack>, C<quotemeta>, C<vec>, C<undef>, C<m>, C<nm>, C<s>, C<split>.
+C<eval>, C<system>, and C<backtick>.
+
+C<m> matches:  C<< $foo->m(/bar/) >> corresponds to C<< $foo =~ m/bar/ >>.
+C<nm> corresponds to C<< !~ >>.
+C<s> corresponds to C<< =~ s/// >>.
+
+C<undef> assigns C<undef> to the value.  It is not a test.
+XXX for some reason, there's no C<defined>.
+
+
+=head3 I/O
+
+C<print> and C<say>.
+
+
+=head3 Number Related Methods
+
+C<abs>, C<atan2>, C<cos>, C<exp>, C<int>, C<log>, C<oct>, C<hex>, C<rand>, C<sin>, and C<sqrt> are named after
+the built-in functions of the same name.
+
+Operators were given names as follows:  C<add>, C<and>, C<band>, C<bor>, C<bxor>, C<cmp>, C<dec>, C<div>, C<eq>, C<flip>, C<ge>, C<gt>, C<inc>, C<le>, C<lshift>, C<lt>, C<mod>, C<mult>, C<mcmp>, C<ne>, C<neg>, C<meq>, C<mge>, C<mgt>, C<mle>, C<mlt>, C<mne>, C<not>, C<or>, C<pow>, C<rpt>, C<rshift>, C<sub>, C<xor>.
+
+C<flip> is C<~> which is the binary (rather than boolean) "not".
+
+C<lshift> is C<< << >> and C<rshift> is C<<< >> >>>.
+
+C<mge> is C<< >= >>.  C<<mle>> is C<< <= >>.  I'm not sure where the "m" came from.
+
+C<sub> is subtract, I think, but it should not be named the same as the anonymous subroutine constructor XXX.
+
+That's it.
+
 
 =head3 Reference Related Methods
 
@@ -137,98 +190,6 @@ C<times> executes a coderef a given number of times:
 
   5->times(sub { print "hi\n"});   # XXX likely to change but it's in the code so bloody doc it so I have incentive to rethink it
 
-=head3 Scalar String Related Methods
-
-C<chomp>, C<chop>, C<chr>, C<crypt>, C<index>, C<lc>, C<lcfirst>, C<length>, C<ord>,
- C<pack>, C<reverse>, C<rindex>, C<sprintf>, C<substr>, 
-C<uc>, C<ucfirst>, C<unpack>, C<quotemeta>, C<vec>, C<undef>, C<m>, C<nm>, C<s>, C<split>.
-C<eval>, C<system>, and C<backtick>.
-
-C<m> matches:  C<< $foo->m(/bar/) >> corresponds to C<< $foo =~ m/bar/ >>.
-C<nm> corresponds to C<< !~ >>.
-C<s> corresponds to C<< =~ s/// >>.
-
-C<undef> assigns C<undef> to the value.  It is not a test.
-XXX for some reason, there's no C<defined>.
-
-=head3 Scalar Number Related Methods
-
-
-sub abs     ($)  { CORE::abs($_[0]) }
-sub atan2   ($)  { CORE::atan2($_[0], $_[1]) }
-sub cos     ($)  { CORE::cos($_[0]) }
-sub exp     ($)  { CORE::exp($_[0]) }
-sub int     ($)  { CORE::int($_[0]) }
-sub log     ($)  { CORE::log($_[0]) }
-sub oct     ($)  { CORE::oct($_[0]) }
-sub hex     ($)  { CORE::hex($_[0]); }
-sub rand    ($)  { CORE::rand($_[0]) }
-sub sin     ($)  { CORE::sin($_[0]) }
-sub sqrt    ($)  { CORE::sqrt($_[0]) }
-
-# functions for array creation
-sub to ($$) { $_[0] < $_[1] ? [$_[0]..$_[1]] : [CORE::reverse $_[1]..$_[0]]}
-sub upto ($$) { [ $_[0]..$_[1] ] }
-sub downto ($$) { [ CORE::reverse $_[1]..$_[0] ] }
-
-# just weird, but cool
-sub times ($&) { for (0..$_[0]-1) { $_[1]->($_); }; $_[0]; }
-# suggested but bombs test
-#sub times ($;&) {
-#    if ($_[1]) {
-#      for (0..$_[0]-1) { $_[1]->($_); }; $_[0];
-#    } else {
-#        0..$_[0]-1
-#    }
-#}
-
-# doesn't minipulate scalars but works on scalars
-
-sub print   ($;@) { CORE::print @_; }
-sub say     ($;@) { CORE::print @_, "\n"}
-
-# operators that work on scalars:
-
-sub concat ($;@)   { CORE::join '', @_; }
-sub strip  ($)     { my $s = CORE::shift; $s =~ s/^\s+//; $s =~ s/\s+$//; $s }
-
-# operator schizzle
-sub add($$) { $_[0] + $_[1]; }
-sub and($$) { $_[0] && $_[1]; }
-sub band($$) { $_[0] & $_[1]; }
-sub bor($$) { $_[0] | $_[1]; }
-sub bxor($$) { $_[0] ^ $_[1]; }
-sub cmp($$) { $_[0] cmp $_[1]; }
-sub dec($) { my $t = CORE::shift @_; --$t; }
-sub div($$) { $_[0] / $_[1]; }
-sub eq($$) { $_[0] eq $_[1]; }
-sub flip($) { ~$_[0]; }
-sub ge($$) { $_[0] ge $_[1]; }
-sub gt($$) { $_[0] gt $_[1]; }
-sub inc($) { my $t = CORE::shift @_; ++$t; }
-sub le($$) { $_[0] le $_[1]; }
-sub lshift($$) { $_[0] << $_[1]; }
-sub lt($$) { $_[0] lt $_[1]; }
-sub mod($$) { $_[0] % $_[1]; }
-sub mult($$) { $_[0] * $_[1]; }
-sub mcmp($$) { $_[0] <=> $_[1]; }
-sub ne($$) { $_[0] ne $_[1]; }
-sub neg($) { -$_[0]; }
-sub meq($$) { $_[0] == $_[1]; }
-sub mge($$) { $_[0] >= $_[1]; }
-sub mgt($$) { $_[0] > $_[1]; }
-sub mle($$) { $_[0] <= $_[1]; }
-sub mlt($$) { $_[0] < $_[1]; }
-sub mne($$) { $_[0] != $_[1]; }
-sub not($) { !$_[0]; }
-sub or($$) { $_[0] || $_[1]; }
-sub pow($$) { $_[0] ** $_[1]; }
-sub rpt($$) { $_[0] x $_[1]; }
-sub rshift($$) { $_[0] >> $_[1]; }
-sub sub($$) { $_[0] - $_[1]; }
-sub xor($$) { $_[0] ^ $_[1]; }
-
-XXX round this section out
 
 =head3 Array Methods
 
@@ -239,7 +200,7 @@ Array references can tell you how many elements they contain and the index of th
 
   my $arr = [ 1 .. 10 ];
   print '$arr contains ', $arr->size,
-        ' elements, the last having an index of ', $arr->last_idx, "\n";
+        ' elements, the last having an index of ', $arr->last_index, "\n";
 
 Array references have a C<flatten> method to dump their elements.
 This is the same as C<< @{$array_ref} >>.
@@ -263,11 +224,14 @@ C<sum> is a toy poke at doing L<Language::Functional>-like stuff:
 
 XXX round this out
 
+Methods for array creation:  C<to>, C<upto>, and C<downto>.
+
   1->to(5);      # creates [1, 2, 3, 4, 5]
   1->upto(5);    # creates [1, 2, 3, 4, 5]
   5->downto(5);  # creates [5, 4, 3, 2, 1]
 
 These wrap the C<..> operator.
+
 
 =head3 Hash Methods
 
@@ -290,13 +254,6 @@ C<m> returns an array reference so that things such as C<map> and C<grep> may be
 
   print "$street_number $street_name $apartment_number\n";
 
-C<split> is called on a non-reference scalar with the regular expression passed in. This is
-done for consistency with C<m> and C<s>.
-
-  print "10, 20, 30, 40"->split(qr{, ?})->elements, "\n";
-
-C<strip> strips out whitespace from the beginning and end of a string.
-
 You may C<curry> code references:
 
   $adding_up_numbers = sub {
@@ -309,20 +266,13 @@ You may C<curry> code references:
 
   $adding_five_to_numbers->(20)->print; "\n"->print;
 
-These work on numbers:
-
-C<add>, C<and>, C<band>, C<bor>, C<bxor>, C<cmp>, C<dec>, C<div>, C<eq>, C<flip>, C<ge>, C<gt>, C<inc>, C<le>, C<lshift>, C<lt>, C<mod>, C<mult>, C<mcmp>, C<ne>, C<neg>, C<meq>, C<mge>, C<mgt>, C<mle>, C<mlt>, C<mne>, C<not>, C<or>, C<pow>, C<rpt>, C<rshift>, C<sub>, C<xor>.
-
-That's it.
-
 XXX round this out
+
 
 =head2 What's Missing?
 
 Many operators.  I'm tired.  I'll do it in the morning.  Maybe.  Send me a patch.
 Update:  Someone sent me a patch for numeric operations.
-
-XXX document the numeric operator functions
 
 File and socket operations are already implemented in an object-oriented fashion
 care of L<IO::Handle>, L<IO::Socket::INET>, and L<IO::Any>.
@@ -1044,12 +994,10 @@ sub first {
     autobox::Core::ARRAY::first(@_);
 }
 
-sub last_idx (\@) { my $arr = CORE::shift; $#$arr; }
+sub last_index (\@) { my $arr = CORE::shift; $#$arr; }
 sub size (\@) { my $arr = CORE::shift; CORE::scalar @$arr; }
 sub elems (\@) { my $arr = CORE::shift; CORE::scalar @$arr; } # Larry announced it would be elems, not size
 sub length (\@) { my $arr = CORE::shift; CORE::scalar @$arr; }
-
-# XXXXXXXXX arr->slice(n, n, n)
 
 # misc
 
