@@ -17,8 +17,8 @@ package autobox::Core;
 # TODO:
 
 # o. perl6now.com is bjorked
-# o. regenerate README
-# o. docs should show @arr->whatever syntax that works in non-antique autoboxes.
+# v/ regenerate README
+# v/ docs should show @arr->whatever syntax that works in non-antique autoboxes.
 # v/ steal perl5i's tests too
 # o. steal perl5i's docs too
 # o. IO::Any?
@@ -34,7 +34,7 @@ use 5.008;
 use strict;
 use warnings;
 
-our $VERSION = '0.07';
+our $VERSION = '0.7';
 
 use autobox;
 use base 'autobox';
@@ -196,10 +196,17 @@ a reference to it.
 
 =head3 Array Methods
 
+Array methods work on both arrays and array references:
+
   my $arr = [ 1 .. 10 ];
   $arr->undef;
 
-Array references can tell you how many elements they contain and the index of their last element:
+Or:
+
+  my @arr = [ 1 .. 10 ];
+  @arr->undef;
+
+Arrays can tell you how many elements they contain and the index of their last element:
 
   my $arr = [ 1 .. 10 ];
   print '$arr contains ', $arr->size,
@@ -209,9 +216,19 @@ Array references have a C<flatten> method to dump their elements.
 This is the same as C<< @{$array_ref} >>.
 
   my $arr = [ 1 .. 10 ];
-  print join " -- ", $arr->flatten, "\n";
+  print join ' -- ', $arr->flatten, "\n";
 
-Array references can be iterated on using C<for> and C<foreach>. Both take a code
+List context forces methods to return a list:
+
+  my @arr = ( 1 .. 10 );
+  print join ' -- ', @arr->grep(sub { $_ > 3 }), "\n";
+
+Methods may be chained; scalar context forces methods to return a reference:
+
+  my @arr = ( 1 .. 10 );
+  print @arr->grep(sub { $_ > 3 })->min, "\n";
+
+Arrays can be iterated on using C<for> and C<foreach>. Both take a code
 reference as the body of the for statement.
 C<foreach> passes the current element itself in each pass.
 C<for> passes the index of the current element in to that code block, and then
@@ -224,8 +241,6 @@ the current element, and then a reference to the array itself.
 C<sum> is a toy poke at doing L<Language::Functional>-like stuff:
 
   print $arrref->sum, "\n";
-
-XXX round this out
 
 Methods for array creation:  C<to>, C<upto>, and C<downto>.
 
@@ -542,6 +557,8 @@ warning, but I'm not seeing it.
 Use C<< ~~ >> on C<< @array->grep >> if we're using 5.10 or newer.
 Add an explicit LICENSE section per request.
 Took many tests and utility functions from L<perl5i>.
+Pays attention to C<wantarray> and returns a list or the reference, as dictated by context.
+C<flatten> should rarely if ever be needed any more.
 
 Version 0.6 propogates arguments to C<autobox> and doesn't require you to use
 C<autobox>.  I still can't test it and am applying patches blindly.  Maybe I'll
@@ -671,12 +688,12 @@ sub sin     ($)  { CORE::sin($_[0]) }
 sub sqrt    ($)  { CORE::sqrt($_[0]) }
 
 # functions for array creation
-sub to ($$) { $_[0] < $_[1] ? [$_[0]..$_[1]] : [CORE::reverse $_[1]..$_[0]]}
-sub upto ($$) { [ $_[0]..$_[1] ] }
-sub downto ($$) { [ CORE::reverse $_[1]..$_[0] ] }
+sub to ($$) { my $res = $_[0] < $_[1] ? [$_[0]..$_[1]] : [CORE::reverse $_[1]..$_[0]]; wantarray ? @$res : $res }
+sub upto ($$) { wantarray ? ($_[0]..$_[1]) : [ $_[0]..$_[1] ] }
+sub downto ($$) { my $res = [ CORE::reverse $_[1]..$_[0] ]; wantarray ? @$res : $res }
 
-# just weird, but cool
 sub times ($&) { for (0..$_[0]-1) { $_[1]->($_); }; $_[0]; }
+
 # suggested but bombs test
 #sub times ($;&) {
 #    if ($_[1]) {
@@ -985,17 +1002,17 @@ sub min(\@) { my $arr = CORE::shift; my $min = $arr->[0]; foreach (@$arr) {$min 
 #       Functions for real @ARRAYs
 #           "pop", "push", "shift", "splice", "unshift"
 
-sub pop (\@) { CORE::pop @{$_[0]}; }
+sub pop (\@) { CORE::pop @{$_[0]}; wantarray ? @{$_[0]} : $_[0] }
 
 sub push (\@;@) { my $arr = CORE::shift; CORE::push @$arr, @_;  $arr; }
 
-sub unshift (\@;@) { my $a = CORE::shift; CORE::unshift(@$a, @_); $a; }
+sub unshift (\@;@) { my $a = CORE::shift; CORE::unshift(@$a, @_); wantarray ? @$a : $a; }
 
-sub delete (\@$) { my $arr = CORE::shift; CORE::delete $arr->[$_[0]] }
+sub delete (\@$) { my $arr = CORE::shift; CORE::delete $arr->[$_[0]]; wantarray ? @$arr : $arr  }
 
-sub vdelete(\@$) { my $arr = CORE::shift; @$arr = CORE::grep {$_ ne $_[0]} @$arr; }
+sub vdelete(\@$) { my $arr = CORE::shift; @$arr = CORE::grep {$_ ne $_[0]} @$arr; wantarray ? @$arr : $arr }
 
-sub shift (\@;@) { my $arr = CORE::shift; CORE::shift @$arr; } # last to prevent having to prefix normal shift calls with CORE::
+sub shift (\@;@) { my $arr = CORE::shift; CORE::shift @$arr; wantarray ? @$arr : $arr} # last to prevent having to prefix normal shift calls with CORE::
 
 sub undef   ($)   { $_[0] = [] }
 
@@ -1007,7 +1024,7 @@ sub at(\@$) { my $arr = CORE::shift; $arr->[$_[0]]; }
 
 sub count(\@$) { my $arr = CORE::shift; scalar(CORE::grep {$_ eq $_[0]} @$arr); }
 
-sub uniq(\@) { my $arr = CORE::shift; my %h; [ CORE::map { $h{$_}++ == 0 ? $_ : () } @$arr ] } # shamelessly from List::MoreUtils
+sub uniq(\@) { my $arr = CORE::shift; my %h; my @res = CORE::map { $h{$_}++ == 0 ? $_ : () } @$arr; wantarray ? @res : \@res; } # shamelessly from List::MoreUtils
 
 # tied and blessed
 
