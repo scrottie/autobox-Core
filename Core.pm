@@ -665,7 +665,7 @@ sub undef   ($)   { $_[0] = undef }
 sub m       ($$)  { [ $_[0] =~ m{$_[1]} ] }
 sub nm       ($$)  { [ $_[0] !~ m{$_[1]} ] }
 sub s       ($$$) { $_[0] =~ s{$_[1]}{$_[2]} }
-sub split   ($$)  { [ split $_[1], $_[0] ] }
+sub split   ($$)  { wantarray ? split $_[1], $_[0] : [ split $_[1], $_[0] ] }
 
 sub eval    ($)   { CORE::eval "$_[0]"; }
 sub system  ($;@) { CORE::system @_; }
