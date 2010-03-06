@@ -1110,7 +1110,7 @@ sub foreach {
 
 sub for {
     my $arr = CORE::shift; my $sub = CORE::shift;
-    for(my $i = 0; $i < $#$arr; $i++) {
+    for(my $i = 0; $i <= $#$arr; $i++) {
         $sub->($i, $arr->[$i], $arr);
     }
 }
