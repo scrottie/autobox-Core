@@ -1004,7 +1004,7 @@ sub min(\@) { my $arr = CORE::shift; my $min = $arr->[0]; foreach (@$arr) {$min 
 
 sub pop (\@) { CORE::pop @{$_[0]}; wantarray ? @{$_[0]} : $_[0] }
 
-sub push (\@;@) { my $arr = CORE::shift; CORE::push @$arr, @_;  $arr; }
+sub push (\@;@) { my $arr = CORE::shift; CORE::push @$arr, @_; wantarray ? return @$arr : $arr; }
 
 sub unshift (\@;@) { my $a = CORE::shift; CORE::unshift(@$a, @_); wantarray ? @$a : $a; }
 
