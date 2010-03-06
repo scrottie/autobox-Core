@@ -655,7 +655,12 @@ sub pack    ($;@) { CORE::pack(@_); }
 sub reverse ($)   { CORE::reverse($_[0]); }
 sub rindex  ($@)  { CORE::rindex($_[0], $_[1], @_[2.. $#_]); }
 sub sprintf ($@)  { CORE::sprintf($_[0], $_[1], @_[2.. $#_]); }
-sub substr  ($@)  { CORE::substr($_[0], $_[1], @_[2 .. $#_]); }
+
+sub substr  ($@)  {
+    return CORE::substr($_[0], $_[1]) if @_ == 2;
+    return CORE::substr($_[0], $_[1], @_[2 .. $#_]);
+}
+
 sub uc      ($)   { CORE::uc($_[0]); }
 sub ucfirst ($)   { CORE::ucfirst($_[0]); }
 sub unpack  ($;@) { CORE::unpack($_[0], @_[1..$#_]); }
