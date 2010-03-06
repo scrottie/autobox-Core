@@ -653,7 +653,12 @@ sub length  ($)   { CORE::length($_[0]); }
 sub ord     ($)   { CORE::ord($_[0]); }
 sub pack    ($;@) { CORE::pack(@_); }
 sub reverse ($)   { CORE::reverse($_[0]); }
-sub rindex  ($@)  { CORE::rindex($_[0], $_[1], @_[2.. $#_]); }
+
+sub rindex  ($@)  {
+    return CORE::rindex($_[0], $_[1]) if @_ == 2;
+    return CORE::rindex($_[0], $_[1], @_[2.. $#_]);
+}
+
 sub sprintf ($@)  { CORE::sprintf($_[0], $_[1], @_[2.. $#_]); }
 
 sub substr  ($@)  {
