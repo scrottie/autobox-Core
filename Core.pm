@@ -847,8 +847,8 @@ use Carp 'croak';
 
 sub delete (\%@) { my $hash = CORE::shift; my @res = (); CORE::foreach(@_) { push @res, CORE::delete $hash->{$_}; } CORE::wantarray ? @res : \@res }
 sub exists (\%$) { my $hash = CORE::shift; CORE::exists $hash->{$_[0]}; }
-sub keys (\%) { [ CORE::keys %{$_[0]} ] }
-sub values (\%) { [ CORE::values %{$_[0]} ] }
+sub keys (\%) { wantarray ? CORE::keys %{$_[0]} : [ CORE::keys %{$_[0]} ] }
+sub values (\%) { wantarray ? CORE::values %{$_[0]} : [ CORE::values %{$_[0]} ] }
 
 sub at (\%@) { $_[0]->{@_[1..$#_]}; }
 sub get(\%@) { $_[0]->{@_[1..$#_]}; }
