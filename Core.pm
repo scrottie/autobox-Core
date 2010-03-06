@@ -651,7 +651,7 @@ sub lc      ($)   { CORE::lc($_[0]); }
 sub lcfirst ($)   { CORE::lcfirst($_[0]); }
 sub length  ($)   { CORE::length($_[0]); }
 sub ord     ($)   { CORE::ord($_[0]); }
-sub pack    ($;@) { CORE::pack(@_); }
+sub pack    ($;@) { CORE::pack(shift, @_); }
 sub reverse ($)   { CORE::reverse($_[0]); }
 
 sub rindex  ($@)  {
