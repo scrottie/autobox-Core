@@ -1,0 +1,13 @@
+*.swp
+*.swo
+*.tmp
+*.bak
+blib/
+Makefile
+pm_to_blib
+cover_db
+*.gz
+nytprof/
+.prove
+autobox-Core*
+.build
