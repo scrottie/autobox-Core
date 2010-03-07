@@ -1012,7 +1012,7 @@ sub min(\@) { my $arr = CORE::shift; my $min = $arr->[0]; foreach (@$arr) {$min 
 #       Functions for real @ARRAYs
 #           "pop", "push", "shift", "splice", "unshift"
 
-sub pop (\@) { CORE::pop @{$_[0]}; wantarray ? @{$_[0]} : $_[0] }
+sub pop (\@) { CORE::pop @{$_[0]}; }
 
 sub push (\@;@) { my $arr = CORE::shift; CORE::push @$arr, @_; wantarray ? return @$arr : $arr; }
 
@@ -1022,7 +1022,7 @@ sub delete (\@$) { my $arr = CORE::shift; CORE::delete $arr->[$_[0]]; wantarray 
 
 sub vdelete(\@$) { my $arr = CORE::shift; @$arr = CORE::grep {$_ ne $_[0]} @$arr; wantarray ? @$arr : $arr }
 
-sub shift (\@;@) { my $arr = CORE::shift; CORE::shift @$arr; wantarray ? @$arr : $arr} # last to prevent having to prefix normal shift calls with CORE::
+sub shift (\@;@) { my $arr = CORE::shift; CORE::shift @$arr; } # last to prevent having to prefix normal shift calls with CORE::
 
 sub undef   ($)   { $_[0] = [] }
 
