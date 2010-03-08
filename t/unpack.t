@@ -4,4 +4,7 @@ use warnings;
 
 use autobox::Core;
 
-is 'W'->unpack("foo"), unpack('W', "foo");
+SKIP: {
+    skip "Only for 5.10", 1, if $] < 5.010;
+    is 'W'->unpack("foo"), unpack('W', "foo");
+};

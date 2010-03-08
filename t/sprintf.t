@@ -1,5 +1,4 @@
 use Test::More qw(no_plan);
-use Test::Output;
 use strict;
 use warnings;
 
