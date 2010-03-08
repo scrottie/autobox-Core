@@ -16,6 +16,8 @@ package autobox::Core;
 
 # TODO:
 
+# o. don't overlap with autobox::List::Util.
+# o. make jive with MooseX::Autobox or whatever it is
 # o. perl6now.com is bjorked
 # v/ regenerate README
 # v/ docs should show @arr->whatever syntax that works in non-antique autoboxes.
