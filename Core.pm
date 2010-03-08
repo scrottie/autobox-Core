@@ -653,11 +653,21 @@ sub lc      ($)   { CORE::lc($_[0]); }
 sub lcfirst ($)   { CORE::lcfirst($_[0]); }
 sub length  ($)   { CORE::length($_[0]); }
 sub ord     ($)   { CORE::ord($_[0]); }
-sub pack    ($;@) { CORE::pack(@_); }
+sub pack    ($;@) { CORE::pack(shift, @_); }
 sub reverse ($)   { CORE::reverse($_[0]); }
-sub rindex  ($@)  { CORE::rindex($_[0], $_[1], @_[2.. $#_]); }
+
+sub rindex  ($@)  {
+    return CORE::rindex($_[0], $_[1]) if @_ == 2;
+    return CORE::rindex($_[0], $_[1], @_[2.. $#_]);
+}
+
 sub sprintf ($@)  { CORE::sprintf($_[0], $_[1], @_[2.. $#_]); }
-sub substr  ($@)  { CORE::substr($_[0], $_[1], @_[2 .. $#_]); }
+
+sub substr  ($@)  {
+    return CORE::substr($_[0], $_[1]) if @_ == 2;
+    return CORE::substr($_[0], $_[1], @_[2 .. $#_]);
+}
+
 sub uc      ($)   { CORE::uc($_[0]); }
 sub ucfirst ($)   { CORE::ucfirst($_[0]); }
 sub unpack  ($;@) { CORE::unpack($_[0], @_[1..$#_]); }
@@ -667,7 +677,7 @@ sub undef   ($)   { $_[0] = undef }
 sub m       ($$)  { [ $_[0] =~ m{$_[1]} ] }
 sub nm       ($$)  { [ $_[0] !~ m{$_[1]} ] }
 sub s       ($$$) { $_[0] =~ s{$_[1]}{$_[2]} }
-sub split   ($$)  { [ split $_[1], $_[0] ] }
+sub split   ($$)  { wantarray ? split $_[1], $_[0] : [ split $_[1], $_[0] ] }
 
 sub eval    ($)   { CORE::eval "$_[0]"; }
 sub system  ($;@) { CORE::system @_; }
@@ -849,8 +859,8 @@ use Carp 'croak';
 
 sub delete (\%@) { my $hash = CORE::shift; my @res = (); CORE::foreach(@_) { push @res, CORE::delete $hash->{$_}; } CORE::wantarray ? @res : \@res }
 sub exists (\%$) { my $hash = CORE::shift; CORE::exists $hash->{$_[0]}; }
-sub keys (\%) { [ CORE::keys %{$_[0]} ] }
-sub values (\%) { [ CORE::values %{$_[0]} ] }
+sub keys (\%) { wantarray ? CORE::keys %{$_[0]} : [ CORE::keys %{$_[0]} ] }
+sub values (\%) { wantarray ? CORE::values %{$_[0]} : [ CORE::values %{$_[0]} ] }
 
 sub at (\%@) { $_[0]->{@_[1..$#_]}; }
 sub get(\%@) { $_[0]->{@_[1..$#_]}; }
@@ -1004,9 +1014,9 @@ sub min(\@) { my $arr = CORE::shift; my $min = $arr->[0]; foreach (@$arr) {$min 
 #       Functions for real @ARRAYs
 #           "pop", "push", "shift", "splice", "unshift"
 
-sub pop (\@) { CORE::pop @{$_[0]}; wantarray ? @{$_[0]} : $_[0] }
+sub pop (\@) { CORE::pop @{$_[0]}; }
 
-sub push (\@;@) { my $arr = CORE::shift; CORE::push @$arr, @_;  $arr; }
+sub push (\@;@) { my $arr = CORE::shift; CORE::push @$arr, @_; wantarray ? return @$arr : $arr; }
 
 sub unshift (\@;@) { my $a = CORE::shift; CORE::unshift(@$a, @_); wantarray ? @$a : $a; }
 
@@ -1014,7 +1024,7 @@ sub delete (\@$) { my $arr = CORE::shift; CORE::delete $arr->[$_[0]]; wantarray 
 
 sub vdelete(\@$) { my $arr = CORE::shift; @$arr = CORE::grep {$_ ne $_[0]} @$arr; wantarray ? @$arr : $arr }
 
-sub shift (\@;@) { my $arr = CORE::shift; CORE::shift @$arr; wantarray ? @$arr : $arr} # last to prevent having to prefix normal shift calls with CORE::
+sub shift (\@;@) { my $arr = CORE::shift; CORE::shift @$arr; } # last to prevent having to prefix normal shift calls with CORE::
 
 sub undef   ($)   { $_[0] = [] }
 
@@ -1102,7 +1112,7 @@ sub foreach {
 
 sub for {
     my $arr = CORE::shift; my $sub = CORE::shift;
-    for(my $i = 0; $i < $#$arr; $i++) {
+    for(my $i = 0; $i <= $#$arr; $i++) {
         $sub->($i, $arr->[$i], $arr);
     }
 }
