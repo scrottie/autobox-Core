@@ -11,7 +11,7 @@ package autobox::Core;
 # XXX support 'my IO::Handle $io; $io->open('<', $fn);'. undef values belonging to
 # SVs having associated types should dispatch to that class. of course, just using
 # core, this could be made to work too -- open() is a built-in, after all. the
-# autobox::Core::open would have to know how to handle $_[0] being undef and 
+# autobox::Core::open would have to know how to handle $_[0] being undef and
 # assigning the open'ed handle into $_[0].
 
 # TODO:
@@ -38,7 +38,6 @@ use warnings;
 
 our $VERSION = '1.0';
 
-use autobox;
 use base 'autobox';
 
 # appending the user-supplied arguments allows autobox::Core options to be overridden
@@ -52,7 +51,7 @@ sub import {
     shift->SUPER::import(DEFAULT => 'autobox::Core::', @_);
 }
 
-=pod
+=encoding UTF-8
 
 =head1 NAME
 
@@ -69,12 +68,12 @@ autobox::Core - Core functions exposed as methods in primitive types
 The L<autobox> module lets you call methods on primitive datatypes such as
 scalars and arrays.
 
-L<autobox::Core> defines methods for core operations such as C<join>, C<print>, 
+L<autobox::CORE> defines methods for core operations such as C<join>, C<print>,
 most everything in L<perlfunc>, some things from L<Scalar::Util> and
 L<List::Util>, and some Perl 5 versions of methods taken from Perl 6.
 
-These methods expose as methods the built-in functions for minipulating 
-numbers, strings, arrays, hashes, and code references. 
+These methods expose as methods the built-in functions for minipulating
+numbers, strings, arrays, hashes, and code references.
 
 It can be handy to use built-in functions as methods to avoid
 messy dereferencing syntaxes and parentheses pile ups.
@@ -112,7 +111,7 @@ Here's a small sample:
   $lala = "Lalalalala\n"; print "lcfirst: ", $lala->lcfirst, ' ', $lala, "\n";
 
   my $hashref = { foo => 10, bar => 20, baz => 30, qux => 40 };
-  print "hash keys: ", join ' ', $hashref->keys(), "\n";
+  print "hash keys: ", $hashref->keys->join(' '), "\n";
 
 Of the built-in stuff, only a few stragglers such as C<srand> were excluded.
 
@@ -136,13 +135,21 @@ done for consistency with C<m> and C<s>.
   print "10, 20, 30, 40"->split(qr{, ?})->elements, "\n";
 
 C<chomp>, C<chop>, C<chr>, C<crypt>, C<index>, C<lc>, C<lcfirst>, C<length>, C<ord>,
-C<pack>, C<reverse>, C<rindex>, C<sprintf>, C<substr>, 
+C<pack>, C<reverse>, C<rindex>, C<sprintf>, C<substr>,
 C<uc>, C<ucfirst>, C<unpack>, C<quotemeta>, C<vec>, C<undef>, C<m>, C<nm>, C<s>, C<split>.
 C<eval>, C<system>, and C<backtick>.
 
-C<m> matches:  C<< $foo->m(/bar/) >> corresponds to C<< $foo =~ m/bar/ >>.
 C<nm> corresponds to C<< !~ >>.
-C<s> corresponds to C<< =~ s/// >>.
+
+C<m> is C<< m// >>. C<< $foo->m(/bar/) >> corresponds to C<< $foo =~ m/bar/ >>. C<s> is C<< s/// >>.
+To use C<m> and C<s>, pass a regular expression created with C<< qr// >> and specify its flags
+as part of the regular expression using the C<< (?imsx-imsx) >> syntax documented in L<perlre>.
+C<m> returns an array reference so that things such as C<map> and C<grep> may be called on the result.
+
+  my ($street_number, $street_name, $apartment_number) =
+      "1234 Robin Drive #101"->m(qr{(\d+) (.*)(?: #(\d+))?})->elements;
+
+  print "$street_number $street_name $apartment_number\n";
 
 C<undef> assigns C<undef> to the value.  It is not a test.
 XXX for some reason, there's no C<defined>.
@@ -170,7 +177,7 @@ C<sub> is subtract, I think, but it should not be named the same as the anonymou
 
 *is_number = \&Scalar::Util::looks_like_number;
 sub is_positive         { $_[0]->is_number && $_[0] > 0 }
-sub is_negative         { $_[0]->is_number && $_[0] < 0 } 
+sub is_negative         { $_[0]->is_number && $_[0] < 0 }
 sub is_integer          { $_[0]->is_number && ((int($_[0]) - $_[0]) == 0) }
 *is_int = \&is_integer;
 sub is_decimal          { $_[0]->is_number && ((int($_[0]) - $_[0]) != 0) }
@@ -191,7 +198,7 @@ and C<vec>.
 C<tie>, C<tied>, and C<undef> don't work on code references, and C<bless> doesn't work on non-reference
 scalars (okay, that's no longer true).
 C<quotemeta> works on non-reference scalars, along with C<split>, C<m>, and C<s> for regular expression operations.
-C<ref> is the same as the C<ref> keyword in that it tells you what kind of a reference something is if it's a 
+C<ref> is the same as the C<ref> keyword in that it tells you what kind of a reference something is if it's a
 reference; XXX there's currently no counterpart to the C<< \ >> operator, which takes something and gives you
 a reference to it.
 
@@ -266,15 +273,15 @@ the code reference is invoked with the key and the corresponding value as argume
 There is currently no way to have the elements sorted before they are handed to the
 code block. If someone requests a way of passing in a sort criteria, I'll implement it.
 
-C<m> is C<< m// >> and C<s> is C<< s/// >>. These work on scalars.
-Pass a regular expression created with C<< qr// >> and specify flags to the regular expression
-as part of the regular expression using the C<< (?imsx-imsx) >> syntax documented in L<perlre>.
-C<m> returns an array reference so that things such as C<map> and C<grep> may be called on the result.
+C<slice> takes a list of hash keys and returns the corresponding values e.g.
 
-  my ($street_number, $street_name, $apartment_number) =
-      "1234 Robin Drive #101"->m(qr{(\d+) (.*)(?: #(\d+))?})->elements;
+  my %hash = (
+      one   => 'two',
+      three => 'four',
+      five  => 'six'
+  );
 
-  print "$street_number $street_name $apartment_number\n";
+  print %hash->slice(qw(one five))->join(' and '); # prints "two and six"
 
 
 =head3 Code Methods
@@ -650,6 +657,19 @@ Thanks to chocolateboy for L<autobox> and for the encouragement.
 
 Thanks to Bruno Vecchi for bug fixes and many, many new tests going into version 0.8.
 
+=head1 LICENCE AND COPYRIGHT
+
+Copyright © 2010, the authors
+
+This library is free software; you can redistribute it and/or modify it
+under the same terms as Perl 5.8.0.
+
+=head2 Disclaimer of warranty
+
+This library is distributed in the hope that it will be useful, but without
+any warranty; without even the implied warranty of merchantability or fitness
+for a particular purpose.
+
 =cut
 
 #
@@ -670,7 +690,7 @@ sub chomp   ($)   { CORE::chomp($_[0]); }
 sub chop    ($)   { CORE::chop($_[0]); }
 sub chr     ($)   { CORE::chr($_[0]); }
 sub crypt   ($$)  { CORE::crypt($_[0], $_[1]); }
-sub index   ($@)  { CORE::index($_[0], $_[1], @_[2.. $#_]); }
+sub index   ($@)  { $_[2] ? CORE::index($_[0], $_[1], $_[2]) : CORE::index($_[0], $_[1]); }
 sub lc      ($)   { CORE::lc($_[0]); }
 sub lcfirst ($)   { CORE::lcfirst($_[0]); }
 sub length  ($)   { CORE::length($_[0]); }
@@ -726,16 +746,13 @@ sub to ($$) { my $res = $_[0] < $_[1] ? [$_[0]..$_[1]] : [CORE::reverse $_[1]..$
 sub upto ($$) { wantarray ? ($_[0]..$_[1]) : [ $_[0]..$_[1] ] }
 sub downto ($$) { my $res = [ CORE::reverse $_[1]..$_[0] ]; wantarray ? @$res : $res }
 
-sub times ($&) { for (0..$_[0]-1) { $_[1]->($_); }; $_[0]; }
-
-# suggested but bombs test
-#sub times ($;&) {
-#    if ($_[1]) {
-#      for (0..$_[0]-1) { $_[1]->($_); }; $_[0];
-#    } else {
-#        0..$_[0]-1
-#    }
-#}
+sub times ($;&) {
+   if ($_[1]) {
+     for (0..$_[0]-1) { $_[1]->($_); }; $_[0];
+   } else {
+       0..$_[0]-1
+   }
+}
 
 # doesn't minipulate scalars but works on scalars
 
@@ -818,9 +835,9 @@ sub center {
 
     # bias the left padding to one more space, if $size - $len is odd
     my $lpad            = $padlen - $rpad;
-    
+
     return $char x $lpad . $string . $char x $rpad;
-}   
+}
 
 sub ltrim {
     my ($string,$trim_charset) = @_;
@@ -828,7 +845,7 @@ sub ltrim {
     my $re = qr/^[$trim_charset]*/;
     $string =~ s/$re//;
     return $string;
-}   
+}
 
 
 sub rtrim {
@@ -837,12 +854,12 @@ sub rtrim {
     my $re = qr/[$trim_charset]*$/;
     $string =~ s/$re//;
     return $string;
-}   
+}
 
 
 sub trim {
     my $charset = $_[1];
-    
+
     return rtrim(ltrim($_[0], $charset), $charset);
 }
 
@@ -855,12 +872,12 @@ sub trim {
 #sub round {
 #    abs($_[0] - int($_[0])) < 0.5 ? round_down($_[0])
 #                                  : round_up($_[0])
-#}   
-    
+#}
+
 require Scalar::Util;
 *is_number = \&Scalar::Util::looks_like_number;
 sub is_positive         { $_[0]->is_number && $_[0] > 0 }
-sub is_negative         { $_[0]->is_number && $_[0] < 0 } 
+sub is_negative         { $_[0]->is_number && $_[0] < 0 }
 sub is_integer          { $_[0]->is_number && ((CORE::int($_[0]) - $_[0]) == 0) }
 *is_int = \&is_integer;
 sub is_decimal          { $_[0]->is_number && ((CORE::int($_[0]) - $_[0]) != 0) }
@@ -879,7 +896,7 @@ use Carp 'croak';
 #       Functions for real %HASHes
 #           "delete", "each", "exists", "keys", "values"
 
-sub delete (\%@) { my $hash = CORE::shift; my @res = (); CORE::foreach(@_) { push @res, CORE::delete $hash->{$_}; } CORE::wantarray ? @res : \@res }
+sub delete (\%@) { my $hash = CORE::shift; my @res = (); CORE::foreach(@_) { push @res, CORE::delete $hash->{$_}; } wantarray ? @res : \@res }
 sub exists (\%$) { my $hash = CORE::shift; CORE::exists $hash->{$_[0]}; }
 sub keys (\%) { wantarray ? CORE::keys %{$_[0]} : [ CORE::keys %{$_[0]} ] }
 sub values (\%) { wantarray ? CORE::values %{$_[0]} : [ CORE::values %{$_[0]} ] }
@@ -912,6 +929,11 @@ sub ref   (\%)    { CORE::ref   $_[0] }
 
 sub undef   ($)   { $_[0] = {} }
 
+sub slice {
+    my ($h, @keys) = @_;
+    wantarray ? @{$h}{@keys} : [ @{$h}{@keys} ];
+}
+
 # okey, ::Util stuff should be core
 
 use Hash::Util;
@@ -923,10 +945,10 @@ sub lock_keys (\%) { Hash::Util::lock_keys(%{$_[0]}); $_[0]; }
 sub flip {
     croak "Can't flip hash with references as values"
         if grep { CORE::ref } CORE::values %{$_[0]};
- 
+
     return { reverse %{$_[0]} };
 }
- 
+
 sub merge {
     require Hash::Merge::Simple;
     Hash::Merge::Simple::merge(@_);
@@ -954,22 +976,22 @@ use Carp 'croak';
 #    return wantarray ? @result : \@result;
 #}
 
-sub grep { 
+sub grep {
     no warnings 'redefine';
     if(FIVETEN) {
          eval '
              # protect perl 5.8 from the alien, futuristic syntax of 5.10
              *grep = sub {
-                 my $arr = CORE::shift; 
-                 my $filter = CORE::shift; 
+                 my $arr = CORE::shift;
+                 my $filter = CORE::shift;
                  my @result = CORE::grep { $_ ~~ $filter } @$arr;
                  return wantarray ? @result : \@result;
              }
         ' or croak $@;
     } else {
         *grep = sub {
-             my $arr = CORE::shift; 
-             my $filter = CORE::shift; 
+             my $arr = CORE::shift;
+             my $filter = CORE::shift;
              my @result;
              if( CORE::ref $filter eq 'Regexp' ) {
                  @result = CORE::grep { m/$filter/ } @$arr;
@@ -996,10 +1018,10 @@ sub join { my $arr = CORE::shift; my $sep = CORE::shift; CORE::join $sep, @$arr;
 
 sub reverse { my @res = CORE::reverse @{$_[0]}; wantarray ? @res : \@res; }
 
-sub sort { 
-    my $arr = CORE::shift; 
-    my $sub = CORE::shift() || sub { $a cmp $b }; 
-    my @res = CORE::sort { $sub->($a, $b) } @$arr; 
+sub sort {
+    my $arr = CORE::shift;
+    my $sub = CORE::shift() || sub { $a cmp $b };
+    my @res = CORE::sort { $sub->($a, $b) } @$arr;
     return wantarray ? @res : \@res;
 }
 
@@ -1101,7 +1123,7 @@ sub first {
                 return $array->[0];
             } elsif ( CORE::ref $filter eq "Regexp" ) {
                 return List::Util::first( sub { $_ =~ m/$filter/ }, @$array );
-            } else { 
+            } else {
                 return List::Util::first( sub { $filter->() }, @$array );
             }
         };
