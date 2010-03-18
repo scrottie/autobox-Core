@@ -38,7 +38,6 @@ use warnings;
 
 our $VERSION = '1.0';
 
-use autobox;
 use base 'autobox';
 
 # appending the user-supplied arguments allows autobox::Core options to be overridden
@@ -140,9 +139,17 @@ C<pack>, C<reverse>, C<rindex>, C<sprintf>, C<substr>,
 C<uc>, C<ucfirst>, C<unpack>, C<quotemeta>, C<vec>, C<undef>, C<m>, C<nm>, C<s>, C<split>.
 C<eval>, C<system>, and C<backtick>.
 
-C<m> matches:  C<< $foo->m(/bar/) >> corresponds to C<< $foo =~ m/bar/ >>.
 C<nm> corresponds to C<< !~ >>.
-C<s> corresponds to C<< =~ s/// >>.
+
+C<m> is C<< m// >>. C<< $foo->m(/bar/) >> corresponds to C<< $foo =~ m/bar/ >>. C<s> is C<< s/// >>.
+To use C<m> and C<s>, pass a regular expression created with C<< qr// >> and specify its flags
+as part of the regular expression using the C<< (?imsx-imsx) >> syntax documented in L<perlre>.
+C<m> returns an array reference so that things such as C<map> and C<grep> may be called on the result.
+
+  my ($street_number, $street_name, $apartment_number) =
+      "1234 Robin Drive #101"->m(qr{(\d+) (.*)(?: #(\d+))?})->elements;
+
+  print "$street_number $street_name $apartment_number\n";
 
 C<undef> assigns C<undef> to the value.  It is not a test.
 XXX for some reason, there's no C<defined>.
@@ -266,15 +273,15 @@ the code reference is invoked with the key and the corresponding value as argume
 There is currently no way to have the elements sorted before they are handed to the
 code block. If someone requests a way of passing in a sort criteria, I'll implement it.
 
-C<m> is C<< m// >> and C<s> is C<< s/// >>. These work on scalars.
-Pass a regular expression created with C<< qr// >> and specify flags to the regular expression
-as part of the regular expression using the C<< (?imsx-imsx) >> syntax documented in L<perlre>.
-C<m> returns an array reference so that things such as C<map> and C<grep> may be called on the result.
+C<slice> takes a list of hash keys and returns the corresponding values e.g.
 
-  my ($street_number, $street_name, $apartment_number) =
-      "1234 Robin Drive #101"->m(qr{(\d+) (.*)(?: #(\d+))?})->elements;
+  my %hash = (
+      one   => 'two',
+      three => 'four',
+      five  => 'six'
+  );
 
-  print "$street_number $street_name $apartment_number\n";
+  print %hash->slice(qw(one five))->join(' and '); # prints "two and six"
 
 
 =head3 Code Methods
@@ -889,7 +896,7 @@ use Carp 'croak';
 #       Functions for real %HASHes
 #           "delete", "each", "exists", "keys", "values"
 
-sub delete (\%@) { my $hash = CORE::shift; my @res = (); CORE::foreach(@_) { push @res, CORE::delete $hash->{$_}; } CORE::wantarray ? @res : \@res }
+sub delete (\%@) { my $hash = CORE::shift; my @res = (); CORE::foreach(@_) { push @res, CORE::delete $hash->{$_}; } wantarray ? @res : \@res }
 sub exists (\%$) { my $hash = CORE::shift; CORE::exists $hash->{$_[0]}; }
 sub keys (\%) { wantarray ? CORE::keys %{$_[0]} : [ CORE::keys %{$_[0]} ] }
 sub values (\%) { wantarray ? CORE::values %{$_[0]} : [ CORE::values %{$_[0]} ] }
@@ -921,6 +928,11 @@ sub tied  (\%)    { CORE::tied  $_[0] }
 sub ref   (\%)    { CORE::ref   $_[0] }
 
 sub undef   ($)   { $_[0] = {} }
+
+sub slice {
+    my ($h, @keys) = @_;
+    wantarray ? @{$h}{@keys} : [ @{$h}{@keys} ];
+}
 
 # okey, ::Util stuff should be core
 
