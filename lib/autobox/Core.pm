@@ -52,7 +52,7 @@ sub import {
     shift->SUPER::import(DEFAULT => 'autobox::Core::', @_);
 }
 
-=pod
+=encoding UTF-8
 
 =head1 NAME
 
@@ -649,6 +649,19 @@ Mitchell N Charity reported a bug and sent a fix.
 Thanks to chocolateboy for L<autobox> and for the encouragement.
 
 Thanks to Bruno Vecchi for bug fixes and many, many new tests going into version 0.8.
+
+=head1 LICENCE AND COPYRIGHT
+
+Copyright © 2010, the authors
+
+This library is free software; you can redistribute it and/or modify it
+under the same terms as Perl 5.8.0.
+
+=head2 Disclaimer of warranty
+
+This library is distributed in the hope that it will be useful, but without
+any warranty; without even the implied warranty of merchantability or fitness
+for a particular purpose.
 
 =cut
 
