@@ -112,7 +112,7 @@ Here's a small sample:
   $lala = "Lalalalala\n"; print "lcfirst: ", $lala->lcfirst, ' ', $lala, "\n";
 
   my $hashref = { foo => 10, bar => 20, baz => 30, qux => 40 };
-  print "hash keys: ", join ' ', $hashref->keys(), "\n";
+  print "hash keys: ", $hashref->keys->join(' '), "\n";
 
 Of the built-in stuff, only a few stragglers such as C<srand> were excluded.
 
