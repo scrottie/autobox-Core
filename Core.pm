@@ -69,7 +69,7 @@ autobox::Core - Core functions exposed as methods in primitive types
 The L<autobox> module lets you call methods on primitive datatypes such as
 scalars and arrays.
 
-L<autobox::CORE> defines methods for core operations such as C<join>, C<print>, 
+L<autobox::Core> defines methods for core operations such as C<join>, C<print>, 
 most everything in L<perlfunc>, some things from L<Scalar::Util> and
 L<List::Util>, and some Perl 5 versions of methods taken from Perl 6.
 
