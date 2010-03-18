@@ -2,15 +2,15 @@ autobox::Core(3)      User Contributed Perl Documentation     autobox::Core(3)
 
 
 
-NAME
+NNAAMMEE
        autobox::Core - Core functions exposed as methods in primitive types
 
-SYNOPSIS
+SSYYNNOOPPSSIISS
          use autobox::Core;
 
          "Hello, World\n"->uc->print;
 
-DESCRIPTION
+DDEESSCCRRIIPPTTIIOONN
        The autobox module lets you call methods on primitive datatypes such as
        scalars and arrays.
 
@@ -24,14 +24,14 @@ DESCRIPTION
        It can be handy to use built-in functions as methods to avoid messy
        dereferencing syntaxes and parentheses pile ups.
 
-       autobox::Core is what you'd call a stub module. It is merely glue, pre-
+       _a_u_t_o_b_o_x_:_:_C_o_r_e is what you'd call a _s_t_u_b module. It is merely glue, pre-
        senting existing functions with a new interface. Most of the methods
        read like "sub hex ($) { hex($_[0]) }".  Besides built-ins that operate
        on hashes, arrays, scalars, and code references, some Perl 6-ish things
        were thrown in, and some keyword like "foreach" have been turned into
        methods.
 
-       What's Implemented?
+       WWhhaatt''ss IImmpplleemmeenntteedd??
 
        All of the functions listed in perldoc under the headings: "Functions
        for real @ARRAYs", "Functions for real %HASHes", "Functions for list
@@ -59,7 +59,7 @@ DESCRIPTION
        Of the built-in stuff, only a few stragglers such as "srand" were
        excluded.
 
-       Scalar String Related Methods
+       _S_c_a_l_a_r _S_t_r_i_n_g _R_e_l_a_t_e_d _M_e_t_h_o_d_s
 
        "concat" is the "." operator.
 
@@ -89,11 +89,11 @@ DESCRIPTION
        "undef" assigns "undef" to the value.  It is not a test.  XXX for some
        reason, there's no "defined".
 
-       I/O
+       _I_/_O
 
        "print" and "say".
 
-       Number Related Methods
+       _N_u_m_b_e_r _R_e_l_a_t_e_d _M_e_t_h_o_d_s
 
        "abs", "atan2", "cos", "exp", "int", "log", "oct", "hex", "rand",
        "sin", and "sqrt" are named after the built-in functions of the same
@@ -123,7 +123,7 @@ DESCRIPTION
 
        That's it.
 
-       Reference Related Methods
+       _R_e_f_e_r_e_n_c_e _R_e_l_a_t_e_d _M_e_t_h_o_d_s
 
        Besides the "Functions for SCALARs" section of perlfunc, the following
        were implemented, where they make sense: "tie", "tied", "ref", "undef",
@@ -136,7 +136,7 @@ DESCRIPTION
        no counterpart to the "\" operator, which takes something and gives you
        a reference to it.
 
-       Array Methods
+       _A_r_r_a_y _M_e_t_h_o_d_s
 
          my $arr = [ 1 .. 10 ];
          $arr->undef;
@@ -180,7 +180,7 @@ DESCRIPTION
 
          $arr->first(sub { /5/ });
 
-       Hash Methods
+       _H_a_s_h _M_e_t_h_o_d_s
 
        "each" is like "foreach" but for hash references. For each key in the
        hash, the code reference is invoked with the key and the corresponding
@@ -204,7 +204,7 @@ DESCRIPTION
 
          print "$street_number $street_name $apartment_number\n";
 
-       Code Methods
+       _C_o_d_e _M_e_t_h_o_d_s
 
        You may "curry" code references:
 
@@ -224,7 +224,7 @@ DESCRIPTION
 
        XXX round this out
 
-       What's Missing?
+       WWhhaatt''ss MMiissssiinngg??
 
        Many operators.  I'm tired.  I'll do it in the morning.  Maybe.  Send
        me a patch.  Update:  Someone sent me a patch for numeric operations.
@@ -246,20 +246,20 @@ DESCRIPTION
 
        "each" on hashes. There is no good reason it is missing.  XXX.
 
-       Autoboxing
+       AAuuttoobbooxxiinngg
 
-       This section quotes four pages from the manuscript of Perl 6 Now: The
-       Core Ideas Illustrated with Perl 5 by myself, Scott Walters. The text
-       appears in the book starting at page 248. This copy lacks the benefit
-       of copyedit - the finished product is of higher quality. See the shame-
-       less plug in the SEE ALSO section for information on ordering Perl 6
-       Now.
+       _T_h_i_s _s_e_c_t_i_o_n _q_u_o_t_e_s _f_o_u_r _p_a_g_e_s _f_r_o_m _t_h_e _m_a_n_u_s_c_r_i_p_t _o_f _P_e_r_l _6 _N_o_w_: _T_h_e
+       _C_o_r_e _I_d_e_a_s _I_l_l_u_s_t_r_a_t_e_d _w_i_t_h _P_e_r_l _5 _b_y _m_y_s_e_l_f_, _S_c_o_t_t _W_a_l_t_e_r_s_. _T_h_e _t_e_x_t
+       _a_p_p_e_a_r_s _i_n _t_h_e _b_o_o_k _s_t_a_r_t_i_n_g _a_t _p_a_g_e _2_4_8_. _T_h_i_s _c_o_p_y _l_a_c_k_s _t_h_e _b_e_n_e_f_i_t
+       _o_f _c_o_p_y_e_d_i_t _- _t_h_e _f_i_n_i_s_h_e_d _p_r_o_d_u_c_t _i_s _o_f _h_i_g_h_e_r _q_u_a_l_i_t_y_. _S_e_e _t_h_e _s_h_a_m_e_-
+       _l_e_s_s _p_l_u_g _i_n _t_h_e _S_E_E _A_L_S_O _s_e_c_t_i_o_n _f_o_r _i_n_f_o_r_m_a_t_i_o_n _o_n _o_r_d_e_r_i_n_g _P_e_r_l _6
+       _N_o_w_.
 
-       A box is an object that contains a primitive variable.  Boxes are used
+       A _b_o_x is an object that contains a primitive variable.  Boxes are used
        to endow primitive types with the capabilities of objects.  This is
        essential in strongly typed languages but never strictly required in
        Perl.  Programmers might write something like "my $number =
-       Int->new(5)".  This is manual boxing.  To autobox is to convert a sim-
+       Int->new(5)".  This is manual boxing.  To _a_u_t_o_b_o_x is to convert a sim-
        ple type into an object type automatically, or only conceptually.  This
        is done by the language.  It makes a language look to programmers as if
        everything is an object while the interpreter is free to implement data
@@ -327,18 +327,18 @@ DESCRIPTION
          open my $file, '<', 'file.txt' or die $!;
          $file->read(my $data, -s $file);
 
-       Here, "read" is a method on a filehandle we opened but never blessed.
+       Here, "read" is a method on a filehandle we opened but _n_e_v_e_r _b_l_e_s_s_e_d.
        This lets us say things like "$file->print(...)" rather than the often
        ambagious
 
        "print $file ...".  To many people, much of the time, it makes more
        conceptual sense as well.
 
-       Reasons to Box Primitive Types
+       _R_e_a_s_o_n_s _t_o _B_o_x _P_r_i_m_i_t_i_v_e _T_y_p_e_s
 
        What good is all of this?
 
-       Makes conceptual sense to programmers used to object interfaces as the
+       Makes conceptual sense to programmers used to object interfaces as _t_h_e
        way to perform options.
        Alternative idiom. Doesn't require the programmer to write or read
        expressions with complex precedence rules or strange operators.
@@ -358,7 +358,7 @@ DESCRIPTION
 
        Perl is an idiomatic language and this is an important idiom.
 
-       Subject First: An Aside
+       _S_u_b_j_e_c_t _F_i_r_s_t_: _A_n _A_s_i_d_e
 
        Perl's design philosophy promotes the idea that the language should be
        flexible enough to allow programmers to place the  of a statement
@@ -373,7 +373,7 @@ DESCRIPTION
        "$noun->verb()" focuses the readers attention on the thing being acted
        on rather than the action being performed.  Compare to "$verb($noun)".
 
-       Autoboxing and Method Results
+       _A_u_t_o_b_o_x_i_n_g _a_n_d _M_e_t_h_o_d _R_e_s_u_l_t_s
 
        In Chapter 11 [Subroutines], we had examples of ways an expression
        could be written.  Here it is again:
@@ -409,15 +409,15 @@ DESCRIPTION
        mode of use of autoboxing.  Providing no other arguments to the method
        calls, however, is not common.
 
-       Perl6::Contexts recognizes object context as provided by "->" and
-       coerces %hash and @array into references, suitable for use with auto-
-       box.  (Note that autobox also does this automatically as of version
-       2.40.)  autobox associates primitive types, such as references of vari-
-       ous sorts, with classes.  autobox::Core throws into those classes meth-
+       _P_e_r_l_6_:_:_C_o_n_t_e_x_t_s recognizes object context as provided by "->" and
+       coerces %hash and @array into references, suitable for use with _a_u_t_o_-
+       _b_o_x.  (Note that _a_u_t_o_b_o_x also does this automatically as of version
+       2.40.)  _a_u_t_o_b_o_x associates primitive types, such as references of vari-
+       ous sorts, with classes.  _a_u_t_o_b_o_x_:_:_C_o_r_e throws into those classes meth-
        ods wrapping Perl's built-in functions.  In the interest of full dis-
-       closure, Perl6::Contexts and autobox::Core are my creations.
+       closure, _P_e_r_l_6_:_:_C_o_n_t_e_x_t_s and _a_u_t_o_b_o_x_:_:_C_o_r_e are my creations.
 
-       Autobox to Simplify Expressions
+       _A_u_t_o_b_o_x _t_o _S_i_m_p_l_i_f_y _E_x_p_r_e_s_s_i_o_n_s
 
        One of my pet peeves in programming is parenthesis that span large
        expression.  It seems like about the time I'm getting ready to close
@@ -465,14 +465,14 @@ DESCRIPTION
        defined in the "autobox::Core::ARRAY" package takes for its argument a
        code reference to apply to each element of the array.
 
-       Here ends the text quoted from the Perl 6 Now manuscript.
+       _H_e_r_e _e_n_d_s _t_h_e _t_e_x_t _q_u_o_t_e_d _f_r_o_m _t_h_e _P_e_r_l _6 _N_o_w _m_a_n_u_s_c_r_i_p_t_.
 
-BUGS
+BBUUGGSS
        Yes. Report them to the author, scott@slowass.net.  The API is not yet
        stable -- Perl 6-ish things and local extensions are still being
        renamed.
 
-HISTORY
+HHIISSTTOORRYY
        Version 0.7 uses autobox itself so you don't have to, as requested, and
        ... oh hell.  I started editing this to fix Schwern's reported v-string
        warning, but I'm not seeing it.  Use "~~" on "@array->grep" if we're
@@ -503,27 +503,27 @@ HISTORY
 
        Version 0.1 was woefully incomplete.
 
-COPYRIGHT AND LICENSE
+CCOOPPYYRRIIGGHHTT AANNDD LLIICCEENNSSEE
        Copyright (C) 2009, 2010 by Scott Walters
 
        This library is free software; you can redistribute it and/or modify it
        under the same terms as Perl itself, either Perl version 5.8.9 or, at
        your option, any later version of Perl 5 you may have available.
 
-SEE ALSO
+SSEEEE AALLSSOO
        autobox
        Moose::Autobox
        Perl6::Contexts
        <http://github.com/gitpan/autobox-Core>
        IO::Any
        Perl 6: <http://dev.perl.org/perl6/apocalypse/>.
-       (Shameless plug:) Perl 6 Now: The Core Ideas Illustrated with Perl 5
+       (Shameless plug:) _P_e_r_l _6 _N_o_w_: _T_h_e _C_o_r_e _I_d_e_a_s _I_l_l_u_s_t_r_a_t_e_d _w_i_t_h _P_e_r_l _5
        dedicates a sizable portion of Chapter 14, Objects, to autoboxing and
        the idea is used heavily throughout the book. Chapter 8, Data Struc-
        tures, also has numerous examples. See <http://perl6now.com> or look
        for ISBN 1-59059-395-2 at your favorite bookstore for more information.
 
-AUTHOR
+AAUUTTHHOORR
        Scott Walters, scott@slowass.net.  Also, JJ contributed a "strip"
        method for scalars - thanks JJ!  (Is it wrong to cut and paste documen-
        tation?)  Ricardo SIGNES contributed patches.  Thanks to Matt Spear,

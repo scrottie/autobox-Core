@@ -36,7 +36,7 @@ use 5.008;
 use strict;
 use warnings;
 
-our $VERSION = '0.7';
+our $VERSION = '1.0';
 
 use autobox;
 use base 'autobox';
@@ -553,6 +553,19 @@ The API is not yet stable -- Perl 6-ish things and local extensions are still be
 
 =head1 HISTORY
 
+Version 1.1 is identical to 0.8 but the tests got added to the MANIFEST.
+All of the have-to-release-again problems are related to the author
+fumbling with PAUSE.
+
+Version 1.0 is identical to 0.9.  PAUSE tells me 0.9 already exists so
+bumping the number.  *^%$!
+
+Version 0.9 is identical to 0.8.  PAUSE tells me 0.8 already exists so
+bumping the number.
+
+Version 0.8 fixes C<unshift> and C<pop> to again return the value removed
+(oops, thanks brunov) and adds many, many more tests (wow, thanks brunov!).
+
 Version 0.7 uses autobox itself so you don't have to, as requested, and
 ... oh hell.  I started editing this to fix Schwern's reported v-string
 warning, but I'm not seeing it.
@@ -622,11 +635,20 @@ bookstore for more information.
 =head1 AUTHOR
 
 Scott Walters, L<scott@slowass.net>.
-Also, JJ contributed a C<strip> method for scalars - thanks JJ!  (Is it wrong to cut and paste documentation?)
+
+Michael Schwern and the L<perl5i> contributors for tests, code, and feedback.
+
+JJ contributed a C<strip> method for scalars - thanks JJ!
+
 Ricardo SIGNES contributed patches.
+
 Thanks to Matt Spear, who contributed tests and definitions for numeric operations.
+
 Mitchell N Charity reported a bug and sent a fix.
+
 Thanks to chocolateboy for L<autobox> and for the encouragement.
+
+Thanks to Bruno Vecchi for bug fixes and many, many new tests going into version 0.8.
 
 =cut
 
