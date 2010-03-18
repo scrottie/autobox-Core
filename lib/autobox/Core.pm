@@ -670,7 +670,7 @@ sub chomp   ($)   { CORE::chomp($_[0]); }
 sub chop    ($)   { CORE::chop($_[0]); }
 sub chr     ($)   { CORE::chr($_[0]); }
 sub crypt   ($$)  { CORE::crypt($_[0], $_[1]); }
-sub index   ($@)  { CORE::index($_[0], $_[1], @_[2.. $#_]); }
+sub index   ($@)  { $_[2] ? CORE::index($_[0], $_[1], $_[2]) : CORE::index($_[0], $_[1]); }
 sub lc      ($)   { CORE::lc($_[0]); }
 sub lcfirst ($)   { CORE::lcfirst($_[0]); }
 sub length  ($)   { CORE::length($_[0]); }
