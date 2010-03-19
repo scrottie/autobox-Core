@@ -156,6 +156,24 @@ C<m> returns an array reference so that things such as C<map> and C<grep> may be
 C<undef> assigns C<undef> to the value.  It is not a test.
 XXX for some reason, there's no C<defined>.
 
+=head4 center()
+
+    my $centered_string = $string->center($length);
+    my $centered_string = $string->center($length, $character);
+
+Centers $string between $character.  $centered_string will be of
+length $length.
+
+C<$character> defaults to " ".
+
+    say "Hello"->center(10);        # "   Hello  ";
+    say "Hello"->center(10, '-');   # "---Hello--";
+
+C<center()> will never truncate C<$string>.  If $length is less
+than C<< $string->length >> it will just return C<$string>.
+
+    say "Hello"->center(4);        # "Hello";
+
 
 =head3 I/O
 
@@ -177,12 +195,53 @@ C<mge> is C<< >= >>.  C<<mle>> is C<< <= >>.  I'm not sure where the "m" came fr
 
 C<sub> is subtract, I think, but it should not be named the same as the anonymous subroutine constructor XXX.
 
-*is_number = \&Scalar::Util::looks_like_number;
-sub is_positive         { $_[0]->is_number && $_[0] > 0 }
-sub is_negative         { $_[0]->is_number && $_[0] < 0 }
-sub is_integer          { $_[0]->is_number && ((int($_[0]) - $_[0]) == 0) }
-*is_int = \&is_integer;
-sub is_decimal          { $_[0]->is_number && ((int($_[0]) - $_[0]) != 0) }
+=head4 is_number
+
+    $is_a_number = $thing->is_number;
+
+Returns true if $thing is a number understood by Perl.
+
+    12.34->is_number;           # true
+    "12.34"->is_number;         # also true
+
+=head4 is_positive
+
+    $is_positive = $thing->is_positive;
+
+Returns true if $thing is a positive number.
+
+0 is not positive.
+
+=head4 is_negative
+
+    $is_negative = $thing->is_negative;
+
+Returns true if $thing is a negative number.
+
+0 is not negative.
+
+=head4 is_integer
+
+    $is_an_integer = $thing->is_integer;
+
+Returns true if $thing is an integer.
+
+    12->is_integer;             # true
+    12.34->is_integer;          # false
+
+=head4 is_int
+
+A synonym for is_integer
+
+=head4 is_decimal
+
+    $is_a_decimal_number = $thing->is_decimal;
+
+Returns true if $thing is a decimal number.
+
+    12->is_decimal;             # false
+    12.34->is_decimal;          # true
+    ".34"->is_decimal;          # true
 
 That's it.
 
@@ -263,6 +322,62 @@ These wrap the C<..> operator.
 
   $arr->first(sub { /5/ });
 
+=head4 head
+
+    my $first = @list->head;
+
+Returns the first element from C<@list>.
+
+=head4 tail
+
+    my @list = qw(foo bar baz quux);
+    my @rest = @list->tail;  # [ 'bar', 'baz', 'quux' ]
+
+Returns all but the first element from C<@list>. In scalar context
+returns an array reference.
+
+Optionally, you can pass a number as argument to ask for the last C<$n>
+elements:
+
+    @rest = @list->tail(2); # [ 'baz', 'quux' ]
+
+=head4 slice
+
+    my @sublist = @list->slice(@indexes);
+
+Returns a list containing the elements from C<@list> at the indices
+C<@indices>. In scalar context, returns an array reference.
+
+=head4 range
+
+    my @sublist = @list->range( $lower_idx, $upper_idx );
+
+Returns a list containing the elements from C<@list> with indices
+ranging from C<$lower_idx> to C<$upper_idx>. Returns an array reference
+in scalar context.
+
+=head4 last_index
+
+    my $last_index = @array->last_index
+
+Returns C<@array>'s last index. Optionally, takes a Coderef or a Regexp,
+in which case it will return the index of the last element that matches
+such regex or makes the code reference return true. Example:
+
+    my @things = qw(pear poll potato tomato);
+
+    my $last_p = @things->last_index(qr/^p/); # 2
+
+=head4 first_index
+
+    my $first_index = @array->first_index; # 0
+
+For simmetry, returns the first index of C<@array>. If passed a Coderef
+or Regexp, it will return the index of the first element that matches.
+
+    my @things = qw(pear poll potato tomato);
+
+    my $last_p = @things->first_index(qr/^t/); # 3
 
 =head3 Hash Methods
 
@@ -285,6 +400,24 @@ C<slice> takes a list of hash keys and returns the corresponding values e.g.
 
   print %hash->slice(qw(one five))->join(' and '); # prints "two and six"
 
+=head4 flip()
+
+Exchanges values for keys in a hash.
+
+    my %things = ( foo => 1, bar => 2, baz => 5 );
+    my %flipped = %things->flip; # { 1 => foo, 2 => bar, 5 => baz }
+
+If there is more than one occurence of a certain value, any one of the
+keys may end up as the value.  This is because of the random ordering
+of hash keys.
+
+    # Could be { 1 => foo }, { 1 => bar }, or { 1 => baz }
+    { foo => 1, bar => 1, baz => 1 }->flip;
+
+Because hash references cannot usefully be keys, it will not work on
+nested hashes.
+
+    { foo => [ 'bar', 'baz' ] }->flip; # dies
 
 =head3 Code Methods
 
@@ -813,7 +946,7 @@ sub center {
     my ($string, $size, $char) = @_;
     Carp::carp("Use of uninitialized value for size in center()") if !defined $size;
     $size = defined($size) ? $size : 0;
-    $char = defined($char) ? $char : 0;
+    $char = defined($char) ? $char : ' ';
 
     if (CORE::length $char > 1) {
         my $bad = $char;
@@ -873,11 +1006,11 @@ sub trim {
 
 require Scalar::Util;
 *is_number = \&Scalar::Util::looks_like_number;
-sub is_positive         { $_[0]->is_number && $_[0] > 0 }
-sub is_negative         { $_[0]->is_number && $_[0] < 0 }
-sub is_integer          { $_[0]->is_number && ((CORE::int($_[0]) - $_[0]) == 0) }
+sub is_positive         { Scalar::Util::looks_like_number($_[0]) && $_[0] > 0 }
+sub is_negative         { Scalar::Util::looks_like_number($_[0]) && $_[0] < 0 }
+sub is_integer          { Scalar::Util::looks_like_number($_[0]) && ((CORE::int($_[0]) - $_[0]) == 0) }
 *is_int = \&is_integer;
-sub is_decimal          { $_[0]->is_number && ((CORE::int($_[0]) - $_[0]) != 0) }
+sub is_decimal          { Scalar::Util::looks_like_number($_[0]) && ((CORE::int($_[0]) - $_[0]) != 0) }
 
 
 ##########################################################
@@ -943,12 +1076,7 @@ sub flip {
     croak "Can't flip hash with references as values"
         if grep { CORE::ref } CORE::values %{$_[0]};
 
-    return { reverse %{$_[0]} };
-}
-
-sub merge {
-    require Hash::Merge::Simple;
-    Hash::Merge::Simple::merge(@_);
+    return wantarray ? reverse %{$_[0]} : { reverse %{$_[0]} };
 }
 
 #
@@ -1128,7 +1256,6 @@ sub first {
     autobox::Core::ARRAY::first(@_);
 }
 
-sub last_index { my $arr = CORE::shift; $#$arr; }
 sub size { my $arr = CORE::shift; CORE::scalar @$arr; }
 sub elems { my $arr = CORE::shift; CORE::scalar @$arr; } # Larry announced it would be elems, not size
 sub length { my $arr = CORE::shift; CORE::scalar @$arr; }
@@ -1165,6 +1292,74 @@ sub say { my $arr = CORE::shift; my @arr = @$arr; CORE::print "@arr\n"; }
 
 sub elements { ( @{$_[0]} ) }
 sub flatten { ( @{$_[0]} ) }
+
+sub head {
+    return $_[0]->[0];
+}
+
+sub slice {
+    my $list = CORE::shift;
+    # the rest of the arguments in @_ are the indices to take
+
+    return wantarray ? @$list[@_] : [@{$list}[@_]];
+}
+
+sub range {
+    my ($array, $lower, $upper) = @_;
+
+    my @slice = @{$array}[$lower .. $upper];
+
+    return wantarray ? @slice : \@slice;
+
+}
+
+sub tail {
+
+    my $last = $#{$_[0]};
+
+    my $first = defined $_[1] ? $last - $_[1] + 1 : 1;
+
+    Carp::croak("Not enough elements in array") if $first < 0;
+
+    # Yeah... avert your eyes
+    return wantarray ? @{$_[0]}[$first .. $last] : [@{$_[0]}[$first .. $last]];
+}
+
+sub first_index {
+
+    if (@_ == 1) {
+        return 0;
+    }
+    else {
+        my ($array, $arg) = @_;
+
+        my $filter = CORE::ref($arg) eq 'Regexp' ? sub { $_[0] =~ $arg } : $arg;
+
+        foreach my $i (0 .. $#$array) {
+            return $i if $filter->($array->[$i]);
+        }
+
+        return
+    }
+}
+
+sub last_index {
+
+    if (@_ == 1) {
+        return $#{$_[0]};
+    }
+    else {
+        my ($array, $arg) = @_;
+
+        my $filter = CORE::ref($arg) eq 'Regexp' ? sub { $_[0] =~ $arg } : $arg;
+
+        foreach my $i (CORE::reverse 0 .. $#$array ) {
+            return $i if $filter->($array->[$i]);
+        }
+
+        return
+    }
+}
 
 ##############################################################################################
 
