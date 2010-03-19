@@ -301,6 +301,24 @@ C<slice> takes a list of hash keys and returns the corresponding values e.g.
 
   print %hash->slice(qw(one five))->join(' and '); # prints "two and six"
 
+=head4 flip()
+
+Exchanges values for keys in a hash.
+
+    my %things = ( foo => 1, bar => 2, baz => 5 );
+    my %flipped = %things->flip; # { 1 => foo, 2 => bar, 5 => baz }
+
+If there is more than one occurence of a certain value, any one of the
+keys may end up as the value.  This is because of the random ordering
+of hash keys.
+
+    # Could be { 1 => foo }, { 1 => bar }, or { 1 => baz }
+    { foo => 1, bar => 1, baz => 1 }->flip;
+
+Because hash references cannot usefully be keys, it will not work on
+nested hashes.
+
+    { foo => [ 'bar', 'baz' ] }->flip; # dies
 
 =head3 Code Methods
 
@@ -964,7 +982,7 @@ sub flip {
     croak "Can't flip hash with references as values"
         if grep { CORE::ref } CORE::values %{$_[0]};
 
-    return { reverse %{$_[0]} };
+    return wantarray ? reverse %{$_[0]} : { reverse %{$_[0]} };
 }
 
 sub merge {
