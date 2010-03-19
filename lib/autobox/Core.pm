@@ -1,44 +1,37 @@
 package autobox::Core;
 
-# XXX ARRAY and HASH should AUTOLOAD, and that AUTOLOAD should look for an array
-# or hash element (double checking with exists) of that method name. This would
-# allow for xmath's ` style dereferences, or javascript's arr.0 and hash.foo
-# style dereferences. in perl, you could say $hashref->foo and $arrayref->5.
-# okey, $arrayref->5 is invalid syntax. you'd have to say $five = 5; $arrayref->$five.
-# hrm.
-# on second thought, I think that's a different module.
-
-# XXX support 'my IO::Handle $io; $io->open('<', $fn);'. undef values belonging to
-# SVs having associated types should dispatch to that class. of course, just using
-# core, this could be made to work too -- open() is a built-in, after all. the
-# autobox::Core::open would have to know how to handle $_[0] being undef and
-# assigning the open'ed handle into $_[0].
-
 # TODO:
 
 # o. don't overlap with autobox::List::Util.
 # o. make jive with MooseX::Autobox or whatever it is
-# o. perl6now.com is bjorked
+# o. perl6now.com is bjorked and we link to it... loose the link or fix it
 # v/ regenerate README
 # v/ docs should show @arr->whatever syntax that works in non-antique autoboxes.
 # v/ steal perl5i's tests too
 # o. steal perl5i's docs too
 # o. IO::Any?
 # o. "appending the user-supplied arguments allows autobox::Core options to be overridden" -- document this if we haven't already
-# o. more Hash::Util methods?
-# o. Hash/Merge/Simple.pm and autobox/List/Util.pm aren't "CORE"
-# o. dammit, List::Util and Scalar::Util are core but they aren't CORE.  split this up into two modules?
+# v/ more Hash::Util methods?
 # o. "If this goes over well, I'll make L<Langauge::Functional> a dependency and expose its function as methods on the correct data types. Or maybe I will do this anyway."
-# o. C<each> on hashes. There is no good reason it is missing.
+#    ... maybe there should be filter, fold, reduce, etc methods
+# v/ C<each> on hashes. There is no good reason it is missing.
+# o. support 'my IO::Handle $io; $io->open('<', $fn);'. undef values belonging to
+#   SVs having associated types should dispatch to that class. of course, just using
+#   core, this could be made to work too -- open() is a built-in, after all. the
+#   autobox::Core::open would have to know how to handle $_[0] being undef and
+#   assigning the open'ed handle into $_[0].
+
 
 use 5.008;
 
 use strict;
 use warnings;
 
-our $VERSION = '1.1';
+our $VERSION = '1.2';
 
 use base 'autobox';
+
+use B;
 
 # appending the user-supplied arguments allows autobox::Core options to be overridden
 # or extended in the same statement e.g.
@@ -78,7 +71,7 @@ numbers, strings, arrays, hashes, and code references.
 It can be handy to use built-in functions as methods to avoid
 messy dereferencing syntaxes and parentheses pile ups.
 
-F<autobox::Core> is what you'd call a I<stub> module. It is merely glue, presenting
+F<autobox::Core> is what you'd call a I<stub> module. It is mostly glue, presenting
 existing functions with a new interface. Most of the methods read like
 C<< sub hex ($) { hex($_[0]) } >>.
 Besides built-ins that operate on hashes, arrays, scalars, and code references,
@@ -694,6 +687,12 @@ The API is not yet stable -- Perl 6-ish things and local extensions are still be
 
 
 =head1 HISTORY
+
+Version 1.3 fixes version 1.2 losing the MANIFEST and being essentially
+a null upload.  Bah!
+
+Version 1.2 merges in L<brunov>'s C<flip>, C<center>, C<last_index>, C<slice>,
+C<range>, documentation, and various bug fixes.
 
 Version 1.1 actually adds the tests to the MANIFEST so they get bundled.
 Thanks to L<http://github.com/daxim> daxim/Lars DIECKOW for clearing
