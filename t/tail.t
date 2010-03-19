@@ -2,7 +2,6 @@
 use strict;
 use warnings;
 use Test::More;
-use Test::Exception;
 use autobox::Core;
 
 my @array = qw(foo bar baz);
@@ -13,8 +12,6 @@ is_deeply [@array->tail], ['bar', 'baz'];
 is_deeply [@array->tail(1)], ['baz'];
 is_deeply [@array->tail(2)], ['bar', 'baz'];
 is_deeply [@array->tail(3)], ['foo', 'bar', 'baz'];
-
-throws_ok { @array->tail(4) } qr/^Not enough elements/;
 
 my @tail = @array->tail;
 is scalar @tail, 2, "Returns a list in list context";
