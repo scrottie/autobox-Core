@@ -36,7 +36,7 @@ use 5.008;
 use strict;
 use warnings;
 
-our $VERSION = '1.0';
+our $VERSION = '1.1';
 
 use base 'autobox';
 
@@ -111,7 +111,9 @@ Here's a small sample:
   $lala = "Lalalalala\n"; print "lcfirst: ", $lala->lcfirst, ' ', $lala, "\n";
 
   my $hashref = { foo => 10, bar => 20, baz => 30, qux => 40 };
-  print "hash keys: ", $hashref->keys->join(' '), "\n";
+
+  print "hash keys: ", $hashref->keys->join(' '), "\n"; # or if you prefer...
+  print "hash keys: ", join ' ', $hashref->keys(), "\n";
 
 Of the built-in stuff, only a few stragglers such as C<srand> were excluded.
 
@@ -560,9 +562,10 @@ The API is not yet stable -- Perl 6-ish things and local extensions are still be
 
 =head1 HISTORY
 
-Version 1.1 is identical to 0.8 but the tests got added to the MANIFEST.
-All of the have-to-release-again problems are related to the author
-fumbling with PAUSE.
+Version 1.1 actually adds the tests to the MANIFEST so they get bundled.
+Thanks to L<http://github.com/daxim> daxim/Lars DIECKOW for clearing
+out the RT queue (which I didn't know existed), merging in the fixes and
+features that still applied, which were several.
 
 Version 1.0 is identical to 0.9.  PAUSE tells me 0.9 already exists so
 bumping the number.  *^%$!
@@ -606,11 +609,15 @@ Version 0.1 was woefully incomplete.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2009, 2010 by Scott Walters
+Copyright (C) 2009, 2010 by Scott Walters and various contributors listed (and unlisted) below
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.9 or,
 at your option, any later version of Perl 5 you may have available.
+
+This library is distributed in the hope that it will be useful, but without
+any warranty; without even the implied warranty of merchantability or fitness
+for a particular purpose.
 
 
 =head1 SEE ALSO
@@ -639,7 +646,7 @@ bookstore for more information.
 =back
 
 
-=head1 AUTHOR
+=head1 AUTHORS
 
 Scott Walters, L<scott@slowass.net>.
 
@@ -657,18 +664,8 @@ Thanks to chocolateboy for L<autobox> and for the encouragement.
 
 Thanks to Bruno Vecchi for bug fixes and many, many new tests going into version 0.8.
 
-=head1 LICENCE AND COPYRIGHT
-
-Copyright © 2010, the authors
-
-This library is free software; you can redistribute it and/or modify it
-under the same terms as Perl 5.8.0.
-
-=head2 Disclaimer of warranty
-
-This library is distributed in the hope that it will be useful, but without
-any warranty; without even the implied warranty of merchantability or fitness
-for a particular purpose.
+Thanks to L<http://github.com/daxim> daxim/Lars DIECKOW pushing in fixes and patches from the RT queue
+along with fixes to build and additional doc examples.
 
 =cut
 
