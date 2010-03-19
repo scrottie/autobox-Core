@@ -193,12 +193,53 @@ C<mge> is C<< >= >>.  C<<mle>> is C<< <= >>.  I'm not sure where the "m" came fr
 
 C<sub> is subtract, I think, but it should not be named the same as the anonymous subroutine constructor XXX.
 
-*is_number = \&Scalar::Util::looks_like_number;
-sub is_positive         { $_[0]->is_number && $_[0] > 0 }
-sub is_negative         { $_[0]->is_number && $_[0] < 0 }
-sub is_integer          { $_[0]->is_number && ((int($_[0]) - $_[0]) == 0) }
-*is_int = \&is_integer;
-sub is_decimal          { $_[0]->is_number && ((int($_[0]) - $_[0]) != 0) }
+=head4 is_number
+
+    $is_a_number = $thing->is_number;
+
+Returns true if $thing is a number understood by Perl.
+
+    12.34->is_number;           # true
+    "12.34"->is_number;         # also true
+
+=head4 is_positive
+
+    $is_positive = $thing->is_positive;
+
+Returns true if $thing is a positive number.
+
+0 is not positive.
+
+=head4 is_negative
+
+    $is_negative = $thing->is_negative;
+
+Returns true if $thing is a negative number.
+
+0 is not negative.
+
+=head4 is_integer
+
+    $is_an_integer = $thing->is_integer;
+
+Returns true if $thing is an integer.
+
+    12->is_integer;             # true
+    12.34->is_integer;          # false
+
+=head4 is_int
+
+A synonym for is_integer
+
+=head4 is_decimal
+
+    $is_a_decimal_number = $thing->is_decimal;
+
+Returns true if $thing is a decimal number.
+
+    12->is_decimal;             # false
+    12.34->is_decimal;          # true
+    ".34"->is_decimal;          # true
 
 That's it.
 
@@ -912,11 +953,11 @@ sub trim {
 
 require Scalar::Util;
 *is_number = \&Scalar::Util::looks_like_number;
-sub is_positive         { $_[0]->is_number && $_[0] > 0 }
-sub is_negative         { $_[0]->is_number && $_[0] < 0 }
-sub is_integer          { $_[0]->is_number && ((CORE::int($_[0]) - $_[0]) == 0) }
+sub is_positive         { Scalar::Util::looks_like_number($_[0]) && $_[0] > 0 }
+sub is_negative         { Scalar::Util::looks_like_number($_[0]) && $_[0] < 0 }
+sub is_integer          { Scalar::Util::looks_like_number($_[0]) && ((CORE::int($_[0]) - $_[0]) == 0) }
 *is_int = \&is_integer;
-sub is_decimal          { $_[0]->is_number && ((CORE::int($_[0]) - $_[0]) != 0) }
+sub is_decimal          { Scalar::Util::looks_like_number($_[0]) && ((CORE::int($_[0]) - $_[0]) != 0) }
 
 
 ##########################################################
