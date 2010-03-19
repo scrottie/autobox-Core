@@ -985,11 +985,6 @@ sub flip {
     return wantarray ? reverse %{$_[0]} : { reverse %{$_[0]} };
 }
 
-sub merge {
-    require Hash::Merge::Simple;
-    Hash::Merge::Simple::merge(@_);
-}
-
 #
 # ARRAY
 #
