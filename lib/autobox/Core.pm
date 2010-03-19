@@ -154,6 +154,24 @@ C<m> returns an array reference so that things such as C<map> and C<grep> may be
 C<undef> assigns C<undef> to the value.  It is not a test.
 XXX for some reason, there's no C<defined>.
 
+=head4 center()
+
+    my $centered_string = $string->center($length);
+    my $centered_string = $string->center($length, $character);
+
+Centers $string between $character.  $centered_string will be of
+length $length.
+
+C<$character> defaults to " ".
+
+    say "Hello"->center(10);        # "   Hello  ";
+    say "Hello"->center(10, '-');   # "---Hello--";
+
+C<center()> will never truncate C<$string>.  If $length is less
+than C<< $string->length >> it will just return C<$string>.
+
+    say "Hello"->center(4);        # "Hello";
+
 
 =head3 I/O
 
@@ -816,7 +834,7 @@ sub center {
     my ($string, $size, $char) = @_;
     Carp::carp("Use of uninitialized value for size in center()") if !defined $size;
     $size = defined($size) ? $size : 0;
-    $char = defined($char) ? $char : 0;
+    $char = defined($char) ? $char : ' ';
 
     if (CORE::length $char > 1) {
         my $bad = $char;
