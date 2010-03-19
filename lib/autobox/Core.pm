@@ -320,6 +320,62 @@ These wrap the C<..> operator.
 
   $arr->first(sub { /5/ });
 
+=head4 head
+
+    my $first = @list->head;
+
+Returns the first element from C<@list>.
+
+=head4 tail
+
+    my @list = qw(foo bar baz quux);
+    my @rest = @list->tail;  # [ 'bar', 'baz', 'quux' ]
+
+Returns all but the first element from C<@list>. In scalar context
+returns an array reference.
+
+Optionally, you can pass a number as argument to ask for the last C<$n>
+elements:
+
+    @rest = @list->tail(2); # [ 'baz', 'quux' ]
+
+=head4 slice
+
+    my @sublist = @list->slice(@indexes);
+
+Returns a list containing the elements from C<@list> at the indices
+C<@indices>. In scalar context, returns an array reference.
+
+=head4 range
+
+    my @sublist = @list->range( $lower_idx, $upper_idx );
+
+Returns a list containing the elements from C<@list> with indices
+ranging from C<$lower_idx> to C<$upper_idx>. Returns an array reference
+in scalar context.
+
+=head4 last_index
+
+    my $last_index = @array->last_index
+
+Returns C<@array>'s last index. Optionally, takes a Coderef or a Regexp,
+in which case it will return the index of the last element that matches
+such regex or makes the code reference return true. Example:
+
+    my @things = qw(pear poll potato tomato);
+
+    my $last_p = @things->last_index(qr/^p/); # 2
+
+=head4 first_index
+
+    my $first_index = @array->first_index; # 0
+
+For simmetry, returns the first index of C<@array>. If passed a Coderef
+or Regexp, it will return the index of the first element that matches.
+
+    my @things = qw(pear poll potato tomato);
+
+    my $last_p = @things->first_index(qr/^t/); # 3
 
 =head3 Hash Methods
 
@@ -1203,7 +1259,6 @@ sub first {
     autobox::Core::ARRAY::first(@_);
 }
 
-sub last_index { my $arr = CORE::shift; $#$arr; }
 sub size { my $arr = CORE::shift; CORE::scalar @$arr; }
 sub elems { my $arr = CORE::shift; CORE::scalar @$arr; } # Larry announced it would be elems, not size
 sub length { my $arr = CORE::shift; CORE::scalar @$arr; }
@@ -1240,6 +1295,74 @@ sub say { my $arr = CORE::shift; my @arr = @$arr; CORE::print "@arr\n"; }
 
 sub elements { ( @{$_[0]} ) }
 sub flatten { ( @{$_[0]} ) }
+
+sub head {
+    return $_[0]->[0];
+}
+
+sub slice {
+    my $list = CORE::shift;
+    # the rest of the arguments in @_ are the indices to take
+
+    return wantarray ? @$list[@_] : [@{$list}[@_]];
+}
+
+sub range {
+    my ($array, $lower, $upper) = @_;
+
+    my @slice = @{$array}[$lower .. $upper];
+
+    return wantarray ? @slice : \@slice;
+
+}
+
+sub tail {
+
+    my $last = $#{$_[0]};
+
+    my $first = defined $_[1] ? $last - $_[1] + 1 : 1;
+
+    Carp::croak("Not enough elements in array") if $first < 0;
+
+    # Yeah... avert your eyes
+    return wantarray ? @{$_[0]}[$first .. $last] : [@{$_[0]}[$first .. $last]];
+}
+
+sub first_index {
+
+    if (@_ == 1) {
+        return 0;
+    }
+    else {
+        my ($array, $arg) = @_;
+
+        my $filter = CORE::ref($arg) eq 'Regexp' ? sub { $_[0] =~ $arg } : $arg;
+
+        foreach my $i (0 .. $#$array) {
+            return $i if $filter->($array->[$i]);
+        }
+
+        return
+    }
+}
+
+sub last_index {
+
+    if (@_ == 1) {
+        return $#{$_[0]};
+    }
+    else {
+        my ($array, $arg) = @_;
+
+        my $filter = CORE::ref($arg) eq 'Regexp' ? sub { $_[0] =~ $arg } : $arg;
+
+        foreach my $i (CORE::reverse 0 .. $#$array ) {
+            return $i if $filter->($array->[$i]);
+        }
+
+        return
+    }
+}
 
 ##############################################################################################
 
