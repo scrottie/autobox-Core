@@ -1156,23 +1156,23 @@ sub sum { my $arr = CORE::shift; my $res = 0; $res += $_ foreach(@$arr); $res; }
 sub mean { my $arr = CORE::shift; my $res = 0; $res += $_ foreach(@$arr); $res/@$arr; }
 
 sub var {
-	my $arr = CORE::shift;
-	my $mean = 0;
-	$mean += $_ foreach(@$arr);
-	$mean /= @$arr;
-	my $res = 0;
-	$res += ($_-$mean)**2 foreach (@$arr);
-	$res/@$arr;
+    my $arr = CORE::shift;
+    my $mean = 0;
+    $mean += $_ foreach(@$arr);
+    $mean /= @$arr;
+    my $res = 0;
+    $res += ($_-$mean)**2 foreach (@$arr);
+    $res/@$arr;
 }
 
 sub svar(\@) {
-	my $arr = CORE::shift;
-	my $mean = 0;
-	$mean += $_ foreach(@$arr);
-	$mean /= @$arr;
-	my $res = 0;
-	$res += ($_-$mean)**2 foreach (@$arr);
-	$res/(@$arr-1);
+    my $arr = CORE::shift;
+    my $mean = 0;
+    $mean += $_ foreach(@$arr);
+    $mean /= @$arr;
+    my $res = 0;
+    $res += ($_-$mean)**2 foreach (@$arr);
+    $res/(@$arr-1);
 }
 
 sub max(\@) { my $arr = CORE::shift; my $max = $arr->[0]; foreach (@$arr) {$max = $_ if $_ > $max }; $max; }
