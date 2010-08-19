@@ -1,6 +1,6 @@
 1.?? TBC
-    - fix MANIFEST (thanks Steffen Müller)
-    - move POD History section into standard Changes file (chocolateboy)
+    - fix MANIFEST (thanks Steffen Müller).
+    - move POD History section into standard Changes file (chocolateboy).
 
 1.2 Fri Mar 19 12:11:00 2010
     - fixes version 1.1 losing the MANIFEST and being essentially
@@ -19,9 +19,9 @@
       bumping the number. *^%$!
 
 0.10 Mon Jan 25 17:18:00 2010
-    - no change recorded
+    - no change recorded.
 
-0.9 Tue Mar 30 05:45:00 2004
+0.9 Mon Jan 25 17:07:00 2010
     - is identical to 0.8. PAUSE tells me 0.8 already exists so bumping the number.
 
 0.8 Mon Jan 25 14:28:00 2010
@@ -48,19 +48,19 @@
 
 0.5 Tue May 13 23:59:00 2008
     - has an $arrayref->unshift bug fix and and a new flatten method for hashes.
-    - Also, this version is untested because my Hash::Util stopped working, dammit.
+    - this version is untested because my Hash::Util stopped working, dammit.
 
 0.4 Sat Jan  5 17:00:00 2008
     - got numeric operations.
 
-0.3 Tue Mar 30 05:45:00 2004
+0.3 Wed Jan  5 21:12:00 2005
     - fixes a problem where unpack wasn't sure it had enough arguments
       according to a test introduced in Perl 5.8.6 or perhaps 5.8.5.
       This problem was reported by Ron Reidy - thanks Ron!
-    - also added the references to Perl 6 Now and the excerpt.
+    - added the references to Perl 6 Now and the excerpt.
 
-0.2 Sat May 29 21:36:00 2004
+0.2 Sat May 29 21:42:00 2004
     - rounded out the API and introduced the beginnings of functional-ish methods.
 
-0.1 Tue Mar 30 05:45:00 2004
-    - woefully incomplete initial version
+0.1 Tue Mar 30 09:51:00 2004
+    - woefully incomplete initial version.
