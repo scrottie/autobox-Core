@@ -688,56 +688,7 @@ The API is not yet stable -- Perl 6-ish things and local extensions are still be
 
 =head1 HISTORY
 
-Version 1.3 fixes version 1.2 losing the MANIFEST and being essentially
-a null upload.  Bah!
-
-Version 1.2 merges in L<brunov>'s C<flip>, C<center>, C<last_index>, C<slice>,
-C<range>, documentation, and various bug fixes.
-
-Version 1.1 actually adds the tests to the MANIFEST so they get bundled.
-Thanks to L<http://github.com/daxim> daxim/Lars DIECKOW for clearing
-out the RT queue (which I didn't know existed), merging in the fixes and
-features that still applied, which were several.
-
-Version 1.0 is identical to 0.9.  PAUSE tells me 0.9 already exists so
-bumping the number.  *^%$!
-
-Version 0.9 is identical to 0.8.  PAUSE tells me 0.8 already exists so
-bumping the number.
-
-Version 0.8 fixes C<unshift> and C<pop> to again return the value removed
-(oops, thanks brunov) and adds many, many more tests (wow, thanks brunov!).
-
-Version 0.7 uses autobox itself so you don't have to, as requested, and
-... oh hell.  I started editing this to fix Schwern's reported v-string
-warning, but I'm not seeing it.
-Use C<< ~~ >> on C<< @array->grep >> if we're using 5.10 or newer.
-Add an explicit LICENSE section per request.
-Took many tests and utility functions from L<perl5i>.
-Pays attention to C<wantarray> and returns a list or the reference, as dictated by context.
-C<flatten> should rarely if ever be needed any more.
-
-Version 0.6 propogates arguments to C<autobox> and doesn't require you to use
-C<autobox>.  I still can't test it and am applying patches blindly.  Maybe I'll
-drop the Hash::Util dep in the next version since it and Scalar::Util are
-constantly wedging on my system.
-The documentation needs to be updated and mention of Perl6::Contexts mostly removed.
-Also, JJ contributed a C<strip> method for scalars - thanks JJ!
-
-Version 0.5 has an $arrayref->unshift bug fix and and a new flatten method for hashes.
-Also, this version is untested because my Hash::Util stopped working, dammit.
-
-Version 0.4 got numeric operations, if I remember.
-
-Version 0.3 fixes a problem where C<unpack> wasn't sure it had enough arguments
-according to a test introduced in Perl 5.8.6 or perhaps 5.8.5.
-This problem was reported by Ron Reidy - thanks Ron!
-Version 0.3 also added the references to Perl 6 Now and the excerpt.
-
-Version 0.2 rounded out the API and introduced the beginnings of functional-ish methods.
-
-Version 0.1 was woefully incomplete.
-
+See the Changes file.
 
 =head1 COPYRIGHT AND LICENSE
 

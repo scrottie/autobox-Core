@@ -1,0 +1,66 @@
+1.?? TBC
+    - fix MANIFEST (thanks Steffen Müller)
+    - move POD History section into standard Changes file (chocolateboy)
+
+1.2 Fri Mar 19 12:11:00 2010
+    - fixes version 1.1 losing the MANIFEST and being essentially
+      a null upload. Bah!
+    - merges in brunov's flip, center, last_index, slice,
+      range, documentation, and various bug fixes.
+
+1.1 Thu Mar 18 13:33:00 2010
+    - actually adds the tests to the MANIFEST so they get bundled.
+    - Thanks to http://github.com/daxim daxim/Lars DIECKOW for clearing
+      out the RT queue (which I didn't know existed), merging in the fixes and
+      features that still applied, which were several.
+
+1.0 Sun Mar  7 22:35:00 2010
+    - is identical to 0.9. PAUSE tells me 0.9 already exists so
+      bumping the number. *^%$!
+
+0.10 Mon Jan 25 17:18:00 2010
+    - no change recorded
+
+0.9 Tue Mar 30 05:45:00 2004
+    - is identical to 0.8. PAUSE tells me 0.8 already exists so bumping the number.
+
+0.8 Mon Jan 25 14:28:00 2010
+    - fixes unshift and pop to again return the value removed
+      (oops, thanks brunov) and adds many, many more tests (wow, thanks brunov!).
+
+0.7 Thu Mar  4 23:07:00 2010
+    - uses autobox itself so you don't have to, as requested, and
+      ... oh hell. I started editing this to fix Schwern's reported v-string
+      warning, but I'm not seeing it.
+    - Use ~~ on @array->grep if we're using 5.10 or newer.
+    - Add an explicit LICENSE section per request.
+    - Took many tests and utility functions from perl5i.
+    - Pays attention to wantarray and returns a list or the reference, as dictated by context.
+    - flatten should rarely if ever be needed any more.
+
+0.6 Mon May 26 05:19:00 2008
+    - propogates arguments to autobox and doesn't require you to use
+      autobox. I still can't test it and am applying patches blindly. Maybe I'll
+      drop the Hash::Util dep in the next version since it and Scalar::Util are
+      constantly wedging on my system.
+      The documentation needs to be updated and mention of Perl6::Contexts mostly removed.
+    - JJ contributed a strip method for scalars - thanks JJ!
+
+0.5 Tue May 13 23:59:00 2008
+    - has an $arrayref->unshift bug fix and and a new flatten method for hashes.
+    - Also, this version is untested because my Hash::Util stopped working, dammit.
+
+0.4 Sat Jan  5 17:00:00 2008
+    - got numeric operations.
+
+0.3 Tue Mar 30 05:45:00 2004
+    - fixes a problem where unpack wasn't sure it had enough arguments
+      according to a test introduced in Perl 5.8.6 or perhaps 5.8.5.
+      This problem was reported by Ron Reidy - thanks Ron!
+    - also added the references to Perl 6 Now and the excerpt.
+
+0.2 Sat May 29 21:36:00 2004
+    - rounded out the API and introduced the beginnings of functional-ish methods.
+
+0.1 Tue Mar 30 05:45:00 2004
+    - woefully incomplete initial version
