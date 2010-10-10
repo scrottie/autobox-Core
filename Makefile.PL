@@ -5,7 +5,7 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     NAME               => 'autobox::Core',
     VERSION_FROM       => 'lib/autobox/Core.pm',               # finds $VERSION
-    PREREQ_PM          => {'autobox' => 0.11},
+    PREREQ_PM          => {autobox => 2.71},
     ABSTRACT_FROM      => 'lib/autobox/Core.pm',               # retrieve abstract from module
     AUTHOR             => 'Scott Walters scott@slowass.net',
     CONFIGURE_REQUIRES => {
