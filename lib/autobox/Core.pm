@@ -116,9 +116,9 @@ Of the built-in stuff, only a few stragglers such as C<srand> were excluded.
 C<concat> is the C<.> operator.
 
 C<strip> is not a built-in operator or function but is instead one of a number of user-defined
-convinience methods.
+convenience methods.
 C<strip> strips out whitespace from the beginning and end of a string.
-This is redundant and subtely different from C<trim> XXX.
+This is redundant and subtly different from C<trim> XXX.
 
 C<trim> strips out whitespace from the beginning and end of a string.
 
