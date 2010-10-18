@@ -2,7 +2,7 @@
 
 use autobox::Core;
 
-use Test::More;
+use Test::More tests => 25;
 
 my $hello = 'hello';
 
@@ -36,5 +36,3 @@ is( "even"->center(0, "-"), 'even',
 for my $size ($hello->length..20) {
     is( $hello->center($size)->length, $size, "center($size) returns that size" );
 }
-
-done_testing();

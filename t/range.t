@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 use strict;
 use warnings;
-use Test::More;
+use Test::More tests => 4;
 use autobox::Core;
 
 my @array = qw(foo bar baz gorch);
@@ -16,5 +16,3 @@ is scalar @slice, 3, "Returns an array in list context";
 my $slice = @array->range(0,2);
 
 is ref $slice, 'ARRAY', "Returns an arrayref in scalar context";
-
-done_testing();

@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-use Test::More;
+use Test::More tests => 2;
 use autobox::Core;
 
 my %hash = ( 1 => 'foo', 2 => 'bar', 3 => 'bar' );
@@ -12,5 +12,3 @@ my %f = %hash->flip;
 is_deeply( \%f, { foo => 1, bar => 3 }, "Returns hash in list context" );
 
 my %nested = ( 1 => { foo => 'bar' }, 2 => 'bar' );
-
-done_testing;

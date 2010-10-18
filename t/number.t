@@ -1,6 +1,6 @@
 #!perl
 
-use Test::More;
+use Test::More tests => 49;
 use autobox::Core;
 
 #is( 12.34->ceil,       13);
@@ -66,5 +66,3 @@ TODO: {
         }
     }
 }
-
-done_testing();
