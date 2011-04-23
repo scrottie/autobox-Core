@@ -776,7 +776,9 @@ sub lcfirst ($)   { CORE::lcfirst($_[0]); }
 sub length  ($)   { CORE::length($_[0]); }
 sub ord     ($)   { CORE::ord($_[0]); }
 sub pack    ($;@) { CORE::pack(shift, @_); }
-sub reverse ($)   { CORE::reverse($_[0]); }
+sub reverse ($)   {
+    wantarray ? return my $r = CORE::reverse($_[0]) : CORE::reverse($_[0]);
+}
 
 sub rindex  ($@)  {
     return CORE::rindex($_[0], $_[1]) if @_ == 2;
