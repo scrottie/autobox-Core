@@ -1,6 +1,6 @@
 Revision history for autobox::Core
 
-1.21
+1.21  Mon Sep 26 16:15:19 PDT 2011
     New Features
     - $string->reverse will now always reverse the string regardless of context.
       (Technically an incompatible change, but the list behavior of $string->reverse
