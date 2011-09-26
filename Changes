@@ -1,6 +1,6 @@
 Revision history for autobox::Core
 
-1.?? TBC
+1.21
     New Features
     - $string->reverse will now always reverse the string regardless of context.
       (Technically an incompatible change, but the list behavior of $string->reverse
