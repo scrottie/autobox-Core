@@ -777,7 +777,8 @@ sub length  ($)   { CORE::length($_[0]); }
 sub ord     ($)   { CORE::ord($_[0]); }
 sub pack    ($;@) { CORE::pack(shift, @_); }
 sub reverse ($)   {
-    wantarray ? return my $r = CORE::reverse($_[0]) : CORE::reverse($_[0]);
+    # Always reverse scalars as strings, never as a single element list.
+    return scalar CORE::reverse($_[0]);
 }
 
 sub rindex  ($@)  {
