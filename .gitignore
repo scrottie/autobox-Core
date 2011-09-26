@@ -11,3 +11,4 @@ nytprof/
 .prove
 autobox-Core*
 .build
+MYMETA.*
