@@ -1,8 +1,12 @@
 Revision history for autobox::Core
 
 1.?? TBC
+    Distribution Changes
     - fix MANIFEST (thanks Steffen Müller).
     - move POD History section into standard Changes file (chocolateboy).
+
+    Misc
+    - removed unnecessary prototypes on methods (schwern)
 
 1.2 Fri Mar 19 12:11:00 2010
     - fixes version 1.1 losing the MANIFEST and being essentially
