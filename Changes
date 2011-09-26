@@ -1,6 +1,11 @@
 Revision history for autobox::Core
 
 1.?? TBC
+    New Features
+    - $string->reverse will now always reverse the string regardless of context.
+      (Technically an incompatible change, but the list behavior of $string->reverse
+      was clearly useless).
+
     Distribution Changes
     - fix MANIFEST (thanks Steffen Müller).
     - move POD History section into standard Changes file (chocolateboy).
