@@ -73,7 +73,7 @@ messy dereferencing syntaxes and parentheses pile ups.
 
 F<autobox::Core> is what you'd call a I<stub> module. It is mostly glue, presenting
 existing functions with a new interface. Most of the methods read like
-C<< sub hex ($) { hex($_[0]) } >>.
+C<< sub hex { hex($_[0]) } >>.
 Besides built-ins that operate on hashes, arrays, scalars, and code references,
 some Perl 6-ish things were thrown in, and some keyword like C<foreach> have
 been turned into methods.
@@ -766,70 +766,78 @@ package autobox::Core::SCALAR;
 
 # current doesn't handle scalar references - get can't call method chomp on unblessed reference etc when i try to support it
 
-sub chomp   ($)   { CORE::chomp($_[0]); }
-sub chop    ($)   { CORE::chop($_[0]); }
-sub chr     ($)   { CORE::chr($_[0]); }
-sub crypt   ($$)  { CORE::crypt($_[0], $_[1]); }
-sub index   ($@)  { $_[2] ? CORE::index($_[0], $_[1], $_[2]) : CORE::index($_[0], $_[1]); }
-sub lc      ($)   { CORE::lc($_[0]); }
-sub lcfirst ($)   { CORE::lcfirst($_[0]); }
-sub length  ($)   { CORE::length($_[0]); }
-sub ord     ($)   { CORE::ord($_[0]); }
-sub pack    ($;@) { CORE::pack(shift, @_); }
-sub reverse ($)   {
+sub chomp      { CORE::chomp($_[0]); }
+sub chop       { CORE::chop($_[0]); }
+sub chr        { CORE::chr($_[0]); }
+sub crypt      { CORE::crypt($_[0], $_[1]); }
+sub index      { $_[2] ? CORE::index($_[0], $_[1], $_[2]) : CORE::index($_[0], $_[1]); }
+sub lc         { CORE::lc($_[0]); }
+sub lcfirst    { CORE::lcfirst($_[0]); }
+sub length     { CORE::length($_[0]); }
+sub ord        { CORE::ord($_[0]); }
+sub pack       { CORE::pack(shift, @_); }
+sub reverse    {
     # Always reverse scalars as strings, never as a single element list.
     return scalar CORE::reverse($_[0]);
 }
 
-sub rindex  ($@)  {
+sub rindex {
     return CORE::rindex($_[0], $_[1]) if @_ == 2;
     return CORE::rindex($_[0], $_[1], @_[2.. $#_]);
 }
 
-sub sprintf ($@)  { CORE::sprintf($_[0], $_[1], @_[2.. $#_]); }
+sub sprintf { CORE::sprintf($_[0], $_[1], @_[2.. $#_]); }
 
-sub substr  ($@)  {
+sub substr {
     return CORE::substr($_[0], $_[1]) if @_ == 2;
     return CORE::substr($_[0], $_[1], @_[2 .. $#_]);
 }
 
-sub uc      ($)   { CORE::uc($_[0]); }
-sub ucfirst ($)   { CORE::ucfirst($_[0]); }
-sub unpack  ($;@) { CORE::unpack($_[0], @_[1..$#_]); }
-sub quotemeta ($) { CORE::quotemeta($_[0]); }
-sub vec     ($$$) { CORE::vec($_[0], $_[1], $_[2]); }
-sub undef   ($)   { $_[0] = undef }
-sub m       ($$)  { [ $_[0] =~ m{$_[1]} ] }
-sub nm       ($$)  { [ $_[0] !~ m{$_[1]} ] }
-sub s       ($$$) { $_[0] =~ s{$_[1]}{$_[2]} }
-sub split   ($$)  { wantarray ? split $_[1], $_[0] : [ split $_[1], $_[0] ] }
+sub uc         { CORE::uc($_[0]); }
+sub ucfirst    { CORE::ucfirst($_[0]); }
+sub unpack     { CORE::unpack($_[0], @_[1..$#_]); }
+sub quotemeta  { CORE::quotemeta($_[0]); }
+sub vec        { CORE::vec($_[0], $_[1], $_[2]); }
+sub undef      { $_[0] = undef }
+sub m          { [ $_[0] =~ m{$_[1]} ] }
+sub nm         { [ $_[0] !~ m{$_[1]} ] }
+sub s          { $_[0] =~ s{$_[1]}{$_[2]} }
+sub split      { wantarray ? split $_[1], $_[0] : [ split $_[1], $_[0] ] }
 
-sub eval    ($)   { CORE::eval "$_[0]"; }
-sub system  ($;@) { CORE::system @_; }
-sub backtick($)   { `$_[0]`; }
+sub eval       { CORE::eval "$_[0]"; }
+sub system     { CORE::system @_; }
+sub backtick   { `$_[0]`; }
 
 #       Numeric functions
 #           "abs", "atan2", "cos", "exp", "hex", "int", "log",
 #           "oct", "rand", "sin", "sqrt", "srand"
 
-sub abs     ($)  { CORE::abs($_[0]) }
-sub atan2   ($)  { CORE::atan2($_[0], $_[1]) }
-sub cos     ($)  { CORE::cos($_[0]) }
-sub exp     ($)  { CORE::exp($_[0]) }
-sub int     ($)  { CORE::int($_[0]) }
-sub log     ($)  { CORE::log($_[0]) }
-sub oct     ($)  { CORE::oct($_[0]) }
-sub hex     ($)  { CORE::hex($_[0]); }
-sub rand    ($)  { CORE::rand($_[0]) }
-sub sin     ($)  { CORE::sin($_[0]) }
-sub sqrt    ($)  { CORE::sqrt($_[0]) }
+sub abs       { CORE::abs($_[0]) }
+sub atan2     { CORE::atan2($_[0], $_[1]) }
+sub cos       { CORE::cos($_[0]) }
+sub exp       { CORE::exp($_[0]) }
+sub int       { CORE::int($_[0]) }
+sub log       { CORE::log($_[0]) }
+sub oct       { CORE::oct($_[0]) }
+sub hex       { CORE::hex($_[0]); }
+sub rand      { CORE::rand($_[0]) }
+sub sin       { CORE::sin($_[0]) }
+sub sqrt      { CORE::sqrt($_[0]) }
 
 # functions for array creation
-sub to ($$) { my $res = $_[0] < $_[1] ? [$_[0]..$_[1]] : [CORE::reverse $_[1]..$_[0]]; wantarray ? @$res : $res }
-sub upto ($$) { wantarray ? ($_[0]..$_[1]) : [ $_[0]..$_[1] ] }
-sub downto ($$) { my $res = [ CORE::reverse $_[1]..$_[0] ]; wantarray ? @$res : $res }
+sub to {
+    my $res = $_[0] < $_[1] ? [$_[0]..$_[1]] : [CORE::reverse $_[1]..$_[0]];
+    return wantarray ? @$res : $res
+}
+sub upto {
+    return wantarray ? ($_[0]..$_[1]) : [ $_[0]..$_[1] ]
+}
+sub downto  {
+    my $res = [ CORE::reverse $_[1]..$_[0] ];
+    return wantarray ? @$res : $res
+}
 
-sub times ($;&) {
+sub times {
    if ($_[1]) {
      for (0..$_[0]-1) { $_[1]->($_); }; $_[0];
    } else {
@@ -839,49 +847,53 @@ sub times ($;&) {
 
 # doesn't minipulate scalars but works on scalars
 
-sub print   ($;@) { CORE::print @_; }
-sub say     ($;@) { CORE::print @_, "\n"}
+sub print { CORE::print @_; }
+sub say   { CORE::print @_, "\n"}
 
 # operators that work on scalars:
 
-sub concat ($;@)   { CORE::join '', @_; }
-sub strip  ($)     { my $s = CORE::shift; $s =~ s/^\s+//; $s =~ s/\s+$//; $s }
+sub concat { CORE::join '', @_; }
+sub strip  {
+    my $s = CORE::shift;
+    $s =~ s/^\s+//; $s =~ s/\s+$//;
+    return $s;
+}
 
 # operator schizzle
-sub add($$) { $_[0] + $_[1]; }
-sub and($$) { $_[0] && $_[1]; }
-sub band($$) { $_[0] & $_[1]; }
-sub bor($$) { $_[0] | $_[1]; }
-sub bxor($$) { $_[0] ^ $_[1]; }
-sub cmp($$) { $_[0] cmp $_[1]; }
-sub dec($) { my $t = CORE::shift @_; --$t; }
-sub div($$) { $_[0] / $_[1]; }
-sub eq($$) { $_[0] eq $_[1]; }
-sub flip($) { ~$_[0]; }
-sub ge($$) { $_[0] ge $_[1]; }
-sub gt($$) { $_[0] gt $_[1]; }
-sub inc($) { my $t = CORE::shift @_; ++$t; }
-sub le($$) { $_[0] le $_[1]; }
-sub lshift($$) { $_[0] << $_[1]; }
-sub lt($$) { $_[0] lt $_[1]; }
-sub mod($$) { $_[0] % $_[1]; }
-sub mult($$) { $_[0] * $_[1]; }
-sub mcmp($$) { $_[0] <=> $_[1]; }
-sub ne($$) { $_[0] ne $_[1]; }
-sub neg($) { -$_[0]; }
-sub meq($$) { $_[0] == $_[1]; }
-sub mge($$) { $_[0] >= $_[1]; }
-sub mgt($$) { $_[0] > $_[1]; }
-sub mle($$) { $_[0] <= $_[1]; }
-sub mlt($$) { $_[0] < $_[1]; }
-sub mne($$) { $_[0] != $_[1]; }
-sub not($) { !$_[0]; }
-sub or($$) { $_[0] || $_[1]; }
-sub pow($$) { $_[0] ** $_[1]; }
-sub rpt($$) { $_[0] x $_[1]; }
-sub rshift($$) { $_[0] >> $_[1]; }
-sub sub($$) { $_[0] - $_[1]; }
-sub xor($$) { $_[0] ^ $_[1]; }
+sub add  { $_[0] + $_[1]; }
+sub and  { $_[0] && $_[1]; }
+sub band { $_[0] & $_[1]; }
+sub bor  { $_[0] | $_[1]; }
+sub bxor { $_[0] ^ $_[1]; }
+sub cmp  { $_[0] cmp $_[1]; }
+sub dec  { my $t = CORE::shift @_; --$t; }
+sub div  { $_[0] / $_[1]; }
+sub eq   { $_[0] eq $_[1]; }
+sub flip { ~$_[0]; }
+sub ge   { $_[0] ge $_[1]; }
+sub gt   { $_[0] gt $_[1]; }
+sub inc  { my $t = CORE::shift @_; ++$t; }
+sub le   { $_[0] le $_[1]; }
+sub lshift { $_[0] << $_[1]; }
+sub lt   { $_[0] lt $_[1]; }
+sub mod  { $_[0] % $_[1]; }
+sub mult { $_[0] * $_[1]; }
+sub mcmp { $_[0] <=> $_[1]; }
+sub ne   { $_[0] ne $_[1]; }
+sub neg  { -$_[0]; }
+sub meq  { $_[0] == $_[1]; }
+sub mge  { $_[0] >= $_[1]; }
+sub mgt  { $_[0] > $_[1]; }
+sub mle  { $_[0] <= $_[1]; }
+sub mlt  { $_[0] < $_[1]; }
+sub mne  { $_[0] != $_[1]; }
+sub not  { !$_[0]; }
+sub or   { $_[0] || $_[1]; }
+sub pow  { $_[0] ** $_[1]; }
+sub rpt  { $_[0] x $_[1]; }
+sub rshift { $_[0] >> $_[1]; }
+sub sub  { $_[0] - $_[1]; }
+sub xor  { $_[0] ^ $_[1]; }
 
 # sub bless (\%$)   { CORE::bless $_[0], $_[1] } # HASH, ARRAY, CODE already have a bless() and blessing a non-reference works (autobox finds the reference in the pad or stash!).  "can't bless a non-referenc value" for non-reference lexical and package scalars.  this would work for (\$foo)->bless but then, unlike arrays, we couldn't find the reference to the variable again later so there's not much point I can see.
 
@@ -979,21 +991,59 @@ use Carp 'croak';
 #       Functions for real %HASHes
 #           "delete", "each", "exists", "keys", "values"
 
-sub delete (\%@) { my $hash = CORE::shift; my @res = (); CORE::foreach(@_) { push @res, CORE::delete $hash->{$_}; } wantarray ? @res : \@res }
-sub exists (\%$) { my $hash = CORE::shift; CORE::exists $hash->{$_[0]}; }
-sub keys (\%) { wantarray ? CORE::keys %{$_[0]} : [ CORE::keys %{$_[0]} ] }
-sub values (\%) { wantarray ? CORE::values %{$_[0]} : [ CORE::values %{$_[0]} ] }
+sub delete  {
+    my $hash = CORE::shift;
 
-sub at (\%@) { $_[0]->{@_[1..$#_]}; }
-sub get(\%@) { $_[0]->{@_[1..$#_]}; }
-sub put(\%%) { my $h = CORE::shift @_; my %h = @_; while(my ($k, $v) = CORE::each %h) { $h->{$k} = $v; }; $h; }
-sub set(\%%) { my $h = CORE::shift @_; my %h = @_; while(my ($k, $v) = CORE::each %h) { $h->{$k} = $v; }; $h; }
+    my @res = ();
+    foreach(@_) {
+        push @res, CORE::delete $hash->{$_};
+    }
 
-sub flatten(\%) { %{$_[0]} }
+    return wantarray ? @res : \@res
+}
+
+sub exists {
+    my $hash = CORE::shift;
+    return CORE::exists $hash->{$_[0]};
+}
+
+sub keys {
+    return wantarray ? CORE::keys %{$_[0]} : [ CORE::keys %{$_[0]} ];
+}
+
+sub values {
+    return wantarray ? CORE::values %{$_[0]} : [ CORE::values %{$_[0]} ]
+}
+
+sub at  { $_[0]->{@_[1..$#_]}; }
+sub get { $_[0]->{@_[1..$#_]}; }
+
+sub put {
+    my $h = CORE::shift @_;
+    my %h = @_;
+
+    while(my ($k, $v) = CORE::each %h) {
+        $h->{$k} = $v;
+    };
+
+    return $h;
+}
+
+sub set {
+    my $h = CORE::shift @_;
+    my %h = @_;
+    while(my ($k, $v) = CORE::each %h) {
+        $h->{$k} = $v;
+    };
+
+    return $h;
+}
+
+sub flatten { %{$_[0]} }
 
 # local
 
-sub each (\%$) {
+sub each {
     my $hash = CORE::shift;
     my $cb = CORE::shift;
     while((my $k, my $v) = CORE::each(%$hash)) {
@@ -1005,12 +1055,12 @@ sub each (\%$) {
 #           "bless", "dbmclose", "dbmopen", "package", "ref",
 #           "tie", "tied", "untie", "use"
 
-sub bless (\%$)   { CORE::bless $_[0], $_[1] }
-sub tie   (\%$;@) { CORE::tie   $_[0], @_[1 .. $#_] }
-sub tied  (\%)    { CORE::tied  $_[0] }
-sub ref   (\%)    { CORE::ref   $_[0] }
+sub bless  { CORE::bless $_[0], $_[1] }
+sub tie    { CORE::tie   $_[0], @_[1 .. $#_] }
+sub tied   { CORE::tied  $_[0] }
+sub ref    { CORE::ref   $_[0] }
 
-sub undef   ($)   { $_[0] = {} }
+sub undef  { $_[0] = {} }
 
 sub slice {
     my ($h, @keys) = @_;
@@ -1021,7 +1071,7 @@ sub slice {
 
 use Hash::Util;
 
-sub lock_keys (\%) { Hash::Util::lock_keys(%{$_[0]}); $_[0]; }
+sub lock_keys { Hash::Util::lock_keys(%{$_[0]}); $_[0]; }
 
 # from perl5i
 
@@ -1119,7 +1169,7 @@ sub var {
     $res/@$arr;
 }
 
-sub svar(\@) {
+sub svar {
     my $arr = CORE::shift;
     my $mean = 0;
     $mean += $_ foreach(@$arr);
@@ -1129,46 +1179,95 @@ sub svar(\@) {
     $res/(@$arr-1);
 }
 
-sub max(\@) { my $arr = CORE::shift; my $max = $arr->[0]; foreach (@$arr) {$max = $_ if $_ > $max }; $max; }
+sub max {
+    my $arr = CORE::shift;
+    my $max = $arr->[0];
+    foreach (@$arr) {
+        $max = $_ if $_ > $max
+    }
 
-sub min(\@) { my $arr = CORE::shift; my $min = $arr->[0]; foreach (@$arr) {$min = $_ if $_ < $min }; $min; }
+    return $max;
+}
 
-#       Functions for real @ARRAYs
-#           "pop", "push", "shift", "splice", "unshift"
+sub min {
+    my $arr = CORE::shift;
+    my $min = $arr->[0];
+    foreach (@$arr) {
+        $min = $_ if $_ < $min
+    }
 
-sub pop (\@) { CORE::pop @{$_[0]}; }
+    return $min;
+}
 
-sub push (\@;@) { my $arr = CORE::shift; CORE::push @$arr, @_; wantarray ? return @$arr : $arr; }
+# Functions for real @ARRAYs
+#    "pop", "push", "shift", "splice", "unshift"
 
-sub unshift (\@;@) { my $a = CORE::shift; CORE::unshift(@$a, @_); wantarray ? @$a : $a; }
+sub pop  { CORE::pop @{$_[0]}; }
 
-sub delete (\@$) { my $arr = CORE::shift; CORE::delete $arr->[$_[0]]; wantarray ? @$arr : $arr  }
+sub push {
+    my $arr = CORE::shift;
+    CORE::push @$arr, @_;
+    return wantarray ? return @$arr : $arr;
+}
 
-sub vdelete(\@$) { my $arr = CORE::shift; @$arr = CORE::grep {$_ ne $_[0]} @$arr; wantarray ? @$arr : $arr }
+sub unshift {
+    my $a = CORE::shift;
+    CORE::unshift(@$a, @_);
+    return wantarray ? @$a : $a;
+}
 
-sub shift (\@;@) { my $arr = CORE::shift; CORE::shift @$arr; } # last to prevent having to prefix normal shift calls with CORE::
+sub delete  {
+    my $arr = CORE::shift;
+    CORE::delete $arr->[$_[0]];
+    return wantarray ? @$arr : $arr
+}
 
-sub undef   ($)   { $_[0] = [] }
+sub vdelete {
+    my $arr = CORE::shift;
+    @$arr = CORE::grep {$_ ne $_[0]} @$arr;
+    return wantarray ? @$arr : $arr
+}
+
+sub shift   {
+    my $arr = CORE::shift;
+    return CORE::shift @$arr;
+}
+
+sub undef   { $_[0] = [] }
 
 # doesn't modify array
 
-sub exists (\@$) { my $arr = CORE::shift; CORE::scalar(CORE::grep {$_ eq $_[0]} @$arr) > 0; }
+sub exists {
+    my $arr = CORE::shift;
+    return CORE::scalar( CORE::grep {$_ eq $_[0]} @$arr ) > 0;
+}
 
-sub at(\@$) { my $arr = CORE::shift; $arr->[$_[0]]; }
+sub at {
+    my $arr = CORE::shift;
+    return $arr->[$_[0]];
+}
 
-sub count(\@$) { my $arr = CORE::shift; scalar(CORE::grep {$_ eq $_[0]} @$arr); }
+sub count {
+    my $arr = CORE::shift;
+    return CORE::scalar(CORE::grep {$_ eq $_[0]} @$arr);
+}
 
-sub uniq(\@) { my $arr = CORE::shift; my %h; my @res = CORE::map { $h{$_}++ == 0 ? $_ : () } @$arr; wantarray ? @res : \@res; } # shamelessly from List::MoreUtils
+sub uniq {
+    my $arr = CORE::shift;
+
+    # shamelessly from List::MoreUtils
+    my %uniq;
+    my @res = CORE::map { $uniq{$_}++ == 0 ? $_ : () } @$arr;
+
+    return wantarray ? @res : \@res;
+}
 
 # tied and blessed
 
-sub bless (\@$)   { CORE::bless $_[0], $_[1] }
-
-sub tie   (\@$;@) { CORE::tie   $_[0], @_[1 .. $#_] }
-
-sub tied  (\@)    { CORE::tied  $_[0] }
-
-sub ref   (\@)    { CORE::ref   $_[0] }
+sub bless  { CORE::bless $_[0], $_[1] }
+sub tie    { CORE::tie   $_[0], @_[1 .. $#_] }
+sub tied   { CORE::tied  $_[0] }
+sub ref    { CORE::ref   $_[0] }
 
 # perl 6-ish extensions to Perl 5 core stuff
 
@@ -1209,8 +1308,8 @@ sub first {
     autobox::Core::ARRAY::first(@_);
 }
 
-sub size { my $arr = CORE::shift; CORE::scalar @$arr; }
-sub elems { my $arr = CORE::shift; CORE::scalar @$arr; } # Larry announced it would be elems, not size
+sub size   { my $arr = CORE::shift; CORE::scalar @$arr; }
+sub elems  { my $arr = CORE::shift; CORE::scalar @$arr; } # Larry announced it would be elems, not size
 sub length { my $arr = CORE::shift; CORE::scalar @$arr; }
 
 # misc
@@ -1239,12 +1338,12 @@ sub for {
 }
 
 sub print { my $arr = CORE::shift; my @arr = @$arr; CORE::print "@arr"; }
-sub say { my $arr = CORE::shift; my @arr = @$arr; CORE::print "@arr\n"; }
+sub say   { my $arr = CORE::shift; my @arr = @$arr; CORE::print "@arr\n"; }
 
 # local
 
 sub elements { ( @{$_[0]} ) }
-sub flatten { ( @{$_[0]} ) }
+sub flatten  { ( @{$_[0]} ) }
 
 sub head {
     return $_[0]->[0];
@@ -1267,7 +1366,6 @@ sub range {
 }
 
 sub tail {
-
     my $last = $#{$_[0]};
 
     my $first = defined $_[1] ? $last - $_[1] + 1 : 1;
@@ -1279,7 +1377,6 @@ sub tail {
 }
 
 sub first_index {
-
     if (@_ == 1) {
         return 0;
     }
@@ -1297,7 +1394,6 @@ sub first_index {
 }
 
 sub last_index {
-
     if (@_ == 1) {
         return $#{$_[0]};
     }
@@ -1323,7 +1419,7 @@ sub last_index {
 package autobox::Core::CODE;
 
 sub bless    { CORE::bless $_[0], $_[1] }
-sub ref       { CORE::ref   $_[0] }
+sub ref      { CORE::ref   $_[0] }
 
 # perl 6-isms
 
