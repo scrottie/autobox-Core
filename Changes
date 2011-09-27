@@ -1,5 +1,11 @@
 Revision history for autobox::Core
 
+1.22
+    New Features
+    - %hash->each is now guaranteed to iterate through the complete hash,
+      unlike each(%hash). [github 7]
+
+
 1.21  Mon Sep 26 16:15:19 PDT 2011
     New Features
     - $string->reverse will now always reverse the string regardless of context.
@@ -14,6 +20,7 @@ Revision history for autobox::Core
     Misc
     - removed unnecessary prototypes on methods (schwern)
     - updated dependency on autobox
+
 
 1.2 Fri Mar 19 12:11:00 2010
     - fixes version 1.1 losing the MANIFEST and being essentially

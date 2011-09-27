@@ -380,6 +380,8 @@ the code reference is invoked with the key and the corresponding value as argume
   my $hashref = { foo => 10, bar => 20, baz => 30, quux => 40 };
   $hashref->each(sub { print $_[0], ' is ', $_[1], "\n" });
 
+Unlike regular C<each>, this each will always iterate through the entire hash.
+
 There is currently no way to have the elements sorted before they are handed to the
 code block. If someone requests a way of passing in a sort criteria, I'll implement it.
 
@@ -1046,9 +1048,15 @@ sub flatten { %{$_[0]} }
 sub each {
     my $hash = CORE::shift;
     my $cb = CORE::shift;
+
+    # Reset the each iterator. (This is efficient in void context)
+    CORE::keys %$hash;
+
     while((my $k, my $v) = CORE::each(%$hash)) {
         $cb->($k, $v);
     }
+
+    return;
 }
 
 #       Keywords related to classes and object-orientedness
