@@ -3,11 +3,11 @@ name:                autobox-Core
 version:             0.6
 abstract:            Methods for core built-in functions in primitive types
 license:             ~
-author:              
+author:
     - Scott Walters scott@slowass.net
 generated_by:        ExtUtils::MakeMaker version 6.44
 distribution_type:   module
-requires:     
+requires:
     autobox:                       0.11
 meta-spec:
     url:     http://module-build.sourceforge.net/META-spec-v1.3.html
