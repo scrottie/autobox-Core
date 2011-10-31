@@ -2,24 +2,38 @@ package autobox::Core;
 
 # TODO:
 
-# o. don't overlap with autobox::List::Util.
+# o. Lars D implemented a times() method for scalars but there is no doc or comment and I don't see the point; commented it out for now.
+#    (scrottie)
+# o. @array->random ?
+# o. "5->times(sub { print "hi\n"}); # XXX likely to change but it's in the code so bloody doc it so I have incentive to rethink it". 
+#    well?  do we want this?  (scrottie)
+# o. kill head() and tail() -- does it really make sense to try to emulate linked lists with Perl arrays?  cute idea, but, uh. (scrottie)
+# o. "There's currently no counterpart to the C<< \ >> operator" -- but should we back away from trying to name operators and
+#    only do built-in functions? (scrottie)
+# o. I no longer think that center() belongs here; plenty of modules offer text formatting (scrottie)
+# o. don't overlap with autobox::List::Util.  or else do.  but decide.
 # o. make jive with MooseX::Autobox or whatever it is
-# o. perl6now.com is bjorked and we link to it... loose the link or fix it
 # v/ regenerate README
-# v/ docs should show @arr->whatever syntax that works in non-antique autoboxes.
-# v/ steal perl5i's tests too
 # o. steal perl5i's docs too
 # o. IO::Any?
 # o. "appending the user-supplied arguments allows autobox::Core options to be overridden" -- document this if we haven't already
 # v/ more Hash::Util methods?
 # o. "If this goes over well, I'll make L<Langauge::Functional> a dependency and expose its function as methods on the correct data types. Or maybe I will do this anyway."
 #    ... maybe there should be filter, fold, reduce, etc methods
-# v/ C<each> on hashes. There is no good reason it is missing.
 # o. support 'my IO::Handle $io; $io->open('<', $fn);'. undef values belonging to
 #   SVs having associated types should dispatch to that class. of course, just using
 #   core, this could be made to work too -- open() is a built-in, after all. the
 #   autobox::Core::open would have to know how to handle $_[0] being undef and
 #   assigning the open'ed handle into $_[0].
+
+#
+# from http://search.cpan.org/~miyagawa/PSGI-1.03/PSGI/FAQ.pod:
+#
+# body.each { |buf| request.write(buf) }
+#
+#would just magically work whether body is an Array, FileIO object or an object that implements iterators. Perl doesn't have such a beautiful thing in the language unless autobox is loaded. PSGI should not make autobox as a requirement, so we only support a simple array ref or file handle.
+#
+# ... perl5i should unify interfaces to IO handles, arrays, hashes, objects, etc as much as possible.
 
 
 use 5.008;
@@ -146,8 +160,8 @@ C<m> returns an array reference so that things such as C<map> and C<grep> may be
 
   print "$street_number $street_name $apartment_number\n";
 
-C<undef> assigns C<undef> to the value.  It is not a test.
-XXX for some reason, there's no C<defined>.
+C<undef> assigns C<undef> to the value.
+C<defined> tests whether a value is defined (not C<undef>).
 
 =head4 center()
 
@@ -192,7 +206,7 @@ C<sub> is subtract, I think, but it should not be named the same as the anonymou
 
     $is_a_number = $thing->is_number;
 
-Returns true if $thing is a number understood by Perl.
+Returns true if $thing is a number as understood by Perl.
 
     12.34->is_number;           # true
     "12.34"->is_number;         # also true
@@ -203,7 +217,7 @@ Returns true if $thing is a number understood by Perl.
 
 Returns true if $thing is a positive number.
 
-0 is not positive.
+C<0> is not positive.
 
 =head4 is_negative
 
@@ -211,7 +225,7 @@ Returns true if $thing is a positive number.
 
 Returns true if $thing is a negative number.
 
-0 is not negative.
+C<0> is not negative.
 
 =head4 is_integer
 
@@ -224,7 +238,7 @@ Returns true if $thing is an integer.
 
 =head4 is_int
 
-A synonym for is_integer
+A synonym for is_integer.
 
 =head4 is_decimal
 
@@ -249,11 +263,30 @@ C<ref>,
 C<undef>,
 C<bless>,
 and C<vec>.
-C<tie>, C<tied>, and C<undef> don't work on code references, and C<bless> doesn't work on non-reference
-scalars (okay, that's no longer true).
+
+C<tie>, C<tied>, and C<undef> don't work on code references.
+
+Attempting to C<bless> a non-reference scalar will fail with one of:
+C<< Can't call method "bless" on an undefined value >> or
+C<< Can't call method "bless" without a package or object reference>>.
+Hashes, arrays and scalars containing references may be blessed.
+Here's an example of blessing a hash:
+
+    use autobox::Core;
+    my %foo;
+    sub mypackage::hi { print "hi\n"; };
+    %foo->bless('mypackage');
+    %foo->hi;  
+
+It is technically true that only references may be blessed.  This works because C<perl>, internally, stores
+references to lexical variables in the current scope, much like globs hold references to package variables.
+The reference in the "pad" (array of lexical variables for the current stack frame) is blessed in this example.
+
 C<quotemeta> works on non-reference scalars, along with C<split>, C<m>, and C<s> for regular expression operations.
 C<ref> is the same as the C<ref> keyword in that it tells you what kind of a reference something is if it's a
-reference; XXX there's currently no counterpart to the C<< \ >> operator, which takes something and gives you
+reference.
+
+There's currently no counterpart to the C<< \ >> operator, which takes something and gives you
 a reference to it.
 
 
@@ -269,22 +302,49 @@ Or:
   my @arr = [ 1 .. 10 ];
   @arr->undef;
 
+These built-in functions are defined as methods:
+C<pop>, C<push>, C<shift>, C<unshift>, C<delete>, C<vdelete>, C<undef>, C<exists>,
+C<bless>, C<tie>, C<tied>, C<ref>,
+C<grep>, C<map>, C<join>, C<reverse>, and C<sort>.
+
+These non-standard extensions are also defined as methods on arrays:
+C<uniq>, C<first>, 
+C<count>, 
+C<max>,  C<min>, C<sum>, 
+C<mean>, C<var>,  C<svar>, 
+C<at>, 
+C<size>, C<elems>, C<length>, 
+C<each>,  C<foreach>,
+C<print>,  C<say>,
+C<elements>, C<flatten>,
+C<slice>, C<range>,
+C<tail>, C<head>,
+C<first_index>, and C<last_index>.
+
+List context forces methods to return a list:
+
+  my @arr = ( 1 .. 10 );
+  print join ' -- ', @arr->grep(sub { $_ > 3 }), "\n";
+
+Likewise, scalar context forces methods to return an array reference.
+
 Arrays can tell you how many elements they contain and the index of their last element:
 
   my $arr = [ 1 .. 10 ];
   print '$arr contains ', $arr->size,
         ' elements, the last having an index of ', $arr->last_index, "\n";
 
+C<last_index> corresponds to C<$#array> and is always one less than C<scalar @array>.
+An array with one element in it has that one element in position zero (size of 1, last index of 0).
+An array with zero elements in it has a size of C<-1>, as far as C<perl> is concerned (size of 0, last index of -1).
+
+C<length>, C<size>, and C<elems> are synonyms for each other and return how many elements are in the array (as with C<scalar @array>).
+
 Array references have a C<flatten> method to dump their elements.
 This is the same as C<< @{$array_ref} >>.
 
   my $arr = [ 1 .. 10 ];
   print join ' -- ', $arr->flatten, "\n";
-
-List context forces methods to return a list:
-
-  my @arr = ( 1 .. 10 );
-  print join ' -- ', @arr->grep(sub { $_ > 3 }), "\n";
 
 Methods may be chained; scalar context forces methods to return a reference:
 
@@ -305,74 +365,93 @@ C<sum> is a toy poke at doing L<Language::Functional>-like stuff:
 
   print $arrref->sum, "\n";
 
-Methods for array creation:  C<to>, C<upto>, and C<downto>.
+C<count> returns the number of elements in array that are C<eq> to a specified value:
+
+  my @array = qw/one two two three three three/;
+  my $num = @array->count('three');  # returns 3
+
+C<mean>, C<var>, and C<svar> compute means and variances on arrays of numbers.
+
+C<to>, C<upto>, and C<downto> create array references:
 
   1->to(5);      # creates [1, 2, 3, 4, 5]
   1->upto(5);    # creates [1, 2, 3, 4, 5]
   5->downto(5);  # creates [5, 4, 3, 2, 1]
 
-These wrap the C<..> operator.
+Those wrap the C<..> operator.
 
-  $arr->first(sub { /5/ });
-
-=head4 head
+C<head> returns the first element from C<@list>.
 
     my $first = @list->head;
 
-Returns the first element from C<@list>.
-
-=head4 tail
+C<tail> returns all but the first element from C<@list>. 
+In scalar context returns an array reference.
 
     my @list = qw(foo bar baz quux);
     my @rest = @list->tail;  # [ 'bar', 'baz', 'quux' ]
-
-Returns all but the first element from C<@list>. In scalar context
-returns an array reference.
 
 Optionally, you can pass a number as argument to ask for the last C<$n>
 elements:
 
     @rest = @list->tail(2); # [ 'baz', 'quux' ]
 
-=head4 slice
+C<slice> returns a list containing the elements from C<@list> at the indices
+C<@indices>. In scalar context, returns an array reference.
 
     my @sublist = @list->slice(@indexes);
 
-Returns a list containing the elements from C<@list> at the indices
-C<@indices>. In scalar context, returns an array reference.
-
-=head4 range
+C<range> returns a list containing the elements from C<@list> with indices
+ranging from C<$lower_idx> to C<$upper_idx>. It returns an array reference
+in scalar context.
 
     my @sublist = @list->range( $lower_idx, $upper_idx );
 
-Returns a list containing the elements from C<@list> with indices
-ranging from C<$lower_idx> to C<$upper_idx>. Returns an array reference
-in scalar context.
 
-=head4 last_index
+C<last_index> returns C<@array>'s last index (as with C<$#array>). 
+Optionally, it takes a Coderef or a Regexp,
+in which case it will return the index of the last element that matches
+such regex or makes the code reference return true:
 
     my $last_index = @array->last_index
 
-Returns C<@array>'s last index. Optionally, takes a Coderef or a Regexp,
-in which case it will return the index of the last element that matches
-such regex or makes the code reference return true. Example:
+Or:
 
     my @things = qw(pear poll potato tomato);
 
     my $last_p = @things->last_index(qr/^p/); # 2
 
-=head4 first_index
+C<first_index>, for symmetry, returns the first index of C<@array>. If passed a Coderef
+or Regexp, it will return the index of the first element that matches.
 
     my $first_index = @array->first_index; # 0
 
-For simmetry, returns the first index of C<@array>. If passed a Coderef
-or Regexp, it will return the index of the first element that matches.
+Or:
 
     my @things = qw(pear poll potato tomato);
 
     my $last_p = @things->first_index(qr/^t/); # 3
 
+C<max> and C<min> return the maximum and minimum value, respectively, from an array of numeric values.
+
+C<at> subscripts an array and returns a value.
+
+C<first> returns the first element of an array for which a callback returns true:
+
+  $arr->first(sub { /5/ });
+
+
 =head3 Hash Methods
+
+Hash methods work on both hashes and hash references.
+
+C<delete>, C<exists>, C<keys>, C<values>, C<at>, C<get>, C<put>, C<set>, C<flatten>, C<each>, C<bless>, 
+C<tie>, C<tied>, C<ref>, C<undef>, C<slice>, C<lock_keys>, and C<flip> are implemented.
+
+C<at>, C<get>, C<put>, and C<set> appear to be hash getters and setters, fetching or
+setting values for keys in hashes.  XXX
+
+C<lock_keys> uses the method of the same name in L<Hash::Util>.  It forcibly resticts which
+keys may exist in a hash to a specified set as a form of structure designed to guard against typos.
 
 C<each> is like C<foreach> but for hash references. For each key in the hash,
 the code reference is invoked with the key and the corresponding value as arguments:
@@ -380,10 +459,20 @@ the code reference is invoked with the key and the corresponding value as argume
   my $hashref = { foo => 10, bar => 20, baz => 30, quux => 40 };
   $hashref->each(sub { print $_[0], ' is ', $_[1], "\n" });
 
+Or:
+
+  my %hash = ( foo => 10, bar => 20, baz => 30, quux => 40 );
+  %hash->each(sub { print $_[0], ' is ', $_[1], "\n" });
+
 Unlike regular C<each>, this each will always iterate through the entire hash.
 
-There is currently no way to have the elements sorted before they are handed to the
-code block. If someone requests a way of passing in a sort criteria, I'll implement it.
+Hash keys appear in random order that varies from run to run (this is intentional,
+to avoid calculated attacks designed to trigger algorithmic worst case scenario in C<perl>'s hash tables).
+C<each> does not sort keys.  Instead, combine C<keys>, C<sort>, and C<foreach>:
+
+   %hash->keys->sort->foreach(sub {
+      print $_[0], ' is ', $hash{$_[0]}, "\n";
+   });
 
 C<slice> takes a list of hash keys and returns the corresponding values e.g.
 
@@ -395,9 +484,7 @@ C<slice> takes a list of hash keys and returns the corresponding values e.g.
 
   print %hash->slice(qw(one five))->join(' and '); # prints "two and six"
 
-=head4 flip()
-
-Exchanges values for keys in a hash.
+C<flip> exchanges values for keys in a hash:
 
     my %things = ( foo => 1, bar => 2, baz => 5 );
     my %flipped = %things->flip; # { 1 => foo, 2 => bar, 5 => baz }
@@ -414,7 +501,12 @@ nested hashes.
 
     { foo => [ 'bar', 'baz' ] }->flip; # dies
 
+C<flatten> turns a single hash reference into a list of alternating keys and values.
+
+
 =head3 Code Methods
+
+C<bless>, C<ref>, C<map>, C<curry>, and C<times> are implemented for code references.
 
 You may C<curry> code references:
 
@@ -432,13 +524,14 @@ C<times> executes a coderef a given number of times:
 
   5->times(sub { print "hi\n"});   # XXX likely to change but it's in the code so bloody doc it so I have incentive to rethink it
 
-XXX round this out
+C<map> takes a list of things to run through a code block, and returns an array reference or list depending on context:
+
+  sub { my $t = $_[0]; $t =~ tr/a-z/zyxwvutsrqponmlkjihgfedcba/; $t }->map(
+    "Black", "crow", "flies", "at", "midnight"
+  )->say;
 
 
 =head2 What's Missing?
-
-Many operators.  I'm tired.  I'll do it in the morning.  Maybe.  Send me a patch.
-Update:  Someone sent me a patch for numeric operations.
 
 File and socket operations are already implemented in an object-oriented fashion
 care of L<IO::Handle>, L<IO::Socket::INET>, and L<IO::Any>.
@@ -460,12 +553,10 @@ take no arguments,
 or don't make sense as part of the string, number, array, hash, or code API.
 C<srand> because you probably shouldn't be using it.
 
-C<each> on hashes. There is no good reason it is missing.  XXX.
-
 
 =head2 Autoboxing
 
-I<This section quotes four pages from the manuscript of Perl 6 Now: The Core Ideas Illustrated with Perl 5 by myself, Scott Walters. The text appears in the book starting at page 248. This copy lacks the benefit of copyedit - the finished product is of higher quality. See the shameless plug in the SEE ALSO section for information on ordering Perl 6 Now.>
+I<This section quotes four pages from the manuscript of Perl 6 Now: The Core Ideas Illustrated with Perl 5 by Scott Walters. The text appears in the book starting at page 248. This copy lacks the benefit of copyedit - the finished product is of higher quality.>
 
 A I<box> is an object that contains a primitive variable.
 Boxes are used to endow primitive types with the capabilities of objects.
@@ -684,7 +775,9 @@ I<Here ends the text quoted from the Perl 6 Now manuscript.>
 
 =head1 BUGS
 
-Yes. Report them to the author, L<scott@slowass.net>.
+Yes. Report them to the author, L<scott@slowass.net>, or post them to GitHub's bug tracker
+at L<https://github.com/scrottie/autobox-Core/issues>.
+
 The API is not yet stable -- Perl 6-ish things and local extensions are still being renamed.
 
 
@@ -694,7 +787,7 @@ See the Changes file.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2009, 2010 by Scott Walters and various contributors listed (and unlisted) below
+Copyright (C) 2009, 2010, 2011 by Scott Walters and various contributors listed (and unlisted) below.
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.9 or,
@@ -720,13 +813,6 @@ for a particular purpose.
 =item L<IO::Any>
 
 =item Perl 6: L<< http://dev.perl.org/perl6/apocalypse/ >>.
-
-=item (Shameless plug:) I<Perl 6 Now: The Core Ideas Illustrated with Perl 5>
-dedicates a sizable portion of Chapter 14, Objects, to autoboxing
-and the idea is used heavily throughout the book. Chapter 8, Data Structures,
-also has numerous examples.
-See L<http://perl6now.com> or look for ISBN 1-59059-395-2 at your favorite
-bookstore for more information.
 
 =back
 
@@ -801,6 +887,7 @@ sub unpack     { CORE::unpack($_[0], @_[1..$#_]); }
 sub quotemeta  { CORE::quotemeta($_[0]); }
 sub vec        { CORE::vec($_[0], $_[1], $_[2]); }
 sub undef      { $_[0] = undef }
+sub defined    { CORE::defined($_[0]) }
 sub m          { [ $_[0] =~ m{$_[1]} ] }
 sub nm         { [ $_[0] !~ m{$_[1]} ] }
 sub s          { $_[0] =~ s{$_[1]}{$_[2]} }
@@ -839,13 +926,14 @@ sub downto  {
     return wantarray ? @$res : $res
 }
 
-sub times {
-   if ($_[1]) {
-     for (0..$_[0]-1) { $_[1]->($_); }; $_[0];
-   } else {
-       0..$_[0]-1
-   }
-}
+# Lars D didn't explain the intention of this code either in a comment or in docs and I don't see the point
+#sub times {
+#   if ($_[1]) {
+#     for (0..$_[0]-1) { $_[1]->($_); }; $_[0];
+#   } else {
+#       0..$_[0]-1
+#   }
+#}
 
 # doesn't minipulate scalars but works on scalars
 
@@ -1017,8 +1105,10 @@ sub values {
     return wantarray ? CORE::values %{$_[0]} : [ CORE::values %{$_[0]} ]
 }
 
-sub at  { $_[0]->{@_[1..$#_]}; }
-sub get { $_[0]->{@_[1..$#_]}; }
+# local extensions
+
+sub get { my @res = $_[0]->{@_[1..$#_]}; return wantarray ? @res : \@res }
+*at = *get;
 
 sub put {
     my $h = CORE::shift @_;
@@ -1043,8 +1133,6 @@ sub set {
 
 sub flatten { %{$_[0]} }
 
-# local
-
 sub each {
     my $hash = CORE::shift;
     my $cb = CORE::shift;
@@ -1053,6 +1141,7 @@ sub each {
     CORE::keys %$hash;
 
     while((my $k, my $v) = CORE::each(%$hash)) {
+        # local $_ = $v; # XXX may I break stuff?
         $cb->($k, $v);
     }
 
@@ -1327,6 +1416,7 @@ sub each {
     # XXX should we try to build a result list if we're in non-void context?
     my $arr = CORE::shift; my $sub = CORE::shift;
     foreach my $i (@$arr) {
+        # local $_ = $i; # XXX may I break stuff?
         $sub->($i);
     }
 }
@@ -1334,6 +1424,7 @@ sub each {
 sub foreach {
     my $arr = CORE::shift; my $sub = CORE::shift;
     foreach my $i (@$arr) {
+        # local $_ = $i; # XXX may I break stuff?
         $sub->($i);
     }
 }
@@ -1341,6 +1432,7 @@ sub foreach {
 sub for {
     my $arr = CORE::shift; my $sub = CORE::shift;
     for(my $i = 0; $i <= $#$arr; $i++) {
+        # local $_ = $arr->[$i]; # XXX may I break stuff?
         $sub->($i, $arr->[$i], $arr);
     }
 }
@@ -1463,4 +1555,3 @@ __DATA__
 
 
 
-# XXX array.random
