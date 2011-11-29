@@ -834,46 +834,49 @@ Dereferences a hash reference.
 
 =head3 Code Methods
 
+Methods which work on code references.
+
+These are simple wrappers around the Perl core fnctions.
 L<bless|perlfunc/bless>, L<ref|perlfunc/ref>, 
-C<map>, C<curry>, and C<times> are implemented for code references.
-
-=head4 curry
-
-You may C<curry> code references:
-
-  $adding_up_numbers = sub {
-      my $first_number = shift;
-      my $second_number = shift;
-      return $first_number + $second_number;
-  };
-
-  my $adding_five_to_numbers = $adding_up_numbers->curry(5);
-
-  $adding_five_to_numbers->(20)->print; "\n"->print;
-  
-C<Caveat>
 
 Due to Perl's precedence rules, some autoboxed literals may need to be parenthesized:
-For instance, while this works:
+For instance, this works:
   
   my $curried = sub { ... }->curry();
 
-this doesn't:
-  
+This does not:
+
   my $curried = \&foo->curry();
 
 The solution is to wrap the reference in parentheses:
+
   my $curried = (\&foo)->curry();
-  
-=head4 times
 
-C<times> executes a coderef a given number of times:
 
-  5->times(sub { print "hi\n"});   # XXX likely to change but it's in the code so bloody doc it so I have incentive to rethink it
+=head4 curry
+
+    my $curried_code = $code->curry(5);
+
+Currying takes a code reference and provides the same code, but with
+the first argument filled in.
+
+    my $greet_world = sub {
+        my($greeting, $place) = @_;
+        return "$greeting, $place!";
+    };
+    print $greet_world->("Hello", "world");  # "Hello, world!"
+
+    my $howdy_world = $greet_world->curry("Howdy");
+    print $howdy_world->("Texas");           # "Howdy, Texas!"
+
 
 =head4 map
 
-C<map> takes a list of things to run through a code block, and returns an array reference or list depending on context:
+    my @mapped_array = $code->map(@array);
+    my $mapped_array = $code->map(@array);
+
+Like L<map|perlfunc/map>.  Runs each element of @array through $code
+and returns the transformed elements.
 
   sub { my $t = $_[0]; $t =~ tr/a-z/zyxwvutsrqponmlkjihgfedcba/; $t }->map(
     "Black", "crow", "flies", "at", "midnight"
