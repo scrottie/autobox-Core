@@ -724,58 +724,49 @@ Works just like L<last_index> but it will return the I<first> matching index.
     my $last_p = @things->first_index(qr/^t/); # 3
 
 
+=head4 at
+
+    my $value = $array->at($index);
+
+Equivalent to C<< $array->[$index] >>.
+
+
 =head3 Hash Methods
 
 Hash methods work on both hashes and hash references.
 
-The built in functions work as normal : 
+The built in functions work as normal:
 L<delete|perlfunc/delete>, L<exists|perlfunc/exists>, L<keys|perlfunc/keys>,
 L<values||perlfunc/values>, L<bless|perlfunc/bless>, L<tie|perlfunc/tie>,
 L<tied|perlfunc/tied>, L<ref|perlfunc/ref>, L<undef|perlfunc/undef>,
 are implemented.
 
-C<at>, C<get>, C<put>, and C<set> appear to be hash getters and setters, fetching or
-setting values for keys in hashes.
-
 =head4 at
-
-C<at> returns the value at a particular key.
-
-   my $h = {a => 1, b => 2, c => 3};
-   $h->at('b');			# 2
 
 =head4 get
 
-C<get> fetches the value at a key.
-   
-   my $h = {a => 1, b => 2, c => 3};
-   $h->get('c');		# 3
+    my @values = %hash->get(@keys);
+
+Returns the @values of @keys.
    
 =head4 put
 
-C<put> inserts a key-value pair in the hash.
+    %hash->push(%other_hash);
 
-   my $h = {a => 1, b => 2, c => 3};
-   $h->put('d' => 4, e=>5, f=>6);	#hash : (a => 1, b => 2, c => 3, d => 4, e=> 5, f => 6)
+Overlays %other_hash on top of %hash.
+
+   my $h = {a => 1, b => 2};
+   $h->put(b => 99, c => 3);    # (a => 1, b => 99, c => 3)
    
 =head4 set
 
-C<set> updates the value of a particular key in the hash. If the key does not
-exist in the hash then insert the key-value in the hash.
-
-  my $h = {a => 1, b => 2, c => 3};
-  $h->set('a' => 8);			#hash : ( a => 8, b => 2, c => 3 )
-  $h->set('e' => 9);			#hash : ( a => 8, b => 2, c => 3, e => 9)
+Synonym for L<put>
   
-=head4 lock_keys  
-
-C<lock_keys> uses the method of the same name in L<Hash::Util>.  It forcibly resticts which
-keys may exist in a hash to a specified set as a form of structure designed to guard against typos.
-
 =head4 each
 
-C<each> is like C<foreach> but for hash references. For each key in the hash,
-the code reference is invoked with the key and the corresponding value as arguments:
+Like C<foreach> but for hash references. For each key in the hash, the
+code reference is invoked with the key and the corresponding value as
+arguments:
 
   my $hashref = { foo => 10, bar => 20, baz => 30, quux => 40 };
   $hashref->each(sub { print $_[0], ' is ', $_[1], "\n" });
@@ -787,17 +778,25 @@ Or:
 
 Unlike regular C<each>, this each will always iterate through the entire hash.
 
-Hash keys appear in random order that varies from run to run (this is intentional,
-to avoid calculated attacks designed to trigger algorithmic worst case scenario in C<perl>'s hash tables).
-C<each> does not sort keys.  Instead, combine C<keys>, C<sort>, and C<foreach>:
+Hash keys appear in random order that varies from run to run (this is
+intentional, to avoid calculated attacks designed to trigger
+algorithmic worst case scenario in C<perl>'s hash tables).
+
+You can get a sorted C<foreach> by combining C<keys>, C<sort>, and C<foreach>:
 
    %hash->keys->sort->foreach(sub {
       print $_[0], ' is ', $hash{$_[0]}, "\n";
    });
 
+=head4 lock_keys  
+
+    %hash->lock_keys;
+
+Works as L<Hash::Util/lock_keys>.  No more keys may be added to the hash.
+
 =head4 slice
 
-C<slice> takes a list of hash keys and returns the corresponding values e.g.
+Takes a list of hash keys and returns the corresponding values e.g.
 
   my %hash = (
       one   => 'two',
@@ -809,7 +808,7 @@ C<slice> takes a list of hash keys and returns the corresponding values e.g.
 
 =head4 flip
 
-C<flip> exchanges values for keys in a hash:
+Exchanges values for keys in a hash:
 
     my %things = ( foo => 1, bar => 2, baz => 5 );
     my %flipped = %things->flip; # { 1 => foo, 2 => bar, 5 => baz }
@@ -828,7 +827,9 @@ nested hashes.
 
 =head4 flatten
 
-C<flatten> turns a single hash reference into a list of alternating keys and values.
+    my %hash = $hash_ref->flatten;
+
+Dereferences a hash reference.
 
 
 =head3 Code Methods
