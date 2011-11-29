@@ -127,48 +127,81 @@ Of the built-in stuff, only a few stragglers such as C<srand> were excluded.
 
 =head3 String Methods
 
+String methods are of the form C<< my $return = $string->method(@args) >>.
+Some will act on the C<$string> and some will return a new string.
+
+Many string methods are simply wrappers around core functions, but
+there are additional operations and modifications to core behavior.
+
+Anything which takes a regular expression, such as L<split> and L<m>,
+must take it in the form of a compiled regex (C<qr//>).  Any modifiers
+can be attached to the C<qr> normally.
+
+These built in functions are implemented for scalars, they work just like normal:
+L<chomp|perlfunc/chomp>, L<chop|perlfunc/chop>,L<chr|perlfunc/chr>
+L<crypt|perlfunc/crypt>, L<index|perlfunc/index>, L<lc|perlfunc/lc>
+L<lcfirst|perlfunc/lcfirst>, L<length|perlfunc/length>, L<ord|perlfunc/ord>,
+L<pack|perlfunc/pack>, L<reverse|perlfunc/reverse>, L<rindex|perlfunc/rindex>,
+L<sprintf|perlfunc/sprintf>, L<substr|perlfunc/substr>, L<uc|perlfunc/uc>
+L<ucfirst|perlfunc/ucfirst>, L<unpack|perlfunc/unpack>, L<quotemeta|perlfunc/quotemeta>,
+L<vec|perlfunc/vec>, L<undef|perlfunc/undef>, L<m|perlfunc/m>, L<nm|perlfunc/nm>,
+L<s|perlfunc/s>, L<split|perlfunc/split>, L<system|perlfunc/system>, L<eval|perlfunc/eval>.
+
+=head4 eq
+
+C<eq> returns true if the values are equal strings.
+
+   "foo"->eq("bar");            #false
+   "foo"->eq("foo");            #true
 
 =head4 concat
 
-C<concat> corresponds to C<.> operator used to join two strings.
+C<concat> corresponds to the C<.> operator used to join two strings.
 
 =head4 strip
 
-C<strip> is not a built-in operator or function but is instead one of a number of user-defined
-convenience methods.
 C<strip> strips out whitespace from the beginning and end of a string.
-This is redundant and subtly different from C<trim> XXX.
 
-   " \t  \n  \t  foo  \t  \n  \t  "->strip;		# foo
+   " \t  \n  \t  foo  \t  \n  \t  "->strip;    # foo
+
+This is redundant and subtly different from C<trim>.
    
 =head4 trim
 
 C<trim> strips out whitespace from the beginning and end of a string.
-C<trim> can also removes specific characters from beginning and the end of string.
+C<trim> can also remove specific characters from the beginning and the
+end of string.
 
-   '    hello'->trim;			# testme
-   '--> hello <--'->trim("-><");  	# testme 
-   ' --> hello <--'->trim("-><");  	# --> testme 
+   '    hello'->trim;                   # testme
+   '--> hello <--'->trim("-><");        # testme 
+   ' --> hello <--'->trim("-><");       # --> testme 
+
+=head4 ltrim
+
+Just like L<trim> but it only trims the left side (start) of the string.
+
+=head4 rtrim
+
+Just like L<trim> but it only trims the right side (end) of the string.
 
 =head4 split
 
-C<split> is called on a non-reference scalar with the regular expression passed in. This is
-done for consistency with C<m> and C<s>. 
+    my @split_string = $string->split(qr/.../);
+
+A wrapper around L<split|perlfunc/split>.  It takes the regular
+expression as a compiled regex.
 
    print "10, 20, 30, 40"->split(qr{, ?})->elements, "\n";
-   "hi there"->split(qr/ */);		# h i t h e r e
-   
-C<Caveat> 
-  
-Works just like L<split|perlfunc/split> which is called as split(/pattern/, $string, $limit); 
-but the regex must be passed in as a C<qr//> compiled regex in C<split>
-It also does not take a limit on the number of times to split.   
+   "hi there"->split(qr/ */);           # h i t h e r e
+
+The limit argument is not implemented.
+
 
 =head4 title_case
 
 C<title_case> converts the first character of each word in the string to upper case.
   
-   "this is a test"->title_case;	# This Is A Test
+   "this is a test"->title_case;        # This Is A Test
    
 =head4 center
 
@@ -188,92 +221,70 @@ than C<< $string->length >> it will just return C<$string>.
 
     say "Hello"->center(4);        # "Hello";   
 
-=head4 ltrim
-
-   my $trimmed_string = $string->ltrim;
-   my $trimmed_string = $string->ltrim($characters);
-   
-C<ltrim> removes spaces or specific characters from the left of the string and 
-returns the modified string.
-
-   '    hello'->ltrim;			# 'hello'
-   '--> hello <--'->ltrim("-><");	# ' hello <--'
-
-=head4 rtrim
-
-   my $trimmed_string = $string->ltrim;
-   my $trimmed_string = $string->ltrim($characters);
-   
-C<rtrim> is same as C<ltrim> but removes spaces/characters from teh right of the
-string.
-
-   '    hello '->rtrim;			# '    hello'
-   '--> hello <--'->rtrim("-><");	# '--> hello '
-
 =head4 backtick
 
-C<backtick> returns what is sent to STDOUT. It runs a command and returns the 
-command's output.
+    my $output = $string->backtick;
+
+Runs $string as a command just like C<`$string`>.
 
 =head4 nm
 
-C<nm> corresponds to C<< !~ >>.
+"Negative match".  Corresponds to C<< !~ >>.
 
 =head4 m
 
-C<m> is C<< m// >>. 
-C<< $foo->m(/bar/) >> corresponds to C<< $foo =~ m/bar/ >>.
+    my $matches = $foo->m(qr/bar/);
+
+Works the same as C<< m// >>, but the regex must be passed in as a C<qr//>.
+
+C<m> returns an array reference so that things such as C<map> and
+C<grep> may be called on the result.
+
+  my ($street_number, $street_name, $apartment_number) =
+      "1234 Robin Drive #101"->m( qr{(\d+) (.*)(?: #(\d+))?} )->elements;
+  print "$street_number $street_name $apartment_number\n";
 
 =head4 s
 
-C<s> is C<< s/// >>.
-
-To use C<m> and C<s>, pass a regular expression created with C<< qr// >> and specify its flags
-as part of the regular expression using the C<< (?imsx-imsx) >> syntax documented in L<perlre>.
-C<m> returns an array reference so that things such as C<map> and C<grep> may be called on the result.
-
-  my ($street_number, $street_name, $apartment_number) =
-      "1234 Robin Drive #101"->m(qr{(\d+) (.*)(?: #(\d+))?})->elements;
-
-  print "$street_number $street_name $apartment_number\n";
+Works the same as C<< s/// >>.
 
 =head4 undef
 
-C<undef> assigns C<undef> to the value.
+    $string->undef;
+
+Assigns C<undef> to the C<$string>.
 
 =head4 defined
 
-C<defined> tests whether a value is defined (not C<undef>).
+    my $is_defined = $string->defined;
 
-These built in functions are implemented for scalars, they work just like normal:
-L<chomp|perlfunc/chomp>, L<chop|perlfunc/chop>,L<chr|perlfunc/chr>
-L<crypt|perlfunc/crypt>, L<index|perlfunc/index>, L<lc|perlfunc/lc>
-L<lcfirst|perlfunc/lcfirst>, L<length|perlfunc/length>, L<ord|perlfunc/ord>,
-L<pack|perlfunc/pack>, L<reverse|perlfunc/reverse>, L<rindex|perlfunc/rindex>,
-L<sprintf|perlfunc/sprintf>, L<substr|perlfunc/substr>, L<uc|perlfunc/uc>
-L<ucfirst|perlfunc/ucfirst>, L<unpack|perlfunc/unpack>, L<quotemeta|perlfunc/quotemeta>,
-L<vec|perlfunc/vec>, L<undef|perlfunc/undef>, L<m|perlfunc/m>, L<nm|perlfunc/nm>,
-L<s|perlfunc/s>, L<split|perlfunc/split>, L<system|perlfunc/system>, L<eval|perlfunc/eval>.
+C<defined> tests whether a value is defined (not C<undef>).
 
 
 =head3 I/O Methods
 
+These are methods having to do with input and ouptut, not filehandles.
+
 =head4 print
 
-C<print> prints a string or a list of strings. Returns true if successful.
+    $string->print;
+    @array->print;
+
+Prints a string or a list of strings.  Returns true if successful.
 
 =head4 say
 
-C<say> is like print, but implicitly appends a newline.
+Like L<print>, but implicitly appends a newline to the end.
 
 
 =head3 Number Related Methods
 
+Methods related to numbers.
+
 The basic built in functions which operate as normal :
 L<abs|perlfunc/abs>, L<atan2|perlfunc/atan2>, L<cos|perlfunc/cos>, L<exp|perlfunc/exp>,
 L<int|perlfunc/int>, L<log|perlfunc/log>, L<oct|perlfunc/oct>, L<hex|perlfunc/hex>,
-L<rand|perlfunc/rand>, L<sin|perlfunc/sin>, and L<sqrt|perlfunc/sqrt> are named after
-the built-in functions of the same name.
+L<rand|perlfunc/rand>, L<sin|perlfunc/sin>, and L<sqrt|perlfunc/sqrt>.
 
 Operators were given names as follows:  
 
@@ -310,13 +321,6 @@ C<dec> returns the decimal part of a number.
 
 C<div> returns the quotient of division.
 
-=head4 eq
-
-C<eq> returns true if the values are equal.
-
-   1->eq(5);		#false
-   6->eq(6);		#true
-   
 =head4 flip
 
 C<flip> corresponds to C<~> which is the binary (rather than boolean) "not".   
