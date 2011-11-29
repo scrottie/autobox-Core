@@ -147,6 +147,15 @@ L<ucfirst|perlfunc/ucfirst>, L<unpack|perlfunc/unpack>, L<quotemeta|perlfunc/quo
 L<vec|perlfunc/vec>, L<undef|perlfunc/undef>, L<m|perlfunc/m>, L<nm|perlfunc/nm>,
 L<s|perlfunc/s>, L<split|perlfunc/split>, L<system|perlfunc/system>, L<eval|perlfunc/eval>.
 
+=head4 cmp
+
+    my $cmp = $a->cmp($b);
+
+Compare two strings, just like the C<cmp> operator.
+
+If $a is greater, it returns 1.  If $b is greater, it returns -1.
+If they're equal, it returns 0.
+
 =head4 eq
 
 C<eq> returns true if the values are equal strings.
@@ -154,13 +163,26 @@ C<eq> returns true if the values are equal strings.
    "foo"->eq("bar");            #false
    "foo"->eq("foo");            #true
 
+=head4 ne
+
+=head4 ge
+
+=head4 gt
+
+=head4 le
+
+=head4 lt
+
+The string comparison operators of the same name.  They're called like
+L<eq>.
+
 =head4 concat
 
-C<concat> corresponds to the C<.> operator used to join two strings.
+Corresponds to the C<.> operator used to join two strings.
 
 =head4 strip
 
-C<strip> strips out whitespace from the beginning and end of a string.
+Removes whitespace from the beginning and end of a string.
 
    " \t  \n  \t  foo  \t  \n  \t  "->strip;    # foo
 
@@ -168,9 +190,9 @@ This is redundant and subtly different from C<trim>.
    
 =head4 trim
 
-C<trim> strips out whitespace from the beginning and end of a string.
-C<trim> can also remove specific characters from the beginning and the
-end of string.
+Removes whitespace from the beginning and end of a string.  C<trim>
+can also remove specific characters from the beginning and the end of
+string.
 
    '    hello'->trim;                   # testme
    '--> hello <--'->trim("-><");        # testme 
@@ -260,6 +282,14 @@ Assigns C<undef> to the C<$string>.
 
 C<defined> tests whether a value is defined (not C<undef>).
 
+=head4 rpt
+
+    my $repeated_string = $string->rpt($n);
+
+Like the C<x> operator, repeats a string C<$n> times.
+
+    print 1->rpt(5);    # 11111
+   
 
 =head3 I/O Methods
 
@@ -290,28 +320,23 @@ Operators were given names as follows:
 
 =head4 add
 
-C<add> corresponds to C<+>.
+Corresponds to C<+>.
 
 =head4 and
 
-C<and> corresponds to C<&&> .
+Corresponds to C<&&> .
 
 =head4 band
 
-C<band> corresponds to C<&> that is short-circuit and.
+Corresponds to C<&> that is short-circuit and.
 
 =head4 bor
 
-C<bor> corresponds to C<|> that is short-circuit or.
+Corresponds to C<|> that is short-circuit or.
 
 =head4 bxor
 
-C<bxor> corresponds to C<^> that is short-circuit xor.
-
-=head4 cmp
-
-C<cmp> is compare operator which returns 0, 1, -1 depending upon first number 
-is =, >, < the second respectively.
+Corresponds to C<^> that is short-circuit xor.
 
 =head4 dec
 
@@ -325,29 +350,13 @@ C<div> returns the quotient of division.
 
 C<flip> corresponds to C<~> which is the binary (rather than boolean) "not".   
 
-=head4 ge
-
-C<ge> corresponds to  C<< >= >>.
-
-=head4 gt
-
-C<gt> corresponds to C<< > >>.
-
 =head4 inc
 
 C<inc> corresponds to C<++>.
 
-=head4 le
-
-C<le> corresponds to C<< <= >>. 
-
 =head4 lshift
 
 C<lshift> corresponds to C<< << >>.
-
-=head4 lt
-
-C<lt> corresponds to C<< < >>.
 
 =head4 mod
  
@@ -361,42 +370,35 @@ C<mult> corresponds to C<*>.
 
 C<mcmp> compares two numbers and returns 0,1,-1 depending upon the type of input.
 
-   1->mcmp(5); 		# < 0
-   5->mcmp(5); 		# = 0	
-   6->mcmp(5);		# > 0
-   
-=head4 ne
-   
-C<ne> corresponds to C<!=>.
+   1->mcmp(5);          # < 0
+   5->mcmp(5);          # = 0   
+   6->mcmp(5);          # > 0
 
-=head4 nge
-
-C<nge> stands for numeric greater than or equal to that is C<< >= >>.
+"M" for "math".
    
-=head4 meq
-   
-m may stand for 'math'.   
-C<meq> corresponds to C<==> operator. 
-
 =head4 mge
 
-C<mge> corresponds to C<< >= >> .
+The C<< >= >> operator.
+
+=head4 meq
+   
+The C<==> operator.
 
 =head4 mgt
 
-C<mgt> corresponds to C<< > >>.
+The C<< > >> operator.
 
 =head4 mle
 
-C<mle> corresponds to C<< <= >> .
+The C<< <= >> operator.
 
 =head4 mlt
 
-C<mlt> corresponds to C<< < >>.
+The C<< < >> operator.
 
 =head4 mne
 
-C<mne> corresponds to C<!=> operator.
+The C<!=> operator.
 
 =head4 not
 
@@ -408,14 +410,12 @@ C<or> corresponds to C<||>.
 
 =head4 pow
 
-C<pow> returns first number raised to the power of second.
+    my $result = $number->pow($expontent);
 
-=head4 rpt
+C<pow> returns $number raised to the power of the $exponent.
 
-C<rpt> repeats a specific digit a particular number of times.
+    print 2->pow(8);  # 256
 
-   1->rpt(5);		# 11111
-   
 =head4 rshift
    
 C<rshift> corresponds to C<<< >> >>>.
@@ -427,8 +427,6 @@ C<sub> corresponds to C<->.
 =head4 xor
 
 C<xor> corresponds to <^>.
-
-Numerical functions :
 
 =head4 is_number
 
