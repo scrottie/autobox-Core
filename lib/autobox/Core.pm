@@ -479,42 +479,12 @@ Returns true if $thing is a decimal number.
 
 =head3 Reference Related Methods
 
-Besides the "Functions for SCALARs" section of L<perlfunc>, the following were implemented, where they
-make sense:
+The following core functions are implemented.
 
-L<tie|perlfunc/tie>, L<tied|perlfunc/tied>, L<ref|perlfunc/ref>, 
-L<undef|perlfunc/undef>, L<bless|perlfunc/bless>, L<vec|perlfunc/vec>.
+L<tie|perlfunc/tie>, L<tied|perlfunc/tied>, L<ref|perlfunc/ref>,
+L<bless|perlfunc/bless>, L<vec|perlfunc/vec>.
 
 C<tie>, C<tied>, and C<undef> don't work on code references.
-
-=head4 bless
-
-Attempting to C<bless> a non-reference scalar will fail with one of:
-'Can't call method "bless" on an undefined value' or
-'Can't call method "bless" without a package or object reference'
-Hashes, arrays and scalars containing references may be blessed.
-Here's an example of blessing a hash:
-
-    use autobox::Core;
-    my %foo;
-    sub mypackage::hi { print "hi\n"; };
-    %foo->bless('mypackage');
-    %foo->hi;  
-    
-It is technically true that only references may be blessed.  This works because C<perl>, internally, stores
-references to lexical variables in the current scope, much like globs hold references to package variables.
-The reference in the "pad" (array of lexical variables for the current stack frame) is blessed in this example.
-
-=head4 quotemeta
-
-C<quotemeta> works on non-reference scalars, along with C<split>, C<m>, and C<s> for regular expression operations.
-C<ref> is the same as the C<ref> keyword in that it tells you what kind of a reference something is if it's a
-reference.
-
-There's currently no counterpart to the C<< \ >> operator, which takes something and gives you
-a reference to it.
-
-
 
 =head3 Array Methods
 
