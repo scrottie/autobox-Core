@@ -498,6 +498,18 @@ Or:
   my @arr = [ 1 .. 10 ];
   @arr->undef;
 
+List context forces methods to return a list:
+
+  my @arr = ( 1 .. 10 );
+  print join ' -- ', @arr->grep(sub { $_ > 3 }), "\n";
+
+Likewise, scalar context forces methods to return an array reference.
+
+As scalar context forces methods to return a reference, methods may be chained
+
+  my @arr = ( 1 .. 10 );
+  @arr->grep(sub { $_ > 3 })->min->say;  # "1\n";
+
 These built-in functions are defined as methods:
 
 L<pop|perlfunc/pop>, L<push|perlfunc/push>, L<shift|perlfunc/shift>,
@@ -508,134 +520,125 @@ L<grep|perlfunc/grep>, L<map|perlfunc/map>, L<join|perlfunc/join>, L<reverse|per
 and L<sort|perlfunc/sort>, L<each|perlfunc/each>, 
 
 =head4 vdelete
-C<vdelete> deletes a specified value from the array.
+
+Deletes a specified value from the array.
 
   $a = 1->to(10);
-  $a->vdelete(3);		# deletes 3
-
-These non-standard extensions are also defined as methods on arrays:
+  $a->vdelete(3);   # deletes 3
 
 =head4 uniq
 
-C<uniq> removes all duplicate elements from an array and returns the new array 
+Removes all duplicate elements from an array and returns the new array 
 with no duplicates.
 
    my @array = qw( 1 1 2 3 3 6 6 );
-   @return = @array->uniq;	# \@return : 1 2 3 6
+   @return = @array->uniq;    # \@return : 1 2 3 6
 
 =head4 first
    
-C<first> returns the first element of an array for which a callback returns true:
+Returns the first element of an array for which a callback returns true:
 
   $arr->first(sub { /5/ });
 
 =head4 max
 
-C<max> returns the maximum element of the array.
+Returns the largest numerical value in the array.
    
    $a = 1->to(10);
-   $a->max; 			# 10
+   $a->max;           # 10
    
 =head4 min
 
-C<min> returns the minimum element of the array.
+Returns the smallest numerical value in the array.
 
    $a = 1->to(10);
-   $a->min; 			# 1
+   $a->min;           # 1
    
 =head4 mean
 
-C<mean> returns the mean of elements of an array.
+Returns the mean of elements of an array.
 
    $a = 1->to(10);
-   $a->mean;			# 55/10
+   $a->mean;          # 55/10
    
 =head4 var
 
-C<var> returns the variance of the elements of an array.
+Returns the variance of the elements of an array.
 
    $a = 1->to(10);
-   $a->var;			# 33/4
+   $a->var;           # 33/4
 
 =head4 svar
 
-C<svar> returns the standars variance.
+Returns the standars variance.
 
   $a = 1->to(10);
-  $a->svar;			# 55/6
+  $a->svar;                     # 55/6
 
 =head4 at
 
-C<at> returns the element at a specified index. This function does not modify the
+Returns the element at a specified index. This function does not modify the
 original array.
 
    $a = 1->to(10);
-   $a->at(2);			# 3
- 
-=head4 elems
-
-C<elems> 
-
-C<elems> returns the number of elements in an array.
-
-   my @array = qw(foo bar baz);
-   @array->elems;		# 3
-   
-=head4 length
-
-C<length> returns the length of array.
-
-   my @array = qw(foo bar baz);
-   @array->length;		# 3
-
-=head4 elements
-
-C<elements> accesses the elements of an array.
-
-   my @array = qw(foo bar baz);	
-   my @returned = @array->elements;		#@array and @returned both are same  
+   $a->at(2);                   # 3
 
 =head4 size
 
-Arrays can tell you how many elements they contain and the index of their last element:
+=head4 elems
 
-  my $arr = [ 1 .. 10 ];
-  print '$arr contains ', $arr->size,
-        ' elements, the last having an index of ', $arr->last_index, "\n";
+=head4 length
 
-C<length>, C<size>, and C<elems> are synonyms for each other and return how many elements are in the array (as with C<scalar @array>).          
+All return the number of elements in an array.
+
+   my @array = qw(foo bar baz);
+   @array->size;   # 3
+
+=head4 elements
 
 =head4 flatten
 
-Array references have a C<flatten> method to dump their elements.
-This is the same as C<< @{$array_ref} >>.
+    my @copy_of_array = $array->flatten;
 
-  my $arr = [ 1 .. 10 ];
-  print join ' -- ', $arr->flatten, "\n";
+Returns the elements of an array ref as an array.
+This is the same as C<< @{$array} >>.
 
 Arrays can be iterated on using C<for> and C<foreach>. Both take a code
 reference as the body of the for statement.
 
 =head4 foreach
-C<foreach> passes the current element itself in each pass.
+
+    @array->foreach(\&code);
+
+Calls C<&code> on each element of the @array in order.  &code gets the
+element as its argument.
+
+    @array->foreach(sub { print $_[0] });  # print each element of the array
+
 
 =head4 for
-C<for> passes the index of the current element in to that code block, and then
-the current element, and then a reference to the array itself.
 
-  my $arr = [ 1 .. 10 ];
-  $arr->foreach(sub { print $_[0], "\n" });
-  $arr->for(sub { die unless $_[1] == $_[2]->[$_[0]] });
+    @array->for(\&code);
+
+Like L<foreach>, but C<&code> is called with the index, the value and
+the array itself.
+
+    my $arr = [ 1 .. 10 ];
+    $arr->for(sub {
+        my($idx, $value) = @_;
+        print "Value #$idx is $value\n";
+    });
+
 
 =head4 sum
 
-C<sum> is a toy poke at doing L<Language::Functional>-like stuff:
+    my $sum = @array->sum;
 
-  print $arrref->sum, "\n";
+Adds together all the elements of the array.
 
 =head4 count
 
-C<count> returns the number of elements in array that are C<eq> to a specified value:
+Returns the number of elements in array that are C<eq> to a specified value:
 
   my @array = qw/one two two three three three/;
   my $num = @array->count('three');  # returns 3
@@ -650,25 +653,22 @@ C<to>, C<upto>, and C<downto> create array references:
 
 Those wrap the C<..> operator.
 
-C<Caveat>
+B<Note> while working with negative numbers you need to use () so as
+to avoid the wrong evaluation.
 
-While working with negative numbers we need to use () so as to avoid wrong 
-evaluation.
-
-  my $range = 10->to(1);	# this works
-  my $range = -10->to(10);	# this doesn't work
-  my $range = (-10)->to(10);	# this works
+  my $range = 10->to(1);        # this works
+  my $range = -10->to(10);      # wrong, interpreted as -( 10->to(10) )
+  my $range = (-10)->to(10);    # this works
 
 =head4 head
 
-C<head> returns the first element from C<@list>.
+Returns the first element from C<@list>.
 
     my $first = @list->head;
 
 =head4 tail
 
-C<tail> returns all but the first element from C<@list>. 
-In scalar context returns an array reference.
+Returns all but the first element from C<@list>. 
 
     my @list = qw(foo bar baz quux);
     my @rest = @list->tail;  # [ 'bar', 'baz', 'quux' ]
@@ -680,10 +680,11 @@ elements:
 
 =head4 slice
 
-C<slice> returns a list containing the elements from C<@list> at the indices
+Returns a list containing the elements from C<@list> at the indices
 C<@indices>. In scalar context, returns an array reference.
 
-    my @sublist = @list->slice(@indexes);
+    # Return $list[1], $list[2], $list[4] and $list[8].
+    my @sublist = @list->slice(1,2,4,8);
 
 =head4 range
 
@@ -695,50 +696,33 @@ in scalar context.
 
 =head4 last_index
 
-C<last_index> corresponds to C<$#array> and is always one less than C<scalar @array>.
-An array with one element in it has that one element in position zero (size of 1, last index of 0).
-An array with zero elements in it has a size of C<-1>, as far as C<perl> is concerned (size of 0, last index of -1).
+    my $index = @array->last_index;
 
-C<last_index> returns C<@array>'s last index (as with C<$#array>). 
-Optionally, it takes a Coderef or a Regexp,
-in which case it will return the index of the last element that matches
-such regex or makes the code reference return true:
+Called with no arguments, it corresponds to C<$#array> giving the
+highest index of the array.
 
-    my $last_index = @array->last_index
+    my $index = @array->last_index(qr/.../);
 
-Or:
+Returns the highest index matching the given regular expression.
+
+    my $index = @array->last_index(\&filter);
+
+Returns the highest index for which the filter returns true.  The
+&filter is passed in each value of the @array.
 
     my @things = qw(pear poll potato tomato);
-
     my $last_p = @things->last_index(qr/^p/); # 2
+
 
 =head4 first_index
 
-C<first_index>, for symmetry, returns the first index of C<@array>. If passed a Coderef
-or Regexp, it will return the index of the first element that matches.
+Works just like L<last_index> but it will return the I<first> matching index.
 
-    my $first_index = @array->first_index; # 0
-
-Or:
+    my $first_index = @array->first_index;    # 0
 
     my @things = qw(pear poll potato tomato);
-
     my $last_p = @things->first_index(qr/^t/); # 3
 
-
-List context forces methods to return a list:
-
-  my @arr = ( 1 .. 10 );
-  print join ' -- ', @arr->grep(sub { $_ > 3 }), "\n";
-
-Likewise, scalar context forces methods to return an array reference.
-
-Methods may be chained; scalar context forces methods to return a reference:
-
-  my @arr = ( 1 .. 10 );
-  print @arr->grep(sub { $_ > 3 })->min, "\n";
-  
-  
 
 =head3 Hash Methods
 
