@@ -125,45 +125,107 @@ Here's a small sample:
 Of the built-in stuff, only a few stragglers such as C<srand> were excluded.
 
 
-=head3 Scalar String Related Methods
+=head3 String Methods
 
-C<concat> is the C<.> operator.
+String methods are of the form C<< my $return = $string->method(@args) >>.
+Some will act on the C<$string> and some will return a new string.
 
-C<strip> is not a built-in operator or function but is instead one of a number of user-defined
-convenience methods.
-C<strip> strips out whitespace from the beginning and end of a string.
-This is redundant and subtly different from C<trim> XXX.
+Many string methods are simply wrappers around core functions, but
+there are additional operations and modifications to core behavior.
 
-C<trim> strips out whitespace from the beginning and end of a string.
+Anything which takes a regular expression, such as L<split> and L<m>,
+must take it in the form of a compiled regex (C<qr//>).  Any modifiers
+can be attached to the C<qr> normally.
 
-C<title_case>, C<center>, C<ltrim>, C<rtrim>, and C<trim> were taken from L<perl5i>.
+These built in functions are implemented for scalars, they work just like normal:
+L<chomp|perlfunc/chomp>, L<chop|perlfunc/chop>,L<chr|perlfunc/chr>
+L<crypt|perlfunc/crypt>, L<index|perlfunc/index>, L<lc|perlfunc/lc>
+L<lcfirst|perlfunc/lcfirst>, L<length|perlfunc/length>, L<ord|perlfunc/ord>,
+L<pack|perlfunc/pack>, L<reverse|perlfunc/reverse>, L<rindex|perlfunc/rindex>,
+L<sprintf|perlfunc/sprintf>, L<substr|perlfunc/substr>, L<uc|perlfunc/uc>
+L<ucfirst|perlfunc/ucfirst>, L<unpack|perlfunc/unpack>, L<quotemeta|perlfunc/quotemeta>,
+L<vec|perlfunc/vec>, L<undef|perlfunc/undef>, L<m|perlfunc/m>, L<nm|perlfunc/nm>,
+L<s|perlfunc/s>, L<split|perlfunc/split>, L<system|perlfunc/system>, L<eval|perlfunc/eval>.
 
-C<split> is called on a non-reference scalar with the regular expression passed in. This is
-done for consistency with C<m> and C<s>.
+=head4 cmp
 
-  print "10, 20, 30, 40"->split(qr{, ?})->elements, "\n";
+    my $cmp = $a->cmp($b);
 
-C<chomp>, C<chop>, C<chr>, C<crypt>, C<index>, C<lc>, C<lcfirst>, C<length>, C<ord>,
-C<pack>, C<reverse>, C<rindex>, C<sprintf>, C<substr>,
-C<uc>, C<ucfirst>, C<unpack>, C<quotemeta>, C<vec>, C<undef>, C<m>, C<nm>, C<s>, C<split>.
-C<eval>, C<system>, and C<backtick>.
+Compare two strings, just like the C<cmp> operator.
 
-C<nm> corresponds to C<< !~ >>.
+If $a is greater, it returns 1.  If $b is greater, it returns -1.
+If they're equal, it returns 0.
 
-C<m> is C<< m// >>. C<< $foo->m(/bar/) >> corresponds to C<< $foo =~ m/bar/ >>. C<s> is C<< s/// >>.
-To use C<m> and C<s>, pass a regular expression created with C<< qr// >> and specify its flags
-as part of the regular expression using the C<< (?imsx-imsx) >> syntax documented in L<perlre>.
-C<m> returns an array reference so that things such as C<map> and C<grep> may be called on the result.
+=head4 eq
 
-  my ($street_number, $street_name, $apartment_number) =
-      "1234 Robin Drive #101"->m(qr{(\d+) (.*)(?: #(\d+))?})->elements;
+C<eq> returns true if the values are equal strings.
 
-  print "$street_number $street_name $apartment_number\n";
+   "foo"->eq("bar");            #false
+   "foo"->eq("foo");            #true
 
-C<undef> assigns C<undef> to the value.
-C<defined> tests whether a value is defined (not C<undef>).
+=head4 ne
 
-=head4 center()
+=head4 ge
+
+=head4 gt
+
+=head4 le
+
+=head4 lt
+
+The string comparison operators of the same name.  They're called like
+L<eq>.
+
+=head4 concat
+
+Corresponds to the C<.> operator used to join two strings.
+
+=head4 strip
+
+Removes whitespace from the beginning and end of a string.
+
+   " \t  \n  \t  foo  \t  \n  \t  "->strip;    # foo
+
+This is redundant and subtly different from C<trim>.
+   
+=head4 trim
+
+Removes whitespace from the beginning and end of a string.  C<trim>
+can also remove specific characters from the beginning and the end of
+string.
+
+   '    hello'->trim;                   # testme
+   '--> hello <--'->trim("-><");        # testme 
+   ' --> hello <--'->trim("-><");       # --> testme 
+
+=head4 ltrim
+
+Just like L<trim> but it only trims the left side (start) of the string.
+
+=head4 rtrim
+
+Just like L<trim> but it only trims the right side (end) of the string.
+
+=head4 split
+
+    my @split_string = $string->split(qr/.../);
+
+A wrapper around L<split|perlfunc/split>.  It takes the regular
+expression as a compiled regex.
+
+   print "10, 20, 30, 40"->split(qr{, ?})->elements, "\n";
+   "hi there"->split(qr/ */);           # h i t h e r e
+
+The limit argument is not implemented.
+
+
+=head4 title_case
+
+C<title_case> converts the first character of each word in the string to upper case.
+  
+   "this is a test"->title_case;        # This Is A Test
+   
+=head4 center
 
     my $centered_string = $string->center($length);
     my $centered_string = $string->center($length, $character);
@@ -179,28 +241,192 @@ C<$character> defaults to " ".
 C<center()> will never truncate C<$string>.  If $length is less
 than C<< $string->length >> it will just return C<$string>.
 
-    say "Hello"->center(4);        # "Hello";
+    say "Hello"->center(4);        # "Hello";   
 
+=head4 backtick
 
-=head3 I/O
+    my $output = $string->backtick;
 
-C<print> and C<say>.
+Runs $string as a command just like C<`$string`>.
+
+=head4 nm
+
+"Negative match".  Corresponds to C<< !~ >>.
+
+=head4 m
+
+    my $matches = $foo->m(qr/bar/);
+
+Works the same as C<< m// >>, but the regex must be passed in as a C<qr//>.
+
+C<m> returns an array reference so that things such as C<map> and
+C<grep> may be called on the result.
+
+  my ($street_number, $street_name, $apartment_number) =
+      "1234 Robin Drive #101"->m( qr{(\d+) (.*)(?: #(\d+))?} )->elements;
+  print "$street_number $street_name $apartment_number\n";
+
+=head4 s
+
+Works the same as C<< s/// >>.
+
+=head4 undef
+
+    $string->undef;
+
+Assigns C<undef> to the C<$string>.
+
+=head4 defined
+
+    my $is_defined = $string->defined;
+
+C<defined> tests whether a value is defined (not C<undef>).
+
+=head4 rpt
+
+    my $repeated_string = $string->rpt($n);
+
+Like the C<x> operator, repeats a string C<$n> times.
+
+    print 1->rpt(5);    # 11111
+   
+
+=head3 I/O Methods
+
+These are methods having to do with input and ouptut, not filehandles.
+
+=head4 print
+
+    $string->print;
+    @array->print;
+
+Prints a string or a list of strings.  Returns true if successful.
+
+=head4 say
+
+Like L<print>, but implicitly appends a newline to the end.
 
 
 =head3 Number Related Methods
 
-C<abs>, C<atan2>, C<cos>, C<exp>, C<int>, C<log>, C<oct>, C<hex>, C<rand>, C<sin>, and C<sqrt> are named after
-the built-in functions of the same name.
+Methods related to numbers.
 
-Operators were given names as follows:  C<add>, C<and>, C<band>, C<bor>, C<bxor>, C<cmp>, C<dec>, C<div>, C<eq>, C<flip>, C<ge>, C<gt>, C<inc>, C<le>, C<lshift>, C<lt>, C<mod>, C<mult>, C<mcmp>, C<ne>, C<neg>, C<meq>, C<mge>, C<mgt>, C<mle>, C<mlt>, C<mne>, C<not>, C<or>, C<pow>, C<rpt>, C<rshift>, C<sub>, C<xor>.
+The basic built in functions which operate as normal :
+L<abs|perlfunc/abs>, L<atan2|perlfunc/atan2>, L<cos|perlfunc/cos>, L<exp|perlfunc/exp>,
+L<int|perlfunc/int>, L<log|perlfunc/log>, L<oct|perlfunc/oct>, L<hex|perlfunc/hex>,
+L<rand|perlfunc/rand>, L<sin|perlfunc/sin>, and L<sqrt|perlfunc/sqrt>.
 
-C<flip> is C<~> which is the binary (rather than boolean) "not".
+Operators were given names as follows:  
 
-C<lshift> is C<< << >> and C<rshift> is C<<< >> >>>.
+=head4 add
 
-C<mge> is C<< >= >>.  C<<mle>> is C<< <= >>.  I'm not sure where the "m" came from.
+Corresponds to C<+>.
 
-C<sub> is subtract, I think, but it should not be named the same as the anonymous subroutine constructor XXX.
+=head4 and
+
+Corresponds to C<&&> .
+
+=head4 band
+
+Corresponds to C<&> that is short-circuit and.
+
+=head4 bor
+
+Corresponds to C<|> that is short-circuit or.
+
+=head4 bxor
+
+Corresponds to C<^> that is short-circuit xor.
+
+=head4 dec
+
+C<dec> returns the decimal part of a number.
+
+=head4 div
+
+C<div> returns the quotient of division.
+
+=head4 flip
+
+C<flip> corresponds to C<~> which is the binary (rather than boolean) "not".   
+
+=head4 inc
+
+C<inc> corresponds to C<++>.
+
+=head4 lshift
+
+C<lshift> corresponds to C<< << >>.
+
+=head4 mod
+ 
+C<mod> corresponds to C<%>.
+
+=head4 mult
+
+C<mult> corresponds to C<*>.
+
+=head4 mcmp
+
+C<mcmp> compares two numbers and returns 0,1,-1 depending upon the type of input.
+
+   1->mcmp(5);          # < 0
+   5->mcmp(5);          # = 0   
+   6->mcmp(5);          # > 0
+
+"M" for "math".
+   
+=head4 mge
+
+The C<< >= >> operator.
+
+=head4 meq
+   
+The C<==> operator.
+
+=head4 mgt
+
+The C<< > >> operator.
+
+=head4 mle
+
+The C<< <= >> operator.
+
+=head4 mlt
+
+The C<< < >> operator.
+
+=head4 mne
+
+The C<!=> operator.
+
+=head4 not
+
+C<not> corresponds to C<!>.
+
+=head4 or
+
+C<or> corresponds to C<||>.
+
+=head4 pow
+
+    my $result = $number->pow($expontent);
+
+C<pow> returns $number raised to the power of the $exponent.
+
+    print 2->pow(8);  # 256
+
+=head4 rshift
+   
+C<rshift> corresponds to C<<< >> >>>.
+
+=head4 sub
+
+C<sub> corresponds to C<->.
+
+=head4 xor
+
+C<xor> corresponds to <^>.
 
 =head4 is_number
 
@@ -250,45 +476,15 @@ Returns true if $thing is a decimal number.
     12.34->is_decimal;          # true
     ".34"->is_decimal;          # true
 
-That's it.
-
 
 =head3 Reference Related Methods
 
-Besides the "Functions for SCALARs" section of L<perlfunc>, the following were implemented, where they
-make sense:
-C<tie>,
-C<tied>,
-C<ref>,
-C<undef>,
-C<bless>,
-and C<vec>.
+The following core functions are implemented.
+
+L<tie|perlfunc/tie>, L<tied|perlfunc/tied>, L<ref|perlfunc/ref>,
+L<bless|perlfunc/bless>, L<vec|perlfunc/vec>.
 
 C<tie>, C<tied>, and C<undef> don't work on code references.
-
-Attempting to C<bless> a non-reference scalar will fail with one of:
-C<< Can't call method "bless" on an undefined value >> or
-C<< Can't call method "bless" without a package or object reference>>.
-Hashes, arrays and scalars containing references may be blessed.
-Here's an example of blessing a hash:
-
-    use autobox::Core;
-    my %foo;
-    sub mypackage::hi { print "hi\n"; };
-    %foo->bless('mypackage');
-    %foo->hi;  
-
-It is technically true that only references may be blessed.  This works because C<perl>, internally, stores
-references to lexical variables in the current scope, much like globs hold references to package variables.
-The reference in the "pad" (array of lexical variables for the current stack frame) is blessed in this example.
-
-C<quotemeta> works on non-reference scalars, along with C<split>, C<m>, and C<s> for regular expression operations.
-C<ref> is the same as the C<ref> keyword in that it tells you what kind of a reference something is if it's a
-reference.
-
-There's currently no counterpart to the C<< \ >> operator, which takes something and gives you
-a reference to it.
-
 
 =head3 Array Methods
 
@@ -302,25 +498,6 @@ Or:
   my @arr = [ 1 .. 10 ];
   @arr->undef;
 
-These built-in functions are defined as methods:
-C<pop>, C<push>, C<shift>, C<unshift>, C<delete>, C<vdelete>, C<undef>, C<exists>,
-C<bless>, C<tie>, C<tied>, C<ref>,
-C<grep>, C<map>, C<join>, C<reverse>, and C<sort>.
-
-These non-standard extensions are also defined as methods on arrays:
-C<uniq>, C<first>, 
-C<count>, 
-C<max>,  C<min>, C<sum>, 
-C<mean>, C<var>,  C<svar>, 
-C<at>, 
-C<size>, C<elems>, C<length>, 
-C<each>,  C<foreach>,
-C<print>,  C<say>,
-C<elements>, C<flatten>,
-C<slice>, C<range>,
-C<tail>, C<head>,
-C<first_index>, and C<last_index>.
-
 List context forces methods to return a list:
 
   my @arr = ( 1 .. 10 );
@@ -328,64 +505,170 @@ List context forces methods to return a list:
 
 Likewise, scalar context forces methods to return an array reference.
 
-Arrays can tell you how many elements they contain and the index of their last element:
-
-  my $arr = [ 1 .. 10 ];
-  print '$arr contains ', $arr->size,
-        ' elements, the last having an index of ', $arr->last_index, "\n";
-
-C<last_index> corresponds to C<$#array> and is always one less than C<scalar @array>.
-An array with one element in it has that one element in position zero (size of 1, last index of 0).
-An array with zero elements in it has a size of C<-1>, as far as C<perl> is concerned (size of 0, last index of -1).
-
-C<length>, C<size>, and C<elems> are synonyms for each other and return how many elements are in the array (as with C<scalar @array>).
-
-Array references have a C<flatten> method to dump their elements.
-This is the same as C<< @{$array_ref} >>.
-
-  my $arr = [ 1 .. 10 ];
-  print join ' -- ', $arr->flatten, "\n";
-
-Methods may be chained; scalar context forces methods to return a reference:
+As scalar context forces methods to return a reference, methods may be chained
 
   my @arr = ( 1 .. 10 );
-  print @arr->grep(sub { $_ > 3 })->min, "\n";
+  @arr->grep(sub { $_ > 3 })->min->say;  # "1\n";
+
+These built-in functions are defined as methods:
+
+L<pop|perlfunc/pop>, L<push|perlfunc/push>, L<shift|perlfunc/shift>,
+L<unshift|perlfunc/unshift>, L<delete|perlfunc/delete>, 
+L<undef|perlfunc/undef>, L<exists|perlfunc/exists>,
+L<bless|perlfunc/bless>, L<tie|perlfunc/tie>, L<tied|perlfunc/tied>, L<ref|perlfunc/ref>,
+L<grep|perlfunc/grep>, L<map|perlfunc/map>, L<join|perlfunc/join>, L<reverse|perlfunc/reverse>,
+and L<sort|perlfunc/sort>, L<each|perlfunc/each>, 
+
+=head4 vdelete
+
+Deletes a specified value from the array.
+
+  $a = 1->to(10);
+  $a->vdelete(3);   # deletes 3
+
+=head4 uniq
+
+Removes all duplicate elements from an array and returns the new array 
+with no duplicates.
+
+   my @array = qw( 1 1 2 3 3 6 6 );
+   @return = @array->uniq;    # \@return : 1 2 3 6
+
+=head4 first
+   
+Returns the first element of an array for which a callback returns true:
+
+  $arr->first(sub { /5/ });
+
+=head4 max
+
+Returns the largest numerical value in the array.
+   
+   $a = 1->to(10);
+   $a->max;           # 10
+   
+=head4 min
+
+Returns the smallest numerical value in the array.
+
+   $a = 1->to(10);
+   $a->min;           # 1
+   
+=head4 mean
+
+Returns the mean of elements of an array.
+
+   $a = 1->to(10);
+   $a->mean;          # 55/10
+   
+=head4 var
+
+Returns the variance of the elements of an array.
+
+   $a = 1->to(10);
+   $a->var;           # 33/4
+
+=head4 svar
+
+Returns the standars variance.
+
+  $a = 1->to(10);
+  $a->svar;                     # 55/6
+
+=head4 at
+
+Returns the element at a specified index. This function does not modify the
+original array.
+
+   $a = 1->to(10);
+   $a->at(2);                   # 3
+
+=head4 size
+
+=head4 elems
+
+=head4 length
+
+All return the number of elements in an array.
+
+   my @array = qw(foo bar baz);
+   @array->size;   # 3
+
+=head4 elements
+
+=head4 flatten
+
+    my @copy_of_array = $array->flatten;
+
+Returns the elements of an array ref as an array.
+This is the same as C<< @{$array} >>.
 
 Arrays can be iterated on using C<for> and C<foreach>. Both take a code
 reference as the body of the for statement.
-C<foreach> passes the current element itself in each pass.
-C<for> passes the index of the current element in to that code block, and then
-the current element, and then a reference to the array itself.
 
-  my $arr = [ 1 .. 10 ];
-  $arr->foreach(sub { print $_[0], "\n" });
-  $arr->for(sub { die unless $_[1] == $_[2]->[$_[0]] });
+=head4 foreach
 
-C<sum> is a toy poke at doing L<Language::Functional>-like stuff:
+    @array->foreach(\&code);
 
-  print $arrref->sum, "\n";
+Calls C<&code> on each element of the @array in order.  &code gets the
+element as its argument.
 
-C<count> returns the number of elements in array that are C<eq> to a specified value:
+    @array->foreach(sub { print $_[0] });  # print each element of the array
+
+
+=head4 for
+
+    @array->for(\&code);
+
+Like L<foreach>, but C<&code> is called with the index, the value and
+the array itself.
+
+    my $arr = [ 1 .. 10 ];
+    $arr->for(sub {
+        my($idx, $value) = @_;
+        print "Value #$idx is $value\n";
+    });
+
+
+=head4 sum
+
+    my $sum = @array->sum;
+
+Adds together all the elements of the array.
+
+=head4 count
+
+Returns the number of elements in array that are C<eq> to a specified value:
 
   my @array = qw/one two two three three three/;
   my $num = @array->count('three');  # returns 3
 
-C<mean>, C<var>, and C<svar> compute means and variances on arrays of numbers.
+=head4 to, upto, downto
 
 C<to>, C<upto>, and C<downto> create array references:
 
-  1->to(5);      # creates [1, 2, 3, 4, 5]
-  1->upto(5);    # creates [1, 2, 3, 4, 5]
-  5->downto(5);  # creates [5, 4, 3, 2, 1]
+   1->to(5);      # creates [1, 2, 3, 4, 5]
+   1->upto(5);    # creates [1, 2, 3, 4, 5]
+   5->downto(5);  # creates [5, 4, 3, 2, 1]
 
 Those wrap the C<..> operator.
 
-C<head> returns the first element from C<@list>.
+B<Note> while working with negative numbers you need to use () so as
+to avoid the wrong evaluation.
+
+  my $range = 10->to(1);        # this works
+  my $range = -10->to(10);      # wrong, interpreted as -( 10->to(10) )
+  my $range = (-10)->to(10);    # this works
+
+=head4 head
+
+Returns the first element from C<@list>.
 
     my $first = @list->head;
 
-C<tail> returns all but the first element from C<@list>. 
-In scalar context returns an array reference.
+=head4 tail
+
+Returns all but the first element from C<@list>. 
 
     my @list = qw(foo bar baz quux);
     my @rest = @list->tail;  # [ 'bar', 'baz', 'quux' ]
@@ -395,10 +678,15 @@ elements:
 
     @rest = @list->tail(2); # [ 'baz', 'quux' ]
 
-C<slice> returns a list containing the elements from C<@list> at the indices
+=head4 slice
+
+Returns a list containing the elements from C<@list> at the indices
 C<@indices>. In scalar context, returns an array reference.
 
-    my @sublist = @list->slice(@indexes);
+    # Return $list[1], $list[2], $list[4] and $list[8].
+    my @sublist = @list->slice(1,2,4,8);
+
+=head4 range
 
 C<range> returns a list containing the elements from C<@list> with indices
 ranging from C<$lower_idx> to C<$upper_idx>. It returns an array reference
@@ -406,55 +694,79 @@ in scalar context.
 
     my @sublist = @list->range( $lower_idx, $upper_idx );
 
+=head4 last_index
 
-C<last_index> returns C<@array>'s last index (as with C<$#array>). 
-Optionally, it takes a Coderef or a Regexp,
-in which case it will return the index of the last element that matches
-such regex or makes the code reference return true:
+    my $index = @array->last_index;
 
-    my $last_index = @array->last_index
+Called with no arguments, it corresponds to C<$#array> giving the
+highest index of the array.
 
-Or:
+    my $index = @array->last_index(qr/.../);
+
+Returns the highest index matching the given regular expression.
+
+    my $index = @array->last_index(\&filter);
+
+Returns the highest index for which the filter returns true.  The
+&filter is passed in each value of the @array.
 
     my @things = qw(pear poll potato tomato);
-
     my $last_p = @things->last_index(qr/^p/); # 2
 
-C<first_index>, for symmetry, returns the first index of C<@array>. If passed a Coderef
-or Regexp, it will return the index of the first element that matches.
 
-    my $first_index = @array->first_index; # 0
+=head4 first_index
 
-Or:
+Works just like L<last_index> but it will return the I<first> matching index.
+
+    my $first_index = @array->first_index;    # 0
 
     my @things = qw(pear poll potato tomato);
-
     my $last_p = @things->first_index(qr/^t/); # 3
 
-C<max> and C<min> return the maximum and minimum value, respectively, from an array of numeric values.
 
-C<at> subscripts an array and returns a value.
+=head4 at
 
-C<first> returns the first element of an array for which a callback returns true:
+    my $value = $array->at($index);
 
-  $arr->first(sub { /5/ });
+Equivalent to C<< $array->[$index] >>.
 
 
 =head3 Hash Methods
 
 Hash methods work on both hashes and hash references.
 
-C<delete>, C<exists>, C<keys>, C<values>, C<at>, C<get>, C<put>, C<set>, C<flatten>, C<each>, C<bless>, 
-C<tie>, C<tied>, C<ref>, C<undef>, C<slice>, C<lock_keys>, and C<flip> are implemented.
+The built in functions work as normal:
+L<delete|perlfunc/delete>, L<exists|perlfunc/exists>, L<keys|perlfunc/keys>,
+L<values||perlfunc/values>, L<bless|perlfunc/bless>, L<tie|perlfunc/tie>,
+L<tied|perlfunc/tied>, L<ref|perlfunc/ref>, L<undef|perlfunc/undef>,
+are implemented.
 
-C<at>, C<get>, C<put>, and C<set> appear to be hash getters and setters, fetching or
-setting values for keys in hashes.  XXX
+=head4 at
 
-C<lock_keys> uses the method of the same name in L<Hash::Util>.  It forcibly resticts which
-keys may exist in a hash to a specified set as a form of structure designed to guard against typos.
+=head4 get
 
-C<each> is like C<foreach> but for hash references. For each key in the hash,
-the code reference is invoked with the key and the corresponding value as arguments:
+    my @values = %hash->get(@keys);
+
+Returns the @values of @keys.
+   
+=head4 put
+
+    %hash->push(%other_hash);
+
+Overlays %other_hash on top of %hash.
+
+   my $h = {a => 1, b => 2};
+   $h->put(b => 99, c => 3);    # (a => 1, b => 99, c => 3)
+   
+=head4 set
+
+Synonym for L<put>
+  
+=head4 each
+
+Like C<foreach> but for hash references. For each key in the hash, the
+code reference is invoked with the key and the corresponding value as
+arguments:
 
   my $hashref = { foo => 10, bar => 20, baz => 30, quux => 40 };
   $hashref->each(sub { print $_[0], ' is ', $_[1], "\n" });
@@ -466,15 +778,25 @@ Or:
 
 Unlike regular C<each>, this each will always iterate through the entire hash.
 
-Hash keys appear in random order that varies from run to run (this is intentional,
-to avoid calculated attacks designed to trigger algorithmic worst case scenario in C<perl>'s hash tables).
-C<each> does not sort keys.  Instead, combine C<keys>, C<sort>, and C<foreach>:
+Hash keys appear in random order that varies from run to run (this is
+intentional, to avoid calculated attacks designed to trigger
+algorithmic worst case scenario in C<perl>'s hash tables).
+
+You can get a sorted C<foreach> by combining C<keys>, C<sort>, and C<foreach>:
 
    %hash->keys->sort->foreach(sub {
       print $_[0], ' is ', $hash{$_[0]}, "\n";
    });
 
-C<slice> takes a list of hash keys and returns the corresponding values e.g.
+=head4 lock_keys  
+
+    %hash->lock_keys;
+
+Works as L<Hash::Util/lock_keys>.  No more keys may be added to the hash.
+
+=head4 slice
+
+Takes a list of hash keys and returns the corresponding values e.g.
 
   my %hash = (
       one   => 'two',
@@ -484,7 +806,9 @@ C<slice> takes a list of hash keys and returns the corresponding values e.g.
 
   print %hash->slice(qw(one five))->join(' and '); # prints "two and six"
 
-C<flip> exchanges values for keys in a hash:
+=head4 flip
+
+Exchanges values for keys in a hash:
 
     my %things = ( foo => 1, bar => 2, baz => 5 );
     my %flipped = %things->flip; # { 1 => foo, 2 => bar, 5 => baz }
@@ -501,30 +825,58 @@ nested hashes.
 
     { foo => [ 'bar', 'baz' ] }->flip; # dies
 
-C<flatten> turns a single hash reference into a list of alternating keys and values.
+=head4 flatten
+
+    my %hash = $hash_ref->flatten;
+
+Dereferences a hash reference.
 
 
 =head3 Code Methods
 
-C<bless>, C<ref>, C<map>, C<curry>, and C<times> are implemented for code references.
+Methods which work on code references.
 
-You may C<curry> code references:
+These are simple wrappers around the Perl core fnctions.
+L<bless|perlfunc/bless>, L<ref|perlfunc/ref>, 
 
-  $adding_up_numbers = sub {
-      my $first_number = shift;
-      my $second_number = shift;
-      return $first_number + $second_number;
-  };
+Due to Perl's precedence rules, some autoboxed literals may need to be parenthesized:
+For instance, this works:
+  
+  my $curried = sub { ... }->curry();
 
-  my $adding_five_to_numbers = $adding_up_numbers->curry(5);
+This does not:
 
-  $adding_five_to_numbers->(20)->print; "\n"->print;
+  my $curried = \&foo->curry();
 
-C<times> executes a coderef a given number of times:
+The solution is to wrap the reference in parentheses:
 
-  5->times(sub { print "hi\n"});   # XXX likely to change but it's in the code so bloody doc it so I have incentive to rethink it
+  my $curried = (\&foo)->curry();
 
-C<map> takes a list of things to run through a code block, and returns an array reference or list depending on context:
+
+=head4 curry
+
+    my $curried_code = $code->curry(5);
+
+Currying takes a code reference and provides the same code, but with
+the first argument filled in.
+
+    my $greet_world = sub {
+        my($greeting, $place) = @_;
+        return "$greeting, $place!";
+    };
+    print $greet_world->("Hello", "world");  # "Hello, world!"
+
+    my $howdy_world = $greet_world->curry("Howdy");
+    print $howdy_world->("Texas");           # "Howdy, Texas!"
+
+
+=head4 map
+
+    my @mapped_array = $code->map(@array);
+    my $mapped_array = $code->map(@array);
+
+Like L<map|perlfunc/map>.  Runs each element of @array through $code
+and returns the transformed elements.
 
   sub { my $t = $_[0]; $t =~ tr/a-z/zyxwvutsrqponmlkjihgfedcba/; $t }->map(
     "Black", "crow", "flies", "at", "midnight"
@@ -1551,7 +1903,4 @@ __DATA__
        Keywords related to classes and object-orientedness
            "bless", "dbmclose", "dbmopen", "package", "ref",
            "tie", "tied", "untie", "use"
-
-
-
 
