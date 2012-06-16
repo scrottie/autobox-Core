@@ -62,7 +62,7 @@ sub import {
 
 =head1 NAME
 
-autobox::Core - Core functions exposed as methods in primitive types
+autobox::Core - Provide core functions to autoboxed scalars, arrays and hashes.
 
 =head1 SYNOPSIS
 
@@ -70,60 +70,127 @@ autobox::Core - Core functions exposed as methods in primitive types
 
   "Hello, World\n"->uc->print;
 
-=head1 DESCRIPTION
+  my @list = (1, 5, 9, 2 0, 4, 2, 1);
+  @list->sort->reverse->print;
 
-The L<autobox> module lets you call methods on primitive datatypes such as
-scalars and arrays.
+  # works with references too!
+  my $list = [1, 5, 9, 2 0, 4, 2, 1];
+  $list->sort->reverse->print;
 
-L<autobox::CORE> defines methods for core operations such as C<join>, C<print>,
-most everything in L<perlfunc>, some things from L<Scalar::Util> and
-L<List::Util>, and some Perl 5 versions of methods taken from Perl 6.
+  my %hash = (
+      grass => 'green',
+      apple => 'red',
+      sky   => 'blue',
+  );
 
-These methods expose as methods the built-in functions for minipulating
-numbers, strings, arrays, hashes, and code references.
+  $hash->delete('grass')->keys()->print;
 
-It can be handy to use built-in functions as methods to avoid
-messy dereferencing syntaxes and parentheses pile ups.
+  use feature qw(say);  # Use print and a newline in older versions of Perl
 
-F<autobox::Core> is what you'd call a I<stub> module. It is mostly glue, presenting
-existing functions with a new interface. Most of the methods read like
-C<< sub hex { hex($_[0]) } >>.
-Besides built-ins that operate on hashes, arrays, scalars, and code references,
-some Perl 6-ish things were thrown in, and some keyword like C<foreach> have
-been turned into methods.
+  [10, 20, 30, 40, 50]->pop->say;
+  [10, 20, 30, 40, 50]->shift->say;
 
-
-=head2 What's Implemented?
-
-All of the functions listed in L<perldoc> under the headings:
-"Functions for real @ARRAYs",
-"Functions for real %HASHes",
-"Functions for list data",
-and "Functions for SCALARs or strings", plus a few taken from other sections
-and documented below.
-Methods from L<Scalar::Util> and L<List::Util> were thrown in.
-Some things expected in Perl 6, such as C<last> (C<last_idx>), C<elems>, and C<curry>, have been thrown in.
-C<flatten> explicitly flattens an array.
-Functions such as C<add> have been defined for numeric operations.
-
-Here's a small sample:
-
-  print [10, 20, 30, 40, 50]->pop, "\n";
-  print [10, 20, 30, 40, 50]->shift, "\n";
-
-  my $arrref = [10, 20, 30];
-
-  my $lala;
-  $lala = "Lalalalala\n"; print "chomp: ", $lala->chomp, ' ', $lala, "\n";
-  $lala = "Lalalalala\n"; print "lcfirst: ", $lala->lcfirst, ' ', $lala, "\n";
+  my $lala = "Lalalalala\n"; 
+  "chomp: "->concat($lala->chomp)->say;
 
   my $hashref = { foo => 10, bar => 20, baz => 30, qux => 40 };
 
   print "hash keys: ", $hashref->keys->join(' '), "\n"; # or if you prefer...
-  print "hash keys: ", join ' ', $hashref->keys(), "\n";
+  print "hash keys: ", join ' ', $hashref->keys(), "\n"; # or
+  print "hash keys: "; $hashref->keys->say;
 
-Of the built-in stuff, only a few stragglers such as C<srand> were excluded.
+=head1 DESCRIPTION
 
+The L<autobox> module promotes Perl's primitive types (literals (strings and
+numbers), scalars, arrays and hashes) into first-class objects.  However,
+L<autobox> does not provide any methods for these new classes.
+
+L<autobox::CORE> provides a set of methods for these new classes.  It includes
+almost everything in L<perlfunc>, some things from L<Scalar::Util> and
+L<List::Util>, and some Perl 5 versions of methods taken from Perl 6.
+
+With F<autobox::Core> one is able to change this:
+
+	print join(" ", reverse(split(" ", $string)));
+
+to this:
+
+	use autobox::Core;
+
+	$string->split(" ")->reverse->print;
+
+or this:
+
+	my $array_ref = [qw(fish dog cat elephant bird)];
+
+	push @$array_ref, qw(snake lizard giraffe mouse);
+
+to this:
+
+	use autobox::Core;
+	my $array_ref = [qw(fish dog cat elephant bird)];
+
+	$array_ref->push( qw(snake lizard giraffe mouse));
+
+F<autobox::Core> makes it easier to avoid parentheses pile ups and
+messy dereferencing syntaxes.
+
+F<autobox::Core> is mostly glue.  It presents existing functions with a new
+interface, while adding few extra. Most of the methods read like C<< sub hex {
+CORE::hex($_[0]) } >>.  In addition to built-ins from L<perlfunc> that operate
+on hashes, arrays, scalars, and code references, some Perl 6-ish things have
+been included, and some keywords like C<foreach> are represented too.
+
+=head2 What's Implemented?
+
+=over 4
+
+=item *
+
+All of the functions listed in L<perlfunc> under the headings:
+
+=over 4
+
+=item *
+
+"Functions for real @ARRAYs",
+
+=item *
+
+"Functions for real %HASHes",
+
+=item *
+
+"Functions for list data",
+
+=item *
+
+"Functions for SCALARs or strings"
+
+=back
+
+plus a few taken from other sections and documented below.
+
+=item *
+
+Some methods from L<Scalar::Util> and L<List::Util>.
+
+=item *
+
+Some things expected in Perl 6, such as C<last> (C<last_idx>), C<elems>, and
+C<curry>.
+
+=item *
+
+C<flatten> explicitly flattens an array.
+
+=item *
+
+Functions such as C<add> have been defined for numeric operations.
+
+=back
+
+Of the built-in functions, only a few stragglers such as C<srand> were excluded.
 
 =head3 String Methods
 
@@ -149,7 +216,16 @@ L<s|perlfunc/s>, L<split|perlfunc/split>, L<system|perlfunc/system>, L<eval|perl
 
 =head4 cmp
 
-    my $cmp = $a->cmp($b);
+    $cmp = $a->cmp($b);
+ 
+    # or more likely:
+
+    my @sorted = sort { $a->cmp($b) } @unsorted;
+
+    # or
+
+    my @sorted = @unsorted->sort( sub { $a->cmp($b) } );
+#TODO 
 
 Compare two strings, just like the C<cmp> operator.
 
@@ -162,6 +238,12 @@ C<eq> returns true if the values are equal strings.
 
    "foo"->eq("bar");            #false
    "foo"->eq("foo");            #true
+
+   # or more likely:
+
+   if( "foo"->eq("bar") ) {
+	
+   }
 
 =head4 ne
 
@@ -177,6 +259,8 @@ The string comparison operators of the same name.  They're called like
 L<eq>.
 
 =head4 concat
+
+   $string1->concat($string2);
 
 Corresponds to the C<.> operator used to join two strings.
 
