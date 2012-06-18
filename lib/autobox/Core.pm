@@ -111,26 +111,26 @@ L<List::Util>, and some Perl 5 versions of methods taken from Perl 6.
 
 With F<autobox::Core> one is able to change this:
 
-	print join(" ", reverse(split(" ", $string)));
+        print join(" ", reverse(split(" ", $string)));
 
 to this:
 
-	use autobox::Core;
+        use autobox::Core;
 
-	$string->split(" ")->reverse->print;
+        $string->split(" ")->reverse->print;
 
 or this:
 
-	my $array_ref = [qw(fish dog cat elephant bird)];
+        my $array_ref = [qw(fish dog cat elephant bird)];
 
-	push @$array_ref, qw(snake lizard giraffe mouse);
+        push @$array_ref, qw(snake lizard giraffe mouse);
 
 to this:
 
-	use autobox::Core;
-	my $array_ref = [qw(fish dog cat elephant bird)];
+        use autobox::Core;
+        my $array_ref = [qw(fish dog cat elephant bird)];
 
-	$array_ref->push( qw(snake lizard giraffe mouse));
+        $array_ref->push( qw(snake lizard giraffe mouse));
 
 F<autobox::Core> makes it easier to avoid parentheses pile ups and
 messy dereferencing syntaxes.
@@ -211,7 +211,8 @@ L<lcfirst|perlfunc/lcfirst>, L<length|perlfunc/length>, L<ord|perlfunc/ord>,
 L<pack|perlfunc/pack>, L<reverse|perlfunc/reverse>, L<rindex|perlfunc/rindex>,
 L<sprintf|perlfunc/sprintf>, L<substr|perlfunc/substr>, L<uc|perlfunc/uc>
 L<ucfirst|perlfunc/ucfirst>, L<unpack|perlfunc/unpack>, L<quotemeta|perlfunc/quotemeta>,
-L<vec|perlfunc/vec>, L<undef|perlfunc/undef>, L<m|perlfunc/m>, L<nm|perlfunc/nm>,
+L<vec|perlfunc/vec>, L<undef|perlfunc/undef>, L<m|perlfunc/m>,
+L<nm|perlop/binding>,
 L<s|perlfunc/s>, L<split|perlfunc/split>, L<system|perlfunc/system>, L<eval|perlfunc/eval>.
 
 =head4 cmp
@@ -225,7 +226,8 @@ L<s|perlfunc/s>, L<split|perlfunc/split>, L<system|perlfunc/system>, L<eval|perl
     # or
 
     my @sorted = @unsorted->sort( sub { $a->cmp($b) } );
-#TODO 
+
+# TODO: test
 
 Compare two strings, just like the C<cmp> operator.
 
@@ -242,7 +244,7 @@ C<eq> returns true if the values are equal strings.
    # or more likely:
 
    if( "foo"->eq("bar") ) {
-	
+        
    }
 
 =head4 ne
@@ -262,7 +264,8 @@ L<eq>.
 
    $string1->concat($string2);
 
-Corresponds to the C<.> operator used to join two strings.
+Concatenates C<$string2> to C<$string1>, changing C<$string1>.  This 
+corresponds to the C<.> operator used to join two strings.
 
 =head4 strip
 
@@ -278,9 +281,9 @@ Removes whitespace from the beginning and end of a string.  C<trim>
 can also remove specific characters from the beginning and the end of
 string.
 
-   '    hello'->trim;                   # testme
-   '--> hello <--'->trim("-><");        # testme 
-   ' --> hello <--'->trim("-><");       # --> testme 
+   '    hello'->trim;                   # 'hello'
+   '--> hello <--'->trim("-><");        # 'hello' 
+   ' --> hello <--'->trim("-><");       # ' --> hello'
 
 =head4 ltrim
 
@@ -302,6 +305,12 @@ expression as a compiled regex.
 
 The limit argument is not implemented.
 
+=begin comment
+
+Somewhere above it says that the argument to split must be a precompiled regular expression,
+but the code does not actually require this.
+
+=end comment
 
 =head4 title_case
 
@@ -315,7 +324,7 @@ C<title_case> converts the first character of each word in the string to upper c
     my $centered_string = $string->center($length, $character);
 
 Centers $string between $character.  $centered_string will be of
-length $length.
+length $length, or the length of $string, whichever is greater.
 
 C<$character> defaults to " ".
 
@@ -333,26 +342,54 @@ than C<< $string->length >> it will just return C<$string>.
 
 Runs $string as a command just like C<`$string`>.
 
+=begin comment
+
+This is unfortunately named.  I'd have expected it to be called qx given that
+backticks are equivalent to qx.
+
+I'm wondering, also, that - since this module is kind of young the possibility
+does exist - whether this should actually just expose IPC::System::Simple's capture
+rather than backticks entirely.
+
+=end comment
+
 =head4 nm
 
-"Negative match".  Corresponds to C<< !~ >>.
+    if( $foo->nm(qr/bar/) ) {
+        say "$foo did not match 'bar'";
+    }
+
+"Negative match".  Corresponds to C<< !~ >>.  Otherwise works as C<m>.
 
 =head4 m
 
-    my $matches = $foo->m(qr/bar/);
+    if( $foo->m(qr/bar/) ) {
+        say "$foo matched 'bar'";
+    }
+
+    my $matches = $foo->m( qr/(\d*) (\w+)/ );
+    say $matches->[0];
+    say $matches->[1];
 
 Works the same as C<< m// >>, but the regex must be passed in as a C<qr//>.
 
-C<m> returns an array reference so that things such as C<map> and
-C<grep> may be called on the result.
+C<m> returns an array reference so that list functions such as C<map> and
+C<grep> may be called on the result.  Use C<elements> to turn this into a list of values.
 
   my ($street_number, $street_name, $apartment_number) =
       "1234 Robin Drive #101"->m( qr{(\d+) (.*)(?: #(\d+))?} )->elements;
+
   print "$street_number $street_name $apartment_number\n";
 
 =head4 s
 
-Works the same as C<< s/// >>.
+  my $string = "the cat sat on the mat";
+  $string->s( qr/cat/, "dog" );
+  $string->say;                 # the dog sat on the mat
+  
+
+Works the same as C<< s/// >>.  Returns the number of substitutions
+performed, not the target string.
 
 =head4 undef
 
@@ -364,6 +401,10 @@ Assigns C<undef> to the C<$string>.
 
     my $is_defined = $string->defined;
 
+    if( not $string->defined ) {
+        # give $string a value...
+    }
+
 C<defined> tests whether a value is defined (not C<undef>).
 
 =head4 rpt
@@ -372,9 +413,9 @@ C<defined> tests whether a value is defined (not C<undef>).
 
 Like the C<x> operator, repeats a string C<$n> times.
 
-    print 1->rpt(5);    # 11111
+    print 1->rpt(5);     # 11111
+    print "\n"->rpt(10); # ten newlines
    
-
 =head3 I/O Methods
 
 These are methods having to do with input and ouptut, not filehandles.
@@ -389,7 +430,6 @@ Prints a string or a list of strings.  Returns true if successful.
 =head4 say
 
 Like L<print>, but implicitly appends a newline to the end.
-
 
 =head3 Number Related Methods
 
@@ -408,23 +448,36 @@ Corresponds to C<+>.
 
 =head4 and
 
+    if( $a->and($b) ) {
+        # $a and $b are true         
+    }
+
 Corresponds to C<&&> .
 
 =head4 band
 
-Corresponds to C<&> that is short-circuit and.
+    $bitstring1->band($bitstring2);
 
-=head4 bor
+Corresponds to C<&> that is binary bitwise AND.
 
-Corresponds to C<|> that is short-circuit or.
+=head4 bor 
+
+    $bitstring1->bor($bitstring2);
+
+Corresponds to C<|> that is binary bitwise OR.
 
 =head4 bxor
+    $bitstring1->bxor($bitstring2);
 
-Corresponds to C<^> that is short-circuit xor.
+Corresponds to C<^> that is binary bitwise XOR.
 
 =head4 dec
 
-C<dec> returns the decimal part of a number.
+    $number->dec();
+
+    # $number is smaller by 1.
+
+C<dec> decrements the subject, same as C<-->.
 
 =head4 div
 
