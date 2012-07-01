@@ -70,11 +70,11 @@ autobox::Core - Provide core functions to autoboxed scalars, arrays and hashes.
 
   "Hello, World\n"->uc->print;
 
-  my @list = (1, 5, 9, 2 0, 4, 2, 1);
+  my @list = (1, 5, 9, 2, 0, 4, 2, 1);
   @list->sort->reverse->print;
 
   # works with references too!
-  my $list = [1, 5, 9, 2 0, 4, 2, 1];
+  my $list = [1, 5, 9, 2, 0, 4, 2, 1];
   $list->sort->reverse->print;
 
   my %hash = (
@@ -83,15 +83,13 @@ autobox::Core - Provide core functions to autoboxed scalars, arrays and hashes.
       sky   => 'blue',
   );
 
-  $hash->delete('grass')->keys()->print;
-
   use feature qw(say);  # Use print and a newline in older versions of Perl
 
   [10, 20, 30, 40, 50]->pop->say;
   [10, 20, 30, 40, 50]->shift->say;
 
   my $lala = "Lalalalala\n"; 
-  "chomp: "->concat($lala->chomp)->say;
+  "chomp: "->concat($lala->chomp, " ", $lala)->say;
 
   my $hashref = { foo => 10, bar => 20, baz => 30, qux => 40 };
 
@@ -119,7 +117,7 @@ to this:
 
         $string->split(" ")->reverse->print;
 
-or this:
+Likewise you can change this:
 
         my $array_ref = [qw(fish dog cat elephant bird)];
 
@@ -227,8 +225,6 @@ L<s|perlfunc/s>, L<split|perlfunc/split>, L<system|perlfunc/system>, L<eval|perl
 
     my @sorted = @unsorted->sort( sub { $a->cmp($b) } );
 
-# TODO: test
-
 Compare two strings, just like the C<cmp> operator.
 
 If $a is greater, it returns 1.  If $b is greater, it returns -1.
@@ -305,13 +301,6 @@ expression as a compiled regex.
 
 The limit argument is not implemented.
 
-=begin comment
-
-Somewhere above it says that the argument to split must be a precompiled regular expression,
-but the code does not actually require this.
-
-=end comment
-
 =head4 title_case
 
 C<title_case> converts the first character of each word in the string to upper case.
@@ -341,17 +330,6 @@ than C<< $string->length >> it will just return C<$string>.
     my $output = $string->backtick;
 
 Runs $string as a command just like C<`$string`>.
-
-=begin comment
-
-This is unfortunately named.  I'd have expected it to be called qx given that
-backticks are equivalent to qx.
-
-I'm wondering, also, that - since this module is kind of young the possibility
-does exist - whether this should actually just expose IPC::System::Simple's capture
-rather than backticks entirely.
-
-=end comment
 
 =head4 nm
 
@@ -431,6 +409,33 @@ Prints a string or a list of strings.  Returns true if successful.
 
 Like L<print>, but implicitly appends a newline to the end.
 
+=head3 Binary Methods
+
+=head4 band
+
+    $bitstring1->band($bitstring2);
+
+Corresponds to C<&>, binary bitwise AND.
+
+=head4 bor 
+
+    $bitstring1->bor($bitstring2);
+
+Corresponds to C<|>, binary bitwise OR.
+
+=head4 bxor
+    $bitstring1->bxor($bitstring2);
+
+Corresponds to C<^>, binary bitwise XOR.
+
+=head4 flip
+
+C<flip> corresponds to C<~>, binary NOT.   
+
+=head4 lshift
+
+C<lshift> corresponds to C<< << >>.
+
 =head3 Number Related Methods
 
 Methods related to numbers.
@@ -454,22 +459,6 @@ Corresponds to C<+>.
 
 Corresponds to C<&&> .
 
-=head4 band
-
-    $bitstring1->band($bitstring2);
-
-Corresponds to C<&> that is binary bitwise AND.
-
-=head4 bor 
-
-    $bitstring1->bor($bitstring2);
-
-Corresponds to C<|> that is binary bitwise OR.
-
-=head4 bxor
-    $bitstring1->bxor($bitstring2);
-
-Corresponds to C<^> that is binary bitwise XOR.
 
 =head4 dec
 
@@ -477,23 +466,20 @@ Corresponds to C<^> that is binary bitwise XOR.
 
     # $number is smaller by 1.
 
-C<dec> decrements the subject, same as C<-->.
+C<dec> corresponds to C<++>.  Decrements subject, will decrement character
+strings too: 'b' decrements to 'a'.
 
 =head4 div
 
-C<div> returns the quotient of division.
+    $number->div(3);
 
-=head4 flip
-
-C<flip> corresponds to C<~> which is the binary (rather than boolean) "not".   
+C<div> returns the quotient of division (that is the non-fractional part).
+Same as C</>.
 
 =head4 inc
 
-C<inc> corresponds to C<++>.
-
-=head4 lshift
-
-C<lshift> corresponds to C<< << >>.
+C<inc> corresponds to C<++>.  Increments subject, will increment character
+strings too. 'a' increments to 'b'.
 
 =head4 mod
  
