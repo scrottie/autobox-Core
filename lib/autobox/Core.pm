@@ -213,49 +213,6 @@ L<vec|perlfunc/vec>, L<undef|perlfunc/undef>, L<m|perlfunc/m>,
 L<nm|perlop/binding>,
 L<s|perlfunc/s>, L<split|perlfunc/split>, L<system|perlfunc/system>, L<eval|perlfunc/eval>.
 
-=head4 cmp
-
-    $cmp = $a->cmp($b);
- 
-    # or more likely:
-
-    my @sorted = sort { $a->cmp($b) } @unsorted;
-
-    # or
-
-    my @sorted = @unsorted->sort( sub { $a->cmp($b) } );
-
-Compare two strings, just like the C<cmp> operator.
-
-If $a is greater, it returns 1.  If $b is greater, it returns -1.
-If they're equal, it returns 0.
-
-=head4 eq
-
-C<eq> returns true if the values are equal strings.
-
-   "foo"->eq("bar");            #false
-   "foo"->eq("foo");            #true
-
-   # or more likely:
-
-   if( "foo"->eq("bar") ) {
-        
-   }
-
-=head4 ne
-
-=head4 ge
-
-=head4 gt
-
-=head4 le
-
-=head4 lt
-
-The string comparison operators of the same name.  They're called like
-L<eq>.
-
 =head4 concat
 
    $string1->concat($string2);
@@ -443,38 +400,22 @@ Methods related to numbers.
 The basic built in functions which operate as normal :
 L<abs|perlfunc/abs>, L<atan2|perlfunc/atan2>, L<cos|perlfunc/cos>, L<exp|perlfunc/exp>,
 L<int|perlfunc/int>, L<log|perlfunc/log>, L<oct|perlfunc/oct>, L<hex|perlfunc/hex>,
-L<rand|perlfunc/rand>, L<sin|perlfunc/sin>, and L<sqrt|perlfunc/sqrt>.
+L<sin|perlfunc/sin>, and L<sqrt|perlfunc/sqrt>.
 
 Operators were given names as follows:  
-
-=head4 add
-
-Corresponds to C<+>.
-
-=head4 and
-
-    if( $a->and($b) ) {
-        # $a and $b are true         
-    }
-
-Corresponds to C<&&> .
 
 
 =head4 dec
 
     $number->dec();
-
     # $number is smaller by 1.
 
 C<dec> corresponds to C<++>.  Decrements subject, will decrement character
 strings too: 'b' decrements to 'a'.
 
-=head4 div
+=head4 flip
 
-    $number->div(3);
-
-C<div> returns the quotient of division (that is the non-fractional part).
-Same as C</>.
+C<flip> corresponds to C<~> which is the binary (rather than boolean) "not".   
 
 =head4 inc
 
@@ -484,44 +425,6 @@ strings too. 'a' increments to 'b'.
 =head4 mod
  
 C<mod> corresponds to C<%>.
-
-=head4 mult
-
-C<mult> corresponds to C<*>.
-
-=head4 mcmp
-
-C<mcmp> compares two numbers and returns 0,1,-1 depending upon the type of input.
-
-   1->mcmp(5);          # < 0
-   5->mcmp(5);          # = 0   
-   6->mcmp(5);          # > 0
-
-"M" for "math".
-   
-=head4 mge
-
-The C<< >= >> operator.
-
-=head4 meq
-   
-The C<==> operator.
-
-=head4 mgt
-
-The C<< > >> operator.
-
-=head4 mle
-
-The C<< <= >> operator.
-
-=head4 mlt
-
-The C<< < >> operator.
-
-=head4 mne
-
-The C<!=> operator.
 
 =head4 not
 
@@ -542,10 +445,6 @@ C<pow> returns $number raised to the power of the $exponent.
 =head4 rshift
    
 C<rshift> corresponds to C<<< >> >>>.
-
-=head4 sub
-
-C<sub> corresponds to C<->.
 
 =head4 xor
 
@@ -874,7 +773,7 @@ Returns the @values of @keys.
    
 =head4 put
 
-    %hash->push(%other_hash);
+    %hash->put(%other_hash);
 
 Overlays %other_hash on top of %hash.
 
@@ -991,19 +890,6 @@ the first argument filled in.
 
     my $howdy_world = $greet_world->curry("Howdy");
     print $howdy_world->("Texas");           # "Howdy, Texas!"
-
-
-=head4 map
-
-    my @mapped_array = $code->map(@array);
-    my $mapped_array = $code->map(@array);
-
-Like L<map|perlfunc/map>.  Runs each element of @array through $code
-and returns the transformed elements.
-
-  sub { my $t = $_[0]; $t =~ tr/a-z/zyxwvutsrqponmlkjihgfedcba/; $t }->map(
-    "Black", "crow", "flies", "at", "midnight"
-  )->say;
 
 
 =head2 What's Missing?
@@ -1373,8 +1259,6 @@ sub system     { CORE::system @_; }
 sub backtick   { `$_[0]`; }
 
 #       Numeric functions
-#           "abs", "atan2", "cos", "exp", "hex", "int", "log",
-#           "oct", "rand", "sin", "sqrt", "srand"
 
 sub abs       { CORE::abs($_[0]) }
 sub atan2     { CORE::atan2($_[0], $_[1]) }
@@ -1384,7 +1268,6 @@ sub int       { CORE::int($_[0]) }
 sub log       { CORE::log($_[0]) }
 sub oct       { CORE::oct($_[0]) }
 sub hex       { CORE::hex($_[0]); }
-sub rand      { CORE::rand($_[0]) }
 sub sin       { CORE::sin($_[0]) }
 sub sqrt      { CORE::sqrt($_[0]) }
 
@@ -1425,39 +1308,18 @@ sub strip  {
 }
 
 # operator schizzle
-sub add  { $_[0] + $_[1]; }
 sub and  { $_[0] && $_[1]; }
-sub band { $_[0] & $_[1]; }
-sub bor  { $_[0] | $_[1]; }
-sub bxor { $_[0] ^ $_[1]; }
-sub cmp  { $_[0] cmp $_[1]; }
 sub dec  { my $t = CORE::shift @_; --$t; }
-sub div  { $_[0] / $_[1]; }
-sub eq   { $_[0] eq $_[1]; }
 sub flip { ~$_[0]; }
-sub ge   { $_[0] ge $_[1]; }
-sub gt   { $_[0] gt $_[1]; }
 sub inc  { my $t = CORE::shift @_; ++$t; }
-sub le   { $_[0] le $_[1]; }
 sub lshift { $_[0] << $_[1]; }
-sub lt   { $_[0] lt $_[1]; }
 sub mod  { $_[0] % $_[1]; }
-sub mult { $_[0] * $_[1]; }
-sub mcmp { $_[0] <=> $_[1]; }
-sub ne   { $_[0] ne $_[1]; }
 sub neg  { -$_[0]; }
-sub meq  { $_[0] == $_[1]; }
-sub mge  { $_[0] >= $_[1]; }
-sub mgt  { $_[0] > $_[1]; }
-sub mle  { $_[0] <= $_[1]; }
-sub mlt  { $_[0] < $_[1]; }
-sub mne  { $_[0] != $_[1]; }
 sub not  { !$_[0]; }
 sub or   { $_[0] || $_[1]; }
 sub pow  { $_[0] ** $_[1]; }
 sub rpt  { $_[0] x $_[1]; }
 sub rshift { $_[0] >> $_[1]; }
-sub sub  { $_[0] - $_[1]; }
 sub xor  { $_[0] ^ $_[1]; }
 
 # sub bless (\%$)   { CORE::bless $_[0], $_[1] } # HASH, ARRAY, CODE already have a bless() and blessing a non-reference works (autobox finds the reference in the pad or stash!).  "can't bless a non-referenc value" for non-reference lexical and package scalars.  this would work for (\$foo)->bless but then, unlike arrays, we couldn't find the reference to the variable again later so there's not much point I can see.
@@ -1554,7 +1416,6 @@ package autobox::Core::HASH;
 use Carp 'croak';
 
 #       Functions for real %HASHes
-#           "delete", "each", "exists", "keys", "values"
 
 sub delete  {
     my $hash = CORE::shift;
@@ -1582,7 +1443,7 @@ sub values {
 
 # local extensions
 
-sub get { my @res = $_[0]->{@_[1..$#_]}; return wantarray ? @res : \@res }
+sub get { @{$_[0]}{@_[1..$#_]}; }
 *at = *get;
 
 sub put {
@@ -1624,8 +1485,6 @@ sub each {
 }
 
 #       Keywords related to classes and object-orientedness
-#           "bless", "dbmclose", "dbmopen", "package", "ref",
-#           "tie", "tied", "untie", "use"
 
 sub bless  { CORE::bless $_[0], $_[1] }
 sub tie    { CORE::tie   $_[0], @_[1 .. $#_] }
@@ -1665,8 +1524,6 @@ use constant FIVETEN => ($] >= 5.010);
 use Carp 'croak';
 
 #       Functions for list data
-#           "grep", "join", "map", "qw/STRING/", "reverse",
-#           "sort", "unpack"
 
 # at one moment, perl5i had this in it:
 
@@ -1772,7 +1629,6 @@ sub min {
 }
 
 # Functions for real @ARRAYs
-#    "pop", "push", "shift", "splice", "unshift"
 
 sub pop  { CORE::pop @{$_[0]}; }
 
@@ -2000,30 +1856,5 @@ sub ref      { CORE::ref   $_[0] }
 
 sub curry  { my $code = CORE::shift; my @args = @_; sub { CORE::unshift @_, @args; goto &$code; }; }
 
-# local - polymorphic
-
-sub map  { my $code = CORE::shift; my @res = CORE::map { $code->($_) } @_; wantarray ? @res : \@res; }
-
 1;
-
-__DATA__
-
-
-       Regular expressions and pattern matching
-           "m//", "pos", "quotemeta", "s///", "split", "study",
-           "qr//"
-
-
-       Functions for fixed length data or records
-           "pack", "read", "syscall", "sysread", "syswrite",
-           "unpack", "vec"
-
-
-       Miscellaneous functions
-           "defined", "dump", "eval", "formline", "local", "my",
-           "our", "reset", "scalar", "undef", "wantarray"
-
-       Keywords related to classes and object-orientedness
-           "bless", "dbmclose", "dbmopen", "package", "ref",
-           "tie", "tied", "untie", "use"
 
