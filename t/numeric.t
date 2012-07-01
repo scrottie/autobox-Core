@@ -17,5 +17,4 @@ cmp_ok( abs(05->hex    - hex(05)),    '<', $e );
 cmp_ok( abs($num->sin  - sin($num)),  '<', $e );
 cmp_ok( abs($num->sqrt - sqrt($num)), '<', $e );
 
-cmp_ok( $num->rand, '<=', $num );
 cmp_ok( abs($num->atan2($num) - atan2($num, $num)), '<', $e );
