@@ -1,5 +1,4 @@
-use Test::More;
-BEGIN { plan tests => 73 };
+use Test::More 'no_plan';
 use autobox::Core;
 
 #####################################################################
@@ -107,19 +106,21 @@ is_deeply \@a, [ reverse 1 .. 10 ];
 # Hashes
 #####################################################################
 my $h = {a => 1, b => 2, c => 3};
-ok($h->at('b') == 2);
+is($h->at('b'), 2);
 
-ok($h->get('c') == 3);
+is($h->get('c'), 3);
 
 $h->put('d' => 4, e=>5, f=>6);
-ok($h->get('e') == 5);
+is($h->get('e'), 5);
 $h->put('g', 7);
-ok($h->get('g') == 7);
+is($h->get('g'), 7);
 
 $h->set('h' => 8);
-ok($h->get('h') == 8);
+is($h->get('h'), 8);
 $h->set('i', 9);
-ok($h->get('i') == 9);
+is($h->get('i'), 9);
+
+is_deeply [$h->get(qw(a b c))], [1, 2, 3];
 
 is_deeply(
   [ sort $h->flatten ],

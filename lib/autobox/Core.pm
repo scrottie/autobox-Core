@@ -1459,7 +1459,7 @@ sub values {
 
 # local extensions
 
-sub get { my @res = $_[0]->{@_[1..$#_]}; return wantarray ? @res : \@res }
+sub get { @{$_[0]}{@_[1..$#_]}; }
 *at = *get;
 
 sub put {
