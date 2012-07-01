@@ -62,7 +62,7 @@ sub import {
 
 =head1 NAME
 
-autobox::Core - Core functions exposed as methods in primitive types
+autobox::Core - Provide core functions to autoboxed scalars, arrays and hashes.
 
 =head1 SYNOPSIS
 
@@ -70,60 +70,124 @@ autobox::Core - Core functions exposed as methods in primitive types
 
   "Hello, World\n"->uc->print;
 
-=head1 DESCRIPTION
+  my @list = (1, 5, 9, 2, 0, 4, 2, 1);
+  @list->sort->reverse->print;
 
-The L<autobox> module lets you call methods on primitive datatypes such as
-scalars and arrays.
+  # works with references too!
+  my $list = [1, 5, 9, 2, 0, 4, 2, 1];
+  $list->sort->reverse->print;
 
-L<autobox::CORE> defines methods for core operations such as C<join>, C<print>,
-most everything in L<perlfunc>, some things from L<Scalar::Util> and
-L<List::Util>, and some Perl 5 versions of methods taken from Perl 6.
+  my %hash = (
+      grass => 'green',
+      apple => 'red',
+      sky   => 'blue',
+  );
 
-These methods expose as methods the built-in functions for minipulating
-numbers, strings, arrays, hashes, and code references.
+  use feature qw(say);  # Use print and a newline in older versions of Perl
 
-It can be handy to use built-in functions as methods to avoid
-messy dereferencing syntaxes and parentheses pile ups.
+  [10, 20, 30, 40, 50]->pop->say;
+  [10, 20, 30, 40, 50]->shift->say;
 
-F<autobox::Core> is what you'd call a I<stub> module. It is mostly glue, presenting
-existing functions with a new interface. Most of the methods read like
-C<< sub hex { hex($_[0]) } >>.
-Besides built-ins that operate on hashes, arrays, scalars, and code references,
-some Perl 6-ish things were thrown in, and some keyword like C<foreach> have
-been turned into methods.
-
-
-=head2 What's Implemented?
-
-All of the functions listed in L<perldoc> under the headings:
-"Functions for real @ARRAYs",
-"Functions for real %HASHes",
-"Functions for list data",
-and "Functions for SCALARs or strings", plus a few taken from other sections
-and documented below.
-Methods from L<Scalar::Util> and L<List::Util> were thrown in.
-Some things expected in Perl 6, such as C<last> (C<last_idx>), C<elems>, and C<curry>, have been thrown in.
-C<flatten> explicitly flattens an array.
-Functions such as C<add> have been defined for numeric operations.
-
-Here's a small sample:
-
-  print [10, 20, 30, 40, 50]->pop, "\n";
-  print [10, 20, 30, 40, 50]->shift, "\n";
-
-  my $arrref = [10, 20, 30];
-
-  my $lala;
-  $lala = "Lalalalala\n"; print "chomp: ", $lala->chomp, ' ', $lala, "\n";
-  $lala = "Lalalalala\n"; print "lcfirst: ", $lala->lcfirst, ' ', $lala, "\n";
+  my $lala = "Lalalalala\n"; 
+  "chomp: "->concat($lala->chomp, " ", $lala)->say;
 
   my $hashref = { foo => 10, bar => 20, baz => 30, qux => 40 };
 
   print "hash keys: ", $hashref->keys->join(' '), "\n"; # or if you prefer...
-  print "hash keys: ", join ' ', $hashref->keys(), "\n";
+  print "hash keys: ", join ' ', $hashref->keys(), "\n"; # or
+  print "hash keys: "; $hashref->keys->say;
 
-Of the built-in stuff, only a few stragglers such as C<srand> were excluded.
+=head1 DESCRIPTION
 
+The L<autobox> module promotes Perl's primitive types (literals (strings and
+numbers), scalars, arrays and hashes) into first-class objects.  However,
+L<autobox> does not provide any methods for these new classes.
+
+L<autobox::CORE> provides a set of methods for these new classes.  It includes
+almost everything in L<perlfunc>, some things from L<Scalar::Util> and
+L<List::Util>, and some Perl 5 versions of methods taken from Perl 6.
+
+With F<autobox::Core> one is able to change this:
+
+        print join(" ", reverse(split(" ", $string)));
+
+to this:
+
+        use autobox::Core;
+
+        $string->split(" ")->reverse->print;
+
+Likewise you can change this:
+
+        my $array_ref = [qw(fish dog cat elephant bird)];
+
+        push @$array_ref, qw(snake lizard giraffe mouse);
+
+to this:
+
+        use autobox::Core;
+        my $array_ref = [qw(fish dog cat elephant bird)];
+
+        $array_ref->push( qw(snake lizard giraffe mouse));
+
+F<autobox::Core> makes it easier to avoid parentheses pile ups and
+messy dereferencing syntaxes.
+
+F<autobox::Core> is mostly glue.  It presents existing functions with a new
+interface, while adding few extra. Most of the methods read like 
+C<< sub hex { CORE::hex($_[0]) } >>.  In addition to built-ins from
+L<perlfunc> that operate on hashes, arrays, scalars, and code references,
+some Perl 6-ish things have been included, and some keywords like
+C<foreach> are represented too.
+
+=head2 What's Implemented?
+
+=over 4
+
+=item *
+
+All of the functions listed in L<perlfunc> under the headings:
+
+=over 4
+
+=item *
+
+"Functions for real @ARRAYs",
+
+=item *
+
+"Functions for real %HASHes",
+
+=item *
+
+"Functions for list data",
+
+=item *
+
+"Functions for SCALARs or strings"
+
+=back
+
+plus a few taken from other sections and documented below.
+
+=item *
+
+Some methods from L<Scalar::Util> and L<List::Util>.
+
+=item *
+
+Some things expected in Perl 6, such as C<last> (C<last_idx>), C<elems>, and
+C<curry>.
+
+=item *
+
+C<flatten> explicitly flattens an array.
+
+=item *
+
+Functions such as C<add> have been defined for numeric operations.
+
+=back
 
 =head3 String Methods
 
@@ -134,22 +198,29 @@ Many string methods are simply wrappers around core functions, but
 there are additional operations and modifications to core behavior.
 
 Anything which takes a regular expression, such as L<split> and L<m>,
-must take it in the form of a compiled regex (C<qr//>).  Any modifiers
+usually take it in the form of a compiled regex (C<qr//>).  Any modifiers
 can be attached to the C<qr> normally.
 
 These built in functions are implemented for scalars, they work just like normal:
 L<chomp|perlfunc/chomp>, L<chop|perlfunc/chop>,L<chr|perlfunc/chr>
 L<crypt|perlfunc/crypt>, L<index|perlfunc/index>, L<lc|perlfunc/lc>
 L<lcfirst|perlfunc/lcfirst>, L<length|perlfunc/length>, L<ord|perlfunc/ord>,
-L<pack|perlfunc/pack>, L<reverse|perlfunc/reverse>, L<rindex|perlfunc/rindex>,
+L<pack|perlfunc/pack>, L<reverse|perlfunc/reverse> (always in scalar
+context), L<rindex|perlfunc/rindex>,
 L<sprintf|perlfunc/sprintf>, L<substr|perlfunc/substr>, L<uc|perlfunc/uc>
 L<ucfirst|perlfunc/ucfirst>, L<unpack|perlfunc/unpack>, L<quotemeta|perlfunc/quotemeta>,
-L<vec|perlfunc/vec>, L<undef|perlfunc/undef>, L<m|perlfunc/m>, L<nm|perlfunc/nm>,
-L<s|perlfunc/s>, L<split|perlfunc/split>, L<system|perlfunc/system>, L<eval|perlfunc/eval>.
+L<vec|perlfunc/vec>, L<undef|perlfunc/undef>, 
+L<split|perlfunc/split>, L<system|perlfunc/system>, L<eval|perlfunc/eval>.
+
+In addition, so are each of the following:
 
 =head4 concat
 
-Corresponds to the C<.> operator used to join two strings.
+   $string1->concat($string2);
+
+Concatenates C<$string2> to C<$string1>. This 
+corresponds to the C<.> operator used to join two strings.  Returns the
+joined strings.
 
 =head4 strip
 
@@ -157,25 +228,32 @@ Removes whitespace from the beginning and end of a string.
 
    " \t  \n  \t  foo  \t  \n  \t  "->strip;    # foo
 
-This is redundant and subtly different from C<trim>.
-   
+This is redundant and subtly different from C<trim> which allows for the
+removal of specific characters from the beginning and end of a string.
+
 =head4 trim
 
 Removes whitespace from the beginning and end of a string.  C<trim>
 can also remove specific characters from the beginning and the end of
 string.
 
-   '    hello'->trim;                   # testme
-   '--> hello <--'->trim("-><");        # testme 
-   ' --> hello <--'->trim("-><");       # --> testme 
+   '    hello'->trim;                   # 'hello'
+   '*+* hello *+*'->trim("*+");         # ' hello ' 
+   ' *+* hello *+*'->trim("*+");        # ' *+* hello'
 
 =head4 ltrim
 
 Just like L<trim> but it only trims the left side (start) of the string.
 
+   '    hello'->ltrim;                  # 'hello'
+   '*+* hello *+*'->trim("*+");         # ' hello *+*'
+
 =head4 rtrim
 
 Just like L<trim> but it only trims the right side (end) of the string.
+
+   'hello   '->rtrim;                   # 'hello'
+   '*+* hello *+*'->rtrim("*+");        # '*+* hello '
 
 =head4 split
 
@@ -189,20 +267,20 @@ expression as a compiled regex.
 
 The limit argument is not implemented.
 
-
 =head4 title_case
 
-C<title_case> converts the first character of each word in the string to upper case.
-  
+C<title_case> converts the first character of each word in the string to
+upper case.
+
    "this is a test"->title_case;        # This Is A Test
-   
+
 =head4 center
 
     my $centered_string = $string->center($length);
     my $centered_string = $string->center($length, $character);
 
 Centers $string between $character.  $centered_string will be of
-length $length.
+length $length, or the length of $string, whichever is greater.
 
 C<$character> defaults to " ".
 
@@ -222,24 +300,43 @@ Runs $string as a command just like C<`$string`>.
 
 =head4 nm
 
-"Negative match".  Corresponds to C<< !~ >>.
+    if( $foo->nm(qr/bar/) ) {
+        say "$foo did not match 'bar'";
+    }
+
+"Negative match".  Corresponds to C<< !~ >>.  Otherwise works in the same
+way as C<m()>.
 
 =head4 m
 
-    my $matches = $foo->m(qr/bar/);
+    if( $foo->m(qr/bar/) ) {
+        say "$foo matched 'bar'";
+    }
+
+    my $matches = $foo->m( qr/(\d*) (\w+)/ );
+    say $matches->[0];
+    say $matches->[1];
 
 Works the same as C<< m// >>, but the regex must be passed in as a C<qr//>.
 
-C<m> returns an array reference so that things such as C<map> and
-C<grep> may be called on the result.
+C<m> returns an array reference so that list functions such as C<map> and
+C<grep> may be called on the result.  Use C<elements> to turn this into a
+list of values.
 
   my ($street_number, $street_name, $apartment_number) =
       "1234 Robin Drive #101"->m( qr{(\d+) (.*)(?: #(\d+))?} )->elements;
+
   print "$street_number $street_name $apartment_number\n";
 
 =head4 s
 
-Works the same as C<< s/// >>.
+  my $string = "the cat sat on the mat";
+  $string->s( qr/cat/, "dog" );
+  $string->say;                 # the dog sat on the mat
+  
+
+Works the same as C<< s/// >>.  Returns the number of substitutions
+performed, not the target string.
 
 =head4 undef
 
@@ -251,16 +348,20 @@ Assigns C<undef> to the C<$string>.
 
     my $is_defined = $string->defined;
 
+    if( not $string->defined ) {
+        # give $string a value...
+    }
+
 C<defined> tests whether a value is defined (not C<undef>).
 
-=head4 rpt
+=head4 repeat
 
-    my $repeated_string = $string->rpt($n);
+    my $repeated_string = $string->repeat($n);
 
 Like the C<x> operator, repeats a string C<$n> times.
 
-    print 1->rpt(5);    # 11111
-   
+    print 1->repeat(5);     # 11111
+    print "\n"->repeat(10); # ten newlines
 
 =head3 I/O Methods
 
@@ -269,73 +370,90 @@ These are methods having to do with input and ouptut, not filehandles.
 =head4 print
 
     $string->print;
-    @array->print;
 
-Prints a string or a list of strings.  Returns true if successful.
+Prints a string or a list of strings.  Returns true if successful.  
 
 =head4 say
 
 Like L<print>, but implicitly appends a newline to the end.
 
+     $string->say;
+
+=head3 Boolean Methods
+
+Methods related to boolean operations.
+
+=head4 and
+
+C<and> corresponds to C<&&>.  Returns true if both operands are true.  
+
+        if( $a->and($b) ) {
+            ...
+        }
+
+=head4 not
+
+C<not> corresponds to C<!>.  Returns true if the subject is false.
+
+        if( $a->not ) {
+            ...
+        }
+
+=head4 or
+
+C<or> corresponds to C<||>.  Returns true if at least one of the operands
+is true.
+
+        if( $a->or($b) ) {
+            ...
+        }
+
+=head4 xor
+
+C<xor> corresponds to C<xor>.  Returns true if only one of the operands is
+true.
+
+        if( $a->xor($b) ) {
+            ...
+        }
 
 =head3 Number Related Methods
 
 Methods related to numbers.
 
 The basic built in functions which operate as normal :
-L<abs|perlfunc/abs>, L<atan2|perlfunc/atan2>, L<cos|perlfunc/cos>, L<exp|perlfunc/exp>,
-L<int|perlfunc/int>, L<log|perlfunc/log>, L<oct|perlfunc/oct>, L<hex|perlfunc/hex>,
-L<sin|perlfunc/sin>, and L<sqrt|perlfunc/sqrt>.
+L<abs|perlfunc/abs>, L<atan2|perlfunc/atan2>, L<cos|perlfunc/cos>,
+L<exp|perlfunc/exp>, L<int|perlfunc/int>, L<log|perlfunc/log>,
+L<oct|perlfunc/oct>, L<hex|perlfunc/hex>, L<sin|perlfunc/sin>, and
+L<sqrt|perlfunc/sqrt>.
 
-Operators were given names as follows:  
-
-=head4 and
-
-Corresponds to C<&&>.
+The following operators were also included:
 
 =head4 dec
 
-C<dec> returns the decimal part of a number.
+    $number->dec();
+    # $number is smaller by 1.
 
-=head4 flip
-
-C<flip> corresponds to C<~> which is the binary (rather than boolean) "not".   
+C<dec> corresponds to C<++>.  Decrements subject, will decrement character
+strings too: 'b' decrements to 'a'.
 
 =head4 inc
 
-C<inc> corresponds to C<++>.
-
-=head4 lshift
-
-C<lshift> corresponds to C<< << >>.
+C<inc> corresponds to C<++>.  Increments subject, will increment character
+strings too. 'a' increments to 'b'.
 
 =head4 mod
- 
+
 C<mod> corresponds to C<%>.
 
-=head4 not
-
-C<not> corresponds to C<!>.
-
-=head4 or
-
-C<or> corresponds to C<||>.
+        $number->mod(5);
 
 =head4 pow
 
-    my $result = $number->pow($expontent);
-
 C<pow> returns $number raised to the power of the $exponent.
 
+    my $result = $number->pow($expontent);
     print 2->pow(8);  # 256
-
-=head4 rshift
-   
-C<rshift> corresponds to C<<< >> >>>.
-
-=head4 xor
-
-C<xor> corresponds to <^>.
 
 =head4 is_number
 
@@ -385,13 +503,12 @@ Returns true if $thing is a decimal number.
     12.34->is_decimal;          # true
     ".34"->is_decimal;          # true
 
-
 =head3 Reference Related Methods
 
 The following core functions are implemented.
 
 L<tie|perlfunc/tie>, L<tied|perlfunc/tied>, L<ref|perlfunc/ref>,
-L<bless|perlfunc/bless>, L<vec|perlfunc/vec>.
+L<vec|perlfunc/vec>.
 
 C<tie>, C<tied>, and C<undef> don't work on code references.
 
@@ -422,18 +539,20 @@ As scalar context forces methods to return a reference, methods may be chained
 These built-in functions are defined as methods:
 
 L<pop|perlfunc/pop>, L<push|perlfunc/push>, L<shift|perlfunc/shift>,
-L<unshift|perlfunc/unshift>, L<delete|perlfunc/delete>, 
+L<unshift|perlfunc/unshift>, L<delete|perlfunc/delete>,
 L<undef|perlfunc/undef>, L<exists|perlfunc/exists>,
-L<bless|perlfunc/bless>, L<tie|perlfunc/tie>, L<tied|perlfunc/tied>, L<ref|perlfunc/ref>,
-L<grep|perlfunc/grep>, L<map|perlfunc/map>, L<join|perlfunc/join>, L<reverse|perlfunc/reverse>,
-and L<sort|perlfunc/sort>, L<each|perlfunc/each>, 
+L<bless|perlfunc/bless>, L<tie|perlfunc/tie>, L<tied|perlfunc/tied>,
+L<ref|perlfunc/ref>, L<grep|perlfunc/grep>, L<map|perlfunc/map>,
+L<join|perlfunc/join>, L<reverse|perlfunc/reverse>, and
+L<sort|perlfunc/sort>, L<each|perlfunc/each>, 
 
 =head4 vdelete
 
 Deletes a specified value from the array.
 
   $a = 1->to(10);
-  $a->vdelete(3);   # deletes 3
+  $a->vdelete(3);         # deletes 3
+  $a->vdelete(2)->say;    # "1 4 5 6 7 8 9 10\n"
 
 =head4 uniq
 
@@ -441,35 +560,35 @@ Removes all duplicate elements from an array and returns the new array
 with no duplicates.
 
    my @array = qw( 1 1 2 3 3 6 6 );
-   @return = @array->uniq;    # \@return : 1 2 3 6
+   @return = @array->uniq;    # @return : 1 2 3 6
 
 =head4 first
-   
+
 Returns the first element of an array for which a callback returns true:
 
-  $arr->first(sub { /5/ });
+  $arr->first(sub { qr/5/ });
 
 =head4 max
 
 Returns the largest numerical value in the array.
-   
+
    $a = 1->to(10);
    $a->max;           # 10
-   
+
 =head4 min
 
 Returns the smallest numerical value in the array.
 
    $a = 1->to(10);
    $a->min;           # 1
-   
+
 =head4 mean
 
 Returns the mean of elements of an array.
 
    $a = 1->to(10);
    $a->mean;          # 55/10
-   
+
 =head4 var
 
 Returns the variance of the elements of an array.
@@ -479,7 +598,7 @@ Returns the variance of the elements of an array.
 
 =head4 svar
 
-Returns the standars variance.
+Returns the standard variance.
 
   $a = 1->to(10);
   $a->svar;                     # 55/6
@@ -494,16 +613,22 @@ original array.
 
 =head4 size
 
+See length().
+
 =head4 elems
+
+See length().
 
 =head4 length
 
-All return the number of elements in an array.
+C<size>, C<elems> and C<length> all return the number of elements in an array.
 
    my @array = qw(foo bar baz);
    @array->size;   # 3
 
 =head4 elements
+
+See C<flatten>.
 
 =head4 flatten
 
@@ -571,7 +696,8 @@ to avoid the wrong evaluation.
 
 =head4 head
 
-Returns the first element from C<@list>.
+Returns the first element from C<@list>.   This differs from
+L<shift|perlfunc/shift> in that it does not change the array.
 
     my $first = @list->head;
 
@@ -605,33 +731,32 @@ in scalar context.
 
 =head4 last_index
 
-    my $index = @array->last_index;
-
-Called with no arguments, it corresponds to C<$#array> giving the
-highest index of the array.
-
     my $index = @array->last_index(qr/.../);
 
-Returns the highest index matching the given regular expression.
+Returns the highest index whose element matches the given regular expression.
 
     my $index = @array->last_index(\&filter);
 
-Returns the highest index for which the filter returns true.  The
-&filter is passed in each value of the @array.
+Returns the highest index for an element on which the filter returns true.
+The &filter is passed in each value of the @array.
 
     my @things = qw(pear poll potato tomato);
     my $last_p = @things->last_index(qr/^p/); # 2
 
+Called with no arguments, it corresponds to C<$#array> giving the
+highest index of the array.
+
+    my $index = @array->last_index;
 
 =head4 first_index
 
-Works just like L<last_index> but it will return the I<first> matching index.
+Works just like L<last_index> but it will return the index of the I<first>
+matching element.
 
     my $first_index = @array->first_index;    # 0
 
     my @things = qw(pear poll potato tomato);
     my $last_p = @things->first_index(qr/^t/); # 3
-
 
 =head4 at
 
@@ -639,25 +764,26 @@ Works just like L<last_index> but it will return the I<first> matching index.
 
 Equivalent to C<< $array->[$index] >>.
 
-
 =head3 Hash Methods
 
 Hash methods work on both hashes and hash references.
 
 The built in functions work as normal:
+
 L<delete|perlfunc/delete>, L<exists|perlfunc/exists>, L<keys|perlfunc/keys>,
-L<values||perlfunc/values>, L<bless|perlfunc/bless>, L<tie|perlfunc/tie>,
+L<values|perlfunc/values>, L<bless|perlfunc/bless>, L<tie|perlfunc/tie>,
 L<tied|perlfunc/tied>, L<ref|perlfunc/ref>, L<undef|perlfunc/undef>,
-are implemented.
 
 =head4 at
+
+See C<at>.
 
 =head4 get
 
     my @values = %hash->get(@keys);
 
 Returns the @values of @keys.
-   
+
 =head4 put
 
     %hash->put(%other_hash);
@@ -666,11 +792,11 @@ Overlays %other_hash on top of %hash.
 
    my $h = {a => 1, b => 2};
    $h->put(b => 99, c => 3);    # (a => 1, b => 99, c => 3)
-   
+
 =head4 set
 
-Synonym for L<put>
-  
+Synonym for L<put>.
+
 =head4 each
 
 Like C<foreach> but for hash references. For each key in the hash, the
@@ -729,8 +855,8 @@ of hash keys.
     # Could be { 1 => foo }, { 1 => bar }, or { 1 => baz }
     { foo => 1, bar => 1, baz => 1 }->flip;
 
-Because hash references cannot usefully be keys, it will not work on
-nested hashes.
+Because references cannot usefully be keys, it will not work where the
+values are references.
 
     { foo => [ 'bar', 'baz' ] }->flip; # dies
 
@@ -740,17 +866,16 @@ nested hashes.
 
 Dereferences a hash reference.
 
-
 =head3 Code Methods
 
 Methods which work on code references.
 
-These are simple wrappers around the Perl core fnctions.
+These are simple wrappers around the Perl core functions.
 L<bless|perlfunc/bless>, L<ref|perlfunc/ref>, 
 
-Due to Perl's precedence rules, some autoboxed literals may need to be parenthesized:
-For instance, this works:
-  
+Due to Perl's precedence rules, some autoboxed literals may need to be
+parenthesized.  For instance, this works:
+
   my $curried = sub { ... }->curry();
 
 This does not:
@@ -781,75 +906,122 @@ the first argument filled in.
 
 =head2 What's Missing?
 
-File and socket operations are already implemented in an object-oriented fashion
-care of L<IO::Handle>, L<IO::Socket::INET>, and L<IO::Any>.
+=over 4
 
-Functions listed in the L<perlfunc> headings "System V interprocess communication functions",
+=item * 
+
+File and socket operations are already implemented in an object-oriented
+fashion care of L<IO::Handle>, L<IO::Socket::INET>, and L<IO::Any>.
+
+=item *
+
+Functions listed in the L<perlfunc> headings 
+
+=over 4
+
+=item *
+
+"System V interprocess communication functions",
+
+=item *
+
 "Fetching user and group info",
-"Fetching network info",
-"Keywords related to perl modules",
-"Functions for processes and process groups",
-"Keywords related to scoping",
-"Time-related functions",
-"Keywords related to the control flow of your perl program",
-"Functions for filehandles, files, or directories",
-and
-"Input and output functions".
-These things are likely implemented in an object oriented fashion by other CPAN
-modules, are keywords and not functions,
-take no arguments,
-or don't make sense as part of the string, number, array, hash, or code API.
-C<srand> because you probably shouldn't be using it.
 
+=item *
+
+"Fetching network info",
+
+=item *
+
+"Keywords related to perl modules",
+
+=item *
+
+"Functions for processes and process groups",
+
+=item *
+
+"Keywords related to scoping",
+
+=item *
+
+"Time-related functions",
+
+=item *
+
+"Keywords related to the control flow of your perl program",
+
+=item *
+
+"Functions for filehandles, files, or directories",
+
+=item *
+
+"Input and output functions".
+
+=back
+
+=item *
+
+(Most) binary operators 
+
+=back
+
+These things are likely implemented in an object oriented fashion by other
+CPAN modules, are keywords and not functions, take no arguments, or don't
+make sense as part of the string, number, array, hash, or code API.
 
 =head2 Autoboxing
 
-I<This section quotes four pages from the manuscript of Perl 6 Now: The Core Ideas Illustrated with Perl 5 by Scott Walters. The text appears in the book starting at page 248. This copy lacks the benefit of copyedit - the finished product is of higher quality.>
+I<This section quotes four pages from the manuscript of Perl 6 Now: The
+Core Ideas Illustrated with Perl 5 by Scott Walters. The text appears in
+the book starting at page 248. This copy lacks the benefit of copyedit -
+the finished product is of higher quality.>
 
-A I<box> is an object that contains a primitive variable.
-Boxes are used to endow primitive types with the capabilities of objects.
-This is essential in strongly typed languages but never strictly required in Perl.
+A I<box> is an object that contains a primitive variable.  Boxes are used
+to endow primitive types with the capabilities of objects which
+essential in strongly typed languages but never strictly required in Perl.
 Programmers might write something like C<< my $number = Int->new(5) >>.
-This is manual boxing.
-To I<autobox> is to convert a simple type into an object type automatically, or only conceptually.
-This is done by the language.
-It makes a language look to programmers as if everything is an object while the interpreter
-is free to implement data storage however it pleases.
-Autoboxing is really making simple types such as numbers, strings, and arrays appear to be objects.
+This is manual boxing.  To I<autobox> is to convert a simple type into an
+object type automatically, or only conceptually.  This is done by the language.
 
-C<int>, C<num>, C<bit>, C<str>, and other types with lower case names, are primitives.
-They're fast to operate on, and require no more memory to store than the data held strictly requires.
-C<Int>, C<Num>, C<Bit>, C<Str>, and other types with an initial capital letter, are objects.
-These may be subclassed (inherited from) and accept traits, among other things.
-These objects are provided by the system for the sole purpose of representing primitive types as objects,
-though this has many ancillary benefits such as making C<is> and C<has> work.
-Perl provides C<Int> to encapsulate an C<int>, C<Num> to encapsulate a C<num>, C<Bit> to encapsulate a C<bit>, and so on.
-As Perl's implementations of hashes and dynamically expandable arrays store any type, not just objects, Perl
+I<autobox>ing makes a language look to programmers as if everything is an
+object while the interpreter is free to implement data storage however it
+pleases.  Autoboxing is really making simple types such as numbers,
+strings, and arrays appear to be objects.
+
+C<int>, C<num>, C<bit>, C<str>, and other types with lower case names, are
+primitives.  They're fast to operate on, and require no more memory to
+store than the data held strictly requires.  C<Int>, C<Num>, C<Bit>,
+C<Str>, and other types with an initial capital letter, are objects.  These
+may be subclassed (inherited from) and accept traits, among other things.
+These objects are provided by the system for the sole purpose of
+representing primitive types as objects, though this has many ancillary
+benefits such as making C<is> and C<has> work.  Perl provides C<Int> to
+encapsulate an C<int>, C<Num> to encapsulate a C<num>, C<Bit> to
+encapsulate a C<bit>, and so on.  As Perl's implementations of hashes and
+dynamically expandable arrays store any type, not just objects, Perl
 programmers almost never are required to box primitive types in objects.
-Perl's power makes this feature less essential than it is in other languages.
+Perl's power makes this feature less essential than it is in other
+languages.
 
-X<autobox>ing makes primitive objects and they're boxed versions equivalent.
-An C<int> may be used as an C<Int> with no constructor call, no passing, nothing.
-This applies to constants too, not just variables:
+I<autobox>ing makes primitive objects and they're boxed versions
+equivalent.  An C<int> may be used as an C<Int> with no constructor call,
+no passing, nothing.  This applies to constants too, not just variables.
+This is a more Perl 6 way of doing things.
 
   # Perl 6 - autoboxing associates classes with primitives types:
-
+ 
   print 4.sqrt, "\n";
-
-This is perfectly valid Perl 6.
-
-All of this applies to hashes and arrays, as well:
-
-  # Perl 6 - autoboxing associates classes with primitive types:
 
   print [ 1 .. 20 ].elems, "\n";
 
-The language is free to implement data storage however it wishes but the programmer
-sees the variables as objects.
+The language is free to implement data storage however it wishes but the
+programmer sees the variables as objects.
 
-Expressions using autoboxing read somewhat like Latin suffixes.
-In the autoboxing mind-set, you might not say that something is "made more mnemonic",
-but has been "mnemonicified".
+Expressions using autoboxing read somewhat like Latin suffixes.  In the
+autoboxing mind-set, you might not say that something is "made more
+mnemonic", but has been "mnemonicified".
 
 Autoboxing may be mixed with normal function calls.
 In the case where the methods are available as functions and the functions are
@@ -862,9 +1034,9 @@ available as methods, it is only a matter of personal taste how the expression s
   print 4.sqrt;
   4.sqrt.print;
 
-The first of these three equivalents assumes that a global C<sqrt()> function exists.
-This first example would fail to operate if this global function were removed and only
-a method in the C<Num> package was left.
+The first of these three equivalents assumes that a global C<sqrt()>
+function exists.  This first example would fail to operate if this global
+function were removed and only a method in the C<Num> package was left.
 
 Perl 5 had the beginnings of autoboxing with filehandles:
 
@@ -873,37 +1045,51 @@ Perl 5 had the beginnings of autoboxing with filehandles:
   $file->read(my $data, -s $file);
 
 Here, C<read> is a method on a filehandle we opened but I<never blessed>.
-This lets us say things like C<< $file->print(...) >> rather than the often ambagious
+This lets us say things like C<< $file->print(...) >> rather than the often
+ambagious C<< print $file ... >>.
 
-C<< print $file ... >>.
 To many people, much of the time, it makes more conceptual sense as well.
-
 
 =head3 Reasons to Box Primitive Types
 
 What good is all of this?
 
-=over 1
+=over 4
 
-=item Makes conceptual sense to programmers used to object interfaces as I<the> way
+=item *
+
+Makes conceptual sense to programmers used to object interfaces as I<the> way
 to perform options.
 
-=item Alternative idiom. Doesn't require the programmer
-to write or read expressions with complex precedence rules or strange operators.
+=item *
 
-=item Many times that parenthesis would otherwise have to span a large expression, the expression
-may be rewritten such that the parenthesis span only a few primitive types.
+Alternative idiom. Doesn't require the programmer to write or read
+expressions with complex precedence rules or strange operators.
 
-=item Code may often be written with fewer temporary variables.
+=item *
 
-=item Autoboxing provides the benefits of boxed types without the memory bloat of
+Many times that parenthesis would otherwise have to span a large
+expression, the expression may be rewritten such that the parenthesis span
+only a few primitive types.
+
+=item *
+
+Code may often be written with fewer temporary variables.
+
+=item *
+
+Autoboxing provides the benefits of boxed types without the memory bloat of
 actually using objects to represent primitives. Autoboxing "fakes it".
 
-=item Strings, numbers, arrays, hashes, and so on, each have their own API.
-Documentation for an C<exists> method for arrays doesn't have to explain how hashes are
-handled and vice versa.
+=item *
 
-=item Perl tries to accommodate the notion that the "subject" of a statement
+Strings, numbers, arrays, hashes, and so on, each have their own API.
+Documentation for an C<exists> method for arrays doesn't have to explain
+how hashes are handled and vice versa.
+
+=item *
+
+Perl tries to accommodate the notion that the "subject" of a statement
 should be the first thing on the line, and autoboxing furthers this agenda.
 
 =back
@@ -912,25 +1098,27 @@ Perl is an idiomatic language and this is an important idiom.
 
 =head3 Subject First: An Aside
 
-Perl's design philosophy promotes the idea that the language should be flexible enough
-to allow programmers to place the X<subject> of a statement first.
-For example, C<< die $! unless read $file, 60 >> looks like the primary purpose of the statement is
-to C<die>.
-While that might be the programmers primary goal, when it isn't, the programmer
-can communicate his real primary intention to programmers by reversing the order of
-clauses while keeping the exact same logic: C<< read $file, 60 or die $! >>.
-Autoboxing is another way of putting the subject first.
-Nouns make good subjects, and in programming, variables, constants, and object names are the nouns.
-Function and method names are verbs.
-C<< $noun->verb() >> focuses the readers attention on the thing being acted on rather than the action being performed.
-Compare to C<< $verb($noun) >>.
+Perl's design philosophy promotes the idea that the language should be
+flexible enough to allow programmers to place the X<subject> of a statement
+first.  For example, C<< die $! unless read $file, 60 >> looks like the
+primary purpose of the statement is to C<die>.
 
+While that might be the programmers primary goal, when it isn't, the
+programmer can communicate his real primary intention to programmers by
+reversing the order of clauses while keeping the exact same logic: C<< read
+$file, 60 or die $! >>.
+
+Autoboxing is another way of putting the subject first.
+
+Nouns make good subjects, and in programming, variables, constants, and
+object names are the nouns.  Function and method names are verbs.  C<<
+$noun->verb() >> focuses the readers attention on the thing being acted on
+rather than the action being performed.  Compare to C<< $verb($noun) >>.
 
 =head3 Autoboxing and Method Results
 
-In Chapter 11 [Subroutines], we had examples of ways an expression could be
+Let's look at some examples of ways an expression could be
 written.
-Here it is again:
 
   # Various ways to do the same thing:
 
@@ -948,6 +1136,7 @@ Here it is again:
 
 This section deals with the last two of these equivalents.
 These are method calls
+
   use autobox::Core;
   use Perl6::Contexts;
 
@@ -957,28 +1146,31 @@ These are method calls
 
   # prints "foo baz"
 
-Each method call returns an array reference, in this example.
-Another method call is immediately performed on this value.
-This feeding of the next method call with the result of the previous call is the common mode
-of use of autoboxing.
-Providing no other arguments to the method calls, however, is not common.
+Each method call returns an array reference, in this example.  Another
+method call is immediately performed on this value.  This feeding of the
+next method call with the result of the previous call is the common mode of
+use of autoboxing.  Providing no other arguments to the method calls,
+however, is not common.
 
-F<Perl6::Contexts> recognizes object context as provided by C<< -> >> and
-coerces C<%hash> and C<@array> into references, suitable for use with F<autobox>.
-(Note that F<autobox> also does this automatically as of version 2.40.)
-F<autobox> associates primitive types, such as references of various sorts, with classes.
-F<autobox::Core> throws into those classes methods wrapping Perl's built-in functions.
-In the interest of full disclosure, F<Perl6::Contexts> and F<autobox::Core> are my creations.
+C<Perl6::Contexts> recognizes object context as provided by C<< -> >> and
+coerces C<%hash> and C<@array> into references, suitable for use with
+C<autobox>.  (Note that C<autobox> also does this automatically as of
+version 2.40.)
 
+C<autobox> associates primitive types, such as references of various sorts,
+with classes.  C<autobox::Core> throws into those classes methods wrapping
+Perl's built-in functions.  In the interest of full disclosure,
+C<Perl6::Contexts> and C<autobox::Core> are my creations.
 
 =head3 Autobox to Simplify Expressions
 
-One of my pet peeves in programming is parenthesis that span large expression.
-It seems like about the time I'm getting ready to close the parenthesis I opened
-on the other side of the line, I realize that I've forgotten something, and I have to
-arrow back over or grab the mouse.
-When the expression is too long to fit on a single line, it gets broken up, then
-I must decide how to indent it if it grows to 3 or more lines.
+One of my pet peeves in programming is parenthesis that span large
+expression.  It seems like about the time I'm getting ready to close the
+parenthesis I opened on the other side of the line, I realize that I've
+forgotten something, and I have to arrow back over or grab the mouse.
+
+When the expression is too long to fit on a single line, it gets broken up,
+then I must decide how to indent it if it grows to 3 or more lines.
 
   # Perl 5 - a somewhat complex expression
 
@@ -989,12 +1181,13 @@ I must decide how to indent it if it grows to 3 or more lines.
 
 The autoboxed version isn't shorter, but it reads from left to right, and
 the parenthesis from the C<join()> don't span nearly as many characters.
-The complex expression serving as the value being C<join()>ed in the non-autoboxed version
-becomes, in the autoboxed version, a value to call the C<join()> method on.
+The complex expression serving as the value being C<join()>ed in the
+non-autoboxed version becomes, in the autoboxed version, a value to call
+the C<join()> method on.
 
-This C<print> statement takes a list of CGI parameter names, reads the values for
-each parameter, joins them together with newlines, and prints them with a newline
-after the last one.
+This C<print> statement takes a list of CGI parameter names, reads the
+values for each parameter, joins them together with newlines, and prints
+them with a newline after the last one.
 
 Pretending that this expression were much larger and it had to be broken to span
 several lines, or pretending that comments are to be placed after each part of
@@ -1013,21 +1206,22 @@ This could also have been written:
            ->print;                          # print them all out
 
 C<map()> is X<polymorphic>.
-The C<map()> method defined in the C<autobox::Core::CODE> package takes for its arguments the things
-to map.
-The C<map()> method defined in the C<autobox::Core::ARRAY> package takes for its argument a code reference
-to apply to each element of the array.
+
+The C<map()> method defined in the C<autobox::Core::CODE> package takes for
+its arguments the things to map.  The C<map()> method defined in the
+C<autobox::Core::ARRAY> package takes for its argument a code reference to
+apply to each element of the array.
 
 I<Here ends the text quoted from the Perl 6 Now manuscript.>
 
 
 =head1 BUGS
 
-Yes. Report them to the author, L<scott@slowass.net>, or post them to GitHub's bug tracker
-at L<https://github.com/scrottie/autobox-Core/issues>.
+Yes. Report them to the author, scott@slowass.net, or post them to
+GitHub's bug tracker at L<https://github.com/scrottie/autobox-Core/issues>.
 
-The API is not yet stable -- Perl 6-ish things and local extensions are still being renamed.
-
+The API is not yet stable -- Perl 6-ish things and local extensions are
+still being renamed.
 
 =head1 HISTORY
 
@@ -1067,7 +1261,7 @@ for a particular purpose.
 
 =head1 AUTHORS
 
-Scott Walters, L<scott@slowass.net>.
+Scott Walters, scott@slowass.net.
 
 Michael Schwern and the L<perl5i> contributors for tests, code, and feedback.
 
@@ -1085,6 +1279,8 @@ Thanks to Bruno Vecchi for bug fixes and many, many new tests going into version
 
 Thanks to L<http://github.com/daxim> daxim/Lars DIECKOW pushing in fixes and patches from the RT queue
 along with fixes to build and additional doc examples.
+
+Jacinta Richardson improved documentation.
 
 =cut
 
@@ -1197,17 +1393,17 @@ sub strip  {
 # operator schizzle
 sub and  { $_[0] && $_[1]; }
 sub dec  { my $t = CORE::shift @_; --$t; }
-sub flip { ~$_[0]; }
 sub inc  { my $t = CORE::shift @_; ++$t; }
-sub lshift { $_[0] << $_[1]; }
 sub mod  { $_[0] % $_[1]; }
 sub neg  { -$_[0]; }
 sub not  { !$_[0]; }
 sub or   { $_[0] || $_[1]; }
 sub pow  { $_[0] ** $_[1]; }
+sub xor  { $_[0] xor $_[1]; }
+
+# rpt should go
+sub repeat  { $_[0] x $_[1]; }
 sub rpt  { $_[0] x $_[1]; }
-sub rshift { $_[0] >> $_[1]; }
-sub xor  { $_[0] ^ $_[1]; }
 
 # sub bless (\%$)   { CORE::bless $_[0], $_[1] } # HASH, ARRAY, CODE already have a bless() and blessing a non-reference works (autobox finds the reference in the pad or stash!).  "can't bless a non-referenc value" for non-reference lexical and package scalars.  this would work for (\$foo)->bless but then, unlike arrays, we couldn't find the reference to the variable again later so there's not much point I can see.
 
