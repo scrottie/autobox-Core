@@ -58,6 +58,7 @@ t/split.t
 t/sprintf.t
 t/strip.t
 t/substr.t
+t/synopsis.t
 t/system.t
 t/tail.t
 t/uc.t
