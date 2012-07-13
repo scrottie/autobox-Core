@@ -146,7 +146,7 @@ C<foreach> are represented too.
 
 =item *
 
-All of the functions listed in L<perlfunc> under the headings:
+Many of the functions listed in L<perlfunc> under the headings:
 
 =over 4
 
@@ -182,10 +182,6 @@ C<curry>.
 =item *
 
 C<flatten> explicitly flattens an array.
-
-=item *
-
-Functions such as C<add> have been defined for numeric operations.
 
 =back
 
@@ -521,7 +517,7 @@ Array methods work on both arrays and array references:
 
 Or:
 
-  my @arr = [ 1 .. 10 ];
+  my @arr = ( 1 .. 10 );
   @arr->undef;
 
 List context forces methods to return a list:
@@ -534,7 +530,7 @@ Likewise, scalar context forces methods to return an array reference.
 As scalar context forces methods to return a reference, methods may be chained
 
   my @arr = ( 1 .. 10 );
-  @arr->grep(sub { $_ > 3 })->min->say;  # "1\n";
+  @arr->grep(sub { $_ > 3 })->min->say;  # "4\n";
 
 These built-in functions are defined as methods:
 
@@ -544,7 +540,9 @@ L<undef|perlfunc/undef>, L<exists|perlfunc/exists>,
 L<bless|perlfunc/bless>, L<tie|perlfunc/tie>, L<tied|perlfunc/tied>,
 L<ref|perlfunc/ref>, L<grep|perlfunc/grep>, L<map|perlfunc/map>,
 L<join|perlfunc/join>, L<reverse|perlfunc/reverse>, and
-L<sort|perlfunc/sort>, L<each|perlfunc/each>, 
+L<sort|perlfunc/sort>, L<each|perlfunc/each>. 
+
+As well as:
 
 =head4 vdelete
 
@@ -611,26 +609,14 @@ original array.
    $a = 1->to(10);
    $a->at(2);                   # 3
 
-=head4 size
-
-See length().
-
-=head4 elems
-
-See length().
-
-=head4 length
+=head4 size, elems, length
 
 C<size>, C<elems> and C<length> all return the number of elements in an array.
 
    my @array = qw(foo bar baz);
    @array->size;   # 3
 
-=head4 elements
-
-See C<flatten>.
-
-=head4 flatten
+=head4 elements, flatten
 
     my @copy_of_array = $array->flatten;
 
@@ -774,11 +760,7 @@ L<delete|perlfunc/delete>, L<exists|perlfunc/exists>, L<keys|perlfunc/keys>,
 L<values|perlfunc/values>, L<bless|perlfunc/bless>, L<tie|perlfunc/tie>,
 L<tied|perlfunc/tied>, L<ref|perlfunc/ref>, L<undef|perlfunc/undef>,
 
-=head4 at
-
-See C<at>.
-
-=head4 get
+=head4 at, get
 
     my @values = %hash->get(@keys);
 
@@ -1099,7 +1081,7 @@ Perl is an idiomatic language and this is an important idiom.
 =head3 Subject First: An Aside
 
 Perl's design philosophy promotes the idea that the language should be
-flexible enough to allow programmers to place the X<subject> of a statement
+flexible enough to allow programmers to place the subject of a statement
 first.  For example, C<< die $! unless read $file, 60 >> looks like the
 primary purpose of the statement is to C<die>.
 
@@ -1197,20 +1179,6 @@ the expression, you might reformat it as such:
            ->join("\n")                      # join with newlines
            ->concat("\n")                    # give it a trailing newline
            ->print;                          # print them all out
-
-This could also have been written:
-
-  sub { CGI::param($_[0]) }->map(@cgi_vars)  # turn CGI arg names into values
-           ->join("\n")                      # join with newlines
-           ->concat("\n")                    # give it a trailing newline
-           ->print;                          # print them all out
-
-C<map()> is X<polymorphic>.
-
-The C<map()> method defined in the C<autobox::Core::CODE> package takes for
-its arguments the things to map.  The C<map()> method defined in the
-C<autobox::Core::ARRAY> package takes for its argument a code reference to
-apply to each element of the array.
 
 I<Here ends the text quoted from the Perl 6 Now manuscript.>
 
