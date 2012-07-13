@@ -1,5 +1,9 @@
 Revision history for autobox::Core
 
+1.23 Thu Jul 12 18:05:46 PDT 2012
+    Docs
+    - Minor corrections
+
 1.22  Thu Jul 12 17:16:06 PDT 2012
     New Features
     - %hash->each is now guaranteed to iterate through the complete hash,
