@@ -57,3 +57,5 @@
 ^MYMETA\.
 #!end included /Users/schwern/perl5/perlbrew/perls/perl-5.14.1/lib/5.14.1/ExtUtils/MANIFEST.SKIP
 
+# avoid including tar balls from previous releases
+^autobox-Core-

@@ -1,8 +1,13 @@
 Revision history for autobox::Core
 
+1.24 Sun Jul 15 11:05:11 PDT 2012
+    Misc
+    - MANIFEST no longer includes previous distribution tar balls (Jacinta
+      Richardson)
+
 1.23 Thu Jul 12 18:05:46 PDT 2012
     Docs
-    - Minor corrections
+    - Minor corrections (Jacinta Richardson)
 
 1.22  Thu Jul 12 17:16:06 PDT 2012
     New Features
@@ -11,15 +16,15 @@ Revision history for autobox::Core
     - defined()
 
     Distribution Changes
-    - Added Test::More 0.88 as a pre-req
+    - Added Test::More 0.88 as a pre-req (Jacinta Richardson)
     - Added license for new versions of EMM
 
     Docs
-    - Expanded module synopsis
+    - Expanded module synopsis (Jacinta Richardson)
     - Wrote documentation for all (or most) functions
-    - Tidied book extract
+    - Tidied book extract (Jacinta Richardson)
 
-    Incompatible changes
+    Incompatible changes (Jacinta Richardson)
     - Removed functions
       - rand
       - times
@@ -48,7 +53,7 @@ Revision history for autobox::Core
       - autobox::Core::CODE::map
 
     Bug Fixes
-    - xor uses xor instead of ^
+    - xor uses xor instead of ^ (Jacinta Richardson)
 
 1.21  Mon Sep 26 16:15:19 PDT 2011
     New Features
