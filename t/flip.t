@@ -2,7 +2,7 @@
 use Test::More tests => 2;
 use autobox::Core;
 
-my %hash = ( 1 => 'foo', 2 => 'bar', 3 => 'bar' );
+my %hash = ( 1 => 'foo', 3 => 'bar' );
 my $f;
 
 is_deeply( $f = %hash->flip, { foo => 1, bar => 3 } );
