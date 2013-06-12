@@ -18,8 +18,6 @@ my %hash = (
       sky   => 'blue',
 );
 
-use feature qw(say);  # Use print and a newline in older versions of Perl
-
 is [10, 20, 30, 40, 50]->pop, 50;
 is [10, 20, 30, 40, 50]->shift, 10;
 
