@@ -1,5 +1,10 @@
 Revision history for autobox::Core
 
+1.25 Wed Jun 12 14:45:54 CDT 2013
+    Fix
+    - remove 'use feature' from t/synopsis.t.  that was cut and paste from the 
+      docs but wasn't actually necessary there.
+
 1.24 Sun Jul 15 11:05:11 PDT 2012
     Misc
     - MANIFEST no longer includes previous distribution tar balls (Jacinta

@@ -41,7 +41,7 @@ use 5.008;
 use strict;
 use warnings;
 
-our $VERSION = '1.25';
+our $VERSION = '1.26';
 
 use base 'autobox';
 
@@ -82,8 +82,6 @@ autobox::Core - Provide core functions to autoboxed scalars, arrays and hashes.
       apple => 'red',
       sky   => 'blue',
   );
-
-  use feature qw(say);  # Use print and a newline in older versions of Perl
 
   [10, 20, 30, 40, 50]->pop->say;
   [10, 20, 30, 40, 50]->shift->say;
