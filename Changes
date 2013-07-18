@@ -1,5 +1,14 @@
 Revision history for autobox::Core
 
+1.27
+   Misc
+   - new version just to creage a new .tar.gz.  a './' owned by root
+     apparently got added to the tar at some point after 'make dist'.
+
+1.26
+    Fix
+    - remove 'use feature' from t/synopsis.t.  this lets older perls perl.
+
 1.25 Wed Jun 12 14:45:54 CDT 2013
     Fix
     - remove 'use feature' from t/synopsis.t.  that was cut and paste from the 
