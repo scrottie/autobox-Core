@@ -748,6 +748,14 @@ matching element.
 
 Equivalent to C<< $array->[$index] >>.
 
+=head4 n_at_a_time, natatime
+
+Takes an integer and a coderef, and iterates over the array, calling the coderef
+with array elements in chunks no larger than the given integer.
+
+    my $sub = sub { ... };
+    [ 1, 2, 3 ]->n_at_a_time(2, $sub); # $sub->(1, 2); $sub->(3)
+
 =head3 Hash Methods
 
 Hash methods work on both hashes and hash references.
@@ -1676,6 +1684,24 @@ sub min {
 
     return $min;
 }
+
+use List::MoreUtils ();
+
+sub natatime { goto \&n_at_a_time }
+
+sub n_at_a_time {
+    my ($arr, $n, $_sub) = @_;
+
+    my $iterator = List::MoreUtils::natatime($n, @$arr);
+
+    while (my @elements = $iterator->()) {
+
+        $_sub->(@elements);
+    }
+
+    return;
+}
+
 
 # Functions for real @ARRAYs
 
