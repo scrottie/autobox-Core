@@ -887,6 +887,18 @@ the first argument filled in.
     my $howdy_world = $greet_world->curry("Howdy");
     print $howdy_world->("Texas");           # "Howdy, Texas!"
 
+=head3 undef Methods
+
+Methods that work on "undefined" values.
+
+=head4 length
+
+    # $warnings may be an empty arrayref, a populated arrayref, or undef
+    if ($warnings->length) { ... }
+
+C<undef->length()> will always return C<undef>.  This allows one to use it
+without fear in a scenario such as in the example, and makes it consistent
+with the behavior of the other C<length()> methods we provide.
 
 =head2 What's Missing?
 
