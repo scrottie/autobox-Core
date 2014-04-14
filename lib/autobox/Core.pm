@@ -55,7 +55,11 @@ use B;
 #    use autobox::Core UNIVERSAL => 'Data::Dumper';     # enable a Dumper() method for all types
 
 sub import {
-    shift->SUPER::import(DEFAULT => 'autobox::Core::', @_);
+    shift->SUPER::import(
+        DEFAULT => 'autobox::Core::',
+        UNDEF   => 'autobox::Core::UNDEF',
+        @_,
+    );
 }
 
 =encoding UTF-8
@@ -1904,6 +1908,16 @@ sub ref      { CORE::ref   $_[0] }
 # perl 6-isms
 
 sub curry  { my $code = CORE::shift; my @args = @_; sub { CORE::unshift @_, @args; goto &$code; }; }
+
+##############################################################################################
+
+#
+# UNDEF
+#
+
+package autobox::Core::UNDEF;
+
+sub length { undef }
 
 1;
 
