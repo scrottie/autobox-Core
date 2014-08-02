@@ -1,5 +1,9 @@
 Revision history for autobox::Core
 
+1.28
+   Misc
+   - Make crypt() test optional for platforms without it (thanks Hugmeir)
+
 1.27
    Misc
    - new version just to creage a new .tar.gz.  a './' owned by root
