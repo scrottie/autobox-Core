@@ -1,5 +1,10 @@
 Revision history for autobox::Core
 
+1.28
+   New Features
+   - add undef->length() method to be consistent with the other types (Chris
+     Weyl @RsrchBoy)
+
 1.27
    Misc
    - new version just to creage a new .tar.gz.  a './' owned by root

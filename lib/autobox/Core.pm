@@ -55,7 +55,11 @@ use B;
 #    use autobox::Core UNIVERSAL => 'Data::Dumper';     # enable a Dumper() method for all types
 
 sub import {
-    shift->SUPER::import(DEFAULT => 'autobox::Core::', @_);
+    shift->SUPER::import(
+        DEFAULT => 'autobox::Core::',
+        UNDEF   => 'autobox::Core::UNDEF',
+        @_,
+    );
 }
 
 =encoding UTF-8
@@ -883,6 +887,18 @@ the first argument filled in.
     my $howdy_world = $greet_world->curry("Howdy");
     print $howdy_world->("Texas");           # "Howdy, Texas!"
 
+=head3 undef Methods
+
+Methods that work on "undefined" values.
+
+=head4 length
+
+    # $warnings may be an empty arrayref, a populated arrayref, or undef
+    if ($warnings->length) { ... }
+
+C<undef->length()> will always return C<undef>.  This allows one to use it
+without fear in a scenario such as in the example, and makes it consistent
+with the behavior of the other C<length()> methods we provide.
 
 =head2 What's Missing?
 
@@ -1904,6 +1920,16 @@ sub ref      { CORE::ref   $_[0] }
 # perl 6-isms
 
 sub curry  { my $code = CORE::shift; my @args = @_; sub { CORE::unshift @_, @args; goto &$code; }; }
+
+##############################################################################################
+
+#
+# UNDEF
+#
+
+package autobox::Core::UNDEF;
+
+sub length { undef }
 
 1;
 
