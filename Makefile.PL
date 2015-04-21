@@ -14,7 +14,7 @@ WriteMakefile(
     AUTHOR             => 'Scott Walters scott@slowass.net',
     (eval($ExtUtils::MakeMaker::VERSION) >= 6.31 ? (LICENSE => 'perl') : ()),
     CONFIGURE_REQUIRES => {
-        'ExtUtils::MakeMaker' => '6.46',                       # for META_MERGE
+        'ExtUtils::MakeMaker' => '6.48',                       # for META_MERGE and MIN_PERL_VERSION
     },
     META_MERGE => {
         resources => {
@@ -22,4 +22,5 @@ WriteMakefile(
             repository => 'http://github.com/scrottie/autobox-Core',
         }
     },
+    MIN_PERL_VERSION => 5.008,
 );
