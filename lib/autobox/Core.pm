@@ -1568,6 +1568,8 @@ sub flip {
 ##############################################################################################
 package autobox::Core::ARRAY;
 
+no if $] >= 5.018, warnings => 'experimental::smartmatch';
+
 use constant FIVETEN => ($] >= 5.010);
 
 use Carp 'croak';
