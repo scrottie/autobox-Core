@@ -1,13 +1,17 @@
 Revision history for autobox::Core
 
+1.29
+    Fix
+    - Suppress smartmatch deprecation warnings in perls >= 5.18 (xenu)
+
 1.28
-   Misc
-   - Make crypt() test optional for platforms without it (thanks Hugmeir)
+    Misc
+    - Make crypt() test optional for platforms without it (thanks Hugmeir)
 
 1.27
-   Misc
-   - new version just to creage a new .tar.gz.  a './' owned by root
-     apparently got added to the tar at some point after 'make dist'.
+    Misc
+    - new version just to creage a new .tar.gz.  a './' owned by root
+      apparently got added to the tar at some point after 'make dist'.
 
 1.26
     Fix
