@@ -1,5 +1,9 @@
 Revision history for autobox::Core
 
+1.30 (not yet released)
+    Docs
+    - Fixed typo reported by myfwhite on annocpan (xenu)
+
 1.29
     Fix
     - Suppress smartmatch deprecation warnings in perls >= 5.18 (xenu)

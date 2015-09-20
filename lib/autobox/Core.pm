@@ -240,7 +240,7 @@ string.
 Just like L<trim> but it only trims the left side (start) of the string.
 
    '    hello'->ltrim;                  # 'hello'
-   '*+* hello *+*'->trim("*+");         # ' hello *+*'
+   '*+* hello *+*'->ltrim("*+");        # ' hello *+*'
 
 =head4 rtrim
 
