@@ -1,6 +1,15 @@
 Revision history for autobox::Core
 
 1.30 (not yet released)
+    New Features
+    - first() arguments are now consistent with grep(), so now  you can
+      supply single non-ref scalar to it (xenu)
+
+    Incompatible Changes
+    - Removed smartmatch from first() and grep(). Now these methods have
+      consistent behaviour under all perl versions and their code is much
+      cleaner (xenu)
+
     Docs
     - Fixed typo reported by myfwhite on annocpan (xenu)
 

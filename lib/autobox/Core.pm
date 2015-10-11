@@ -1568,10 +1568,6 @@ sub flip {
 ##############################################################################################
 package autobox::Core::ARRAY;
 
-no if $] >= 5.018, warnings => 'experimental::smartmatch';
-
-use constant FIVETEN => ($] >= 5.010);
-
 use Carp 'croak';
 
 #       Functions for list data
@@ -1585,33 +1581,19 @@ use Carp 'croak';
 #}
 
 sub grep {
-    no warnings 'redefine';
-    if(FIVETEN) {
-         eval '
-             # protect perl 5.8 from the alien, futuristic syntax of 5.10
-             *grep = sub {
-                 my $arr = CORE::shift;
-                 my $filter = CORE::shift;
-                 my @result = CORE::grep { $_ ~~ $filter } @$arr;
-                 return wantarray ? @result : \@result;
-             }
-        ' or croak $@;
+    my $arr = CORE::shift;
+    my $filter = CORE::shift;
+    my @result;
+
+    if( CORE::ref $filter eq 'Regexp' ) {
+        @result = CORE::grep { m/$filter/ } @$arr;
+    } elsif( ! CORE::ref $filter ) {
+        @result = CORE::grep { $filter eq $_ } @$arr;  # find all of the exact matches
     } else {
-        *grep = sub {
-             my $arr = CORE::shift;
-             my $filter = CORE::shift;
-             my @result;
-             if( CORE::ref $filter eq 'Regexp' ) {
-                 @result = CORE::grep { m/$filter/ } @$arr;
-             } elsif( ! ref $filter ) {
-                 @result = CORE::grep { $filter eq $_ } @$arr;  # find all of the exact matches
-             } else {
-                 @result = CORE::grep { $filter->($_) } @$arr;
-             }
-             return wantarray ? @result : \@result;
-        };
+        @result = CORE::grep { $filter->($_) } @$arr;
     }
-    autobox::Core::ARRAY::grep(@_);
+
+    return wantarray ? @result : \@result;
 }
 
 # last version: sub map (\@&) { my $arr = CORE::shift; my $sub = shift; [ CORE::map { $sub->($_) } @$arr ]; }
@@ -1755,36 +1737,17 @@ sub ref    { CORE::ref   $_[0] }
 sub first {
     # from perl5i, modified
     # XXX needs test.  take from perl5i?
-    no warnings "redefine";
-    if(FIVETEN) {
-         eval '
-             # protect perl 5.8 from the alien, futuristic syntax of 5.10
-             *first = sub {
-                 my ( $array, $filter ) = @_;
-                 # Deep recursion and segfault (lines 90 and 91 in first.t) if we use
-                 # the same elegant approach as in grep().
-                 if ( @_ == 1 ) {
-                     return $array->[0];
-                 } elsif ( CORE::ref $filter eq "Regexp" ) {
-                     return List::Util::first( sub { $_ ~~ $filter }, @$array );
-                 } else {
-                     return List::Util::first( sub { $filter->() }, @$array );
-                 }
-             };
-        ' or croak $@;
+    my ( $array, $filter ) = @_;
+
+    if ( @_ == 1 ) {
+        return $array->[0];
+    } elsif ( CORE::ref $filter eq "Regexp" ) {
+        return List::Util::first( sub { $_ =~ m/$filter/ }, @$array );
+    } elsif ( ! CORE::ref $filter ) {
+        return List::Util::first( sub { $_ eq $filter }, @$array );
     } else {
-        *first = sub {
-            my ( $array, $filter ) = @_;
-            if ( @_ == 1 ) {
-                return $array->[0];
-            } elsif ( CORE::ref $filter eq "Regexp" ) {
-                return List::Util::first( sub { $_ =~ m/$filter/ }, @$array );
-            } else {
-                return List::Util::first( sub { $filter->() }, @$array );
-            }
-        };
+        return List::Util::first( sub { $filter->() }, @$array );
     }
-    autobox::Core::ARRAY::first(@_);
 }
 
 sub size   { my $arr = CORE::shift; CORE::scalar @$arr; }

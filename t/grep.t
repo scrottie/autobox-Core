@@ -31,14 +31,3 @@ is_deeply( $d = @array->grep(sub { /^ba/ }), [qw( bar baz )], "... as with Code 
 my @d = @array->grep(qr/^ba/);
 
 is scalar @d, 2, "Returns an array in list context";
-SKIP: {
-    skip "Only for 5.10", 1, if $] < 5.010;
-
-    my @names = qw(barney booey moe);
-
-    is_deeply( [ @names->grep(qr/^b/) ], [ qw(barney booey) ] );
-    is_deeply( $d = @array->grep(+{ boo => 'boy' }), [],          "Works with HASH"       );
-    is_deeply( $d = @array->grep([qw(boo boy)]), [],              "Works with ARRAY"      );
-    is_deeply( $d = @array->grep([qw(foo baz)]), [qw(foo baz)],   "Works with ARRAY"      );
-}
-
