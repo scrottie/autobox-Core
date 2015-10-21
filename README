@@ -20,8 +20,6 @@ SYNOPSIS
           sky   => 'blue',
       );
 
-      use feature qw(say);  # Use print and a newline in older versions of Perl
-
       [10, 20, 30, 40, 50]->pop->say;
       [10, 20, 30, 40, 50]->shift->say;
 
@@ -70,14 +68,14 @@ DESCRIPTION
     dereferencing syntaxes.
 
     autobox::Core is mostly glue. It presents existing functions with a new
-    interface, while adding few extra. Most of the methods read like `sub
-    hex { CORE::hex($_[0]) }'. In addition to built-ins from perlfunc that
+    interface, while adding few extra. Most of the methods read like "sub
+    hex { CORE::hex($_[0]) }". In addition to built-ins from perlfunc that
     operate on hashes, arrays, scalars, and code references, some Perl 6-ish
-    things have been included, and some keywords like `foreach' are
+    things have been included, and some keywords like "foreach" are
     represented too.
 
   What's Implemented?
-    *   All of the functions listed in perlfunc under the headings:
+    *   Many of the functions listed in perlfunc under the headings:
 
         *   "Functions for real @ARRAYs",
 
@@ -91,23 +89,21 @@ DESCRIPTION
 
     *   Some methods from Scalar::Util and List::Util.
 
-    *   Some things expected in Perl 6, such as `last' (`last_idx'),
-        `elems', and `curry'.
+    *   Some things expected in Perl 6, such as "last" ("last_idx"),
+        "elems", and "curry".
 
-    *   `flatten' explicitly flattens an array.
+    *   "flatten" explicitly flattens an array.
 
-    *   Functions such as `add' have been defined for numeric operations.
-
-    String Methods
-    String methods are of the form `my $return = $string->method(@args)'.
-    Some will act on the `$string' and some will return a new string.
+   String Methods
+    String methods are of the form "my $return = $string->method(@args)".
+    Some will act on the $string and some will return a new string.
 
     Many string methods are simply wrappers around core functions, but there
     are additional operations and modifications to core behavior.
 
     Anything which takes a regular expression, such as split and m, usually
-    take it in the form of a compiled regex (`qr//'). Any modifiers can be
-    attached to the `qr' normally.
+    take it in the form of a compiled regex ("qr//"). Any modifiers can be
+    attached to the "qr" normally.
 
     These built in functions are implemented for scalars, they work just
     like normal: chomp, chop,chr crypt, index, lc lcfirst, length, ord,
@@ -116,22 +112,22 @@ DESCRIPTION
 
     In addition, so are each of the following:
 
-    concat
+   concat
        $string1->concat($string2);
 
-    Concatenates `$string2' to `$string1'. This corresponds to the `.'
-    operator used to join two strings. Returns the joined strings.
+    Concatenates $string2 to $string1. This corresponds to the "." operator
+    used to join two strings. Returns the joined strings.
 
-    strip
+   strip
     Removes whitespace from the beginning and end of a string.
 
        " \t  \n  \t  foo  \t  \n  \t  "->strip;    # foo
 
-    This is redundant and subtly different from `trim' which allows for the
+    This is redundant and subtly different from "trim" which allows for the
     removal of specific characters from the beginning and end of a string.
 
-    trim
-    Removes whitespace from the beginning and end of a string. `trim' can
+   trim
+    Removes whitespace from the beginning and end of a string. "trim" can
     also remove specific characters from the beginning and the end of
     string.
 
@@ -139,19 +135,19 @@ DESCRIPTION
        '*+* hello *+*'->trim("*+");         # ' hello ' 
        ' *+* hello *+*'->trim("*+");        # ' *+* hello'
 
-    ltrim
+   ltrim
     Just like trim but it only trims the left side (start) of the string.
 
        '    hello'->ltrim;                  # 'hello'
-       '*+* hello *+*'->trim("*+");         # ' hello *+*'
+       '*+* hello *+*'->ltrim("*+");        # ' hello *+*'
 
-    rtrim
+   rtrim
     Just like trim but it only trims the right side (end) of the string.
 
        'hello   '->rtrim;                   # 'hello'
        '*+* hello *+*'->rtrim("*+");        # '*+* hello '
 
-    split
+   split
         my @split_string = $string->split(qr/.../);
 
     A wrapper around split. It takes the regular expression as a compiled
@@ -162,43 +158,43 @@ DESCRIPTION
 
     The limit argument is not implemented.
 
-    title_case
-    `title_case' converts the first character of each word in the string to
+   title_case
+    "title_case" converts the first character of each word in the string to
     upper case.
 
        "this is a test"->title_case;        # This Is A Test
 
-    center
+   center
         my $centered_string = $string->center($length);
         my $centered_string = $string->center($length, $character);
 
     Centers $string between $character. $centered_string will be of length
     $length, or the length of $string, whichever is greater.
 
-    `$character' defaults to " ".
+    $character defaults to " ".
 
         say "Hello"->center(10);        # "   Hello  ";
         say "Hello"->center(10, '-');   # "---Hello--";
 
-    `center()' will never truncate `$string'. If $length is less than
-    `$string->length' it will just return `$string'.
+    "center()" will never truncate $string. If $length is less than
+    "$string->length" it will just return $string.
 
-        say "Hello"->center(4);        # "Hello";   
+        say "Hello"->center(4);        # "Hello";
 
-    backtick
+   backtick
         my $output = $string->backtick;
 
-    Runs $string as a command just like ``$string`'.
+    Runs $string as a command just like `$string`.
 
-    nm
+   nm
         if( $foo->nm(qr/bar/) ) {
             say "$foo did not match 'bar'";
         }
 
-    "Negative match". Corresponds to `!~'. Otherwise works in the same way
-    as `m()'.
+    "Negative match". Corresponds to "!~". Otherwise works in the same way
+    as "m()".
 
-    m
+   m
         if( $foo->m(qr/bar/) ) {
             say "$foo matched 'bar'";
         }
@@ -207,10 +203,10 @@ DESCRIPTION
         say $matches->[0];
         say $matches->[1];
 
-    Works the same as `m//', but the regex must be passed in as a `qr//'.
+    Works the same as "m//", but the regex must be passed in as a "qr//".
 
-    `m' returns an array reference so that list functions such as `map' and
-    `grep' may be called on the result. Use `elements' to turn this into a
+    "m" returns an array reference so that list functions such as "map" and
+    "grep" may be called on the result. Use "elements" to turn this into a
     list of values.
 
       my ($street_number, $street_name, $apartment_number) =
@@ -218,83 +214,83 @@ DESCRIPTION
 
       print "$street_number $street_name $apartment_number\n";
 
-    s
+   s
       my $string = "the cat sat on the mat";
       $string->s( qr/cat/, "dog" );
       $string->say;                 # the dog sat on the mat
-  
-    Works the same as `s///'. Returns the number of substitutions performed,
+
+    Works the same as "s///". Returns the number of substitutions performed,
     not the target string.
 
-    undef
+   undef
         $string->undef;
 
-    Assigns `undef' to the `$string'.
+    Assigns "undef" to the $string.
 
-    defined
+   defined
         my $is_defined = $string->defined;
 
         if( not $string->defined ) {
             # give $string a value...
         }
 
-    `defined' tests whether a value is defined (not `undef').
+    "defined" tests whether a value is defined (not "undef").
 
-    repeat
+   repeat
         my $repeated_string = $string->repeat($n);
 
-    Like the `x' operator, repeats a string `$n' times.
+    Like the "x" operator, repeats a string $n times.
 
         print 1->repeat(5);     # 11111
         print "\n"->repeat(10); # ten newlines
 
-    I/O Methods
+   I/O Methods
     These are methods having to do with input and ouptut, not filehandles.
 
-    print
+   print
         $string->print;
 
     Prints a string or a list of strings. Returns true if successful.
 
-    say
+   say
     Like print, but implicitly appends a newline to the end.
 
          $string->say;
 
-    Boolean Methods
+   Boolean Methods
     Methods related to boolean operations.
 
-    and
-    `and' corresponds to `&&'. Returns true if both operands are true.
+   and
+    "and" corresponds to "&&". Returns true if both operands are true.
 
             if( $a->and($b) ) {
                 ...
             }
 
-    not
-    `not' corresponds to `!'. Returns true if the subject is false.
+   not
+    "not" corresponds to "!". Returns true if the subject is false.
 
             if( $a->not ) {
                 ...
             }
 
-    or
-    `or' corresponds to `||'. Returns true if at least one of the operands
+   or
+    "or" corresponds to "||". Returns true if at least one of the operands
     is true.
 
             if( $a->or($b) ) {
                 ...
             }
 
-    xor
-    `xor' corresponds to `xor'. Returns true if only one of the operands is
+   xor
+    "xor" corresponds to "xor". Returns true if only one of the operands is
     true.
 
             if( $a->xor($b) ) {
                 ...
             }
 
-    Number Related Methods
+   Number Related Methods
     Methods related to numbers.
 
     The basic built in functions which operate as normal : abs, atan2, cos,
@@ -302,29 +298,29 @@ DESCRIPTION
 
     The following operators were also included:
 
-    dec
+   dec
         $number->dec();
         # $number is smaller by 1.
 
-    `dec' corresponds to `++'. Decrements subject, will decrement character
+    "dec" corresponds to "++". Decrements subject, will decrement character
     strings too: 'b' decrements to 'a'.
 
-    inc
-    `inc' corresponds to `++'. Increments subject, will increment character
+   inc
+    "inc" corresponds to "++". Increments subject, will increment character
     strings too. 'a' increments to 'b'.
 
-    mod
-    `mod' corresponds to `%'.
+   mod
+    "mod" corresponds to "%".
 
             $number->mod(5);
 
-    pow
-    `pow' returns $number raised to the power of the $exponent.
+   pow
+    "pow" returns $number raised to the power of the $exponent.
 
         my $result = $number->pow($expontent);
         print 2->pow(8);  # 256
 
-    is_number
+   is_number
         $is_a_number = $thing->is_number;
 
     Returns true if $thing is a number as understood by Perl.
@@ -332,21 +328,21 @@ DESCRIPTION
         12.34->is_number;           # true
         "12.34"->is_number;         # also true
 
-    is_positive
+   is_positive
         $is_positive = $thing->is_positive;
 
     Returns true if $thing is a positive number.
 
-    `0' is not positive.
+    0 is not positive.
 
-    is_negative
+   is_negative
         $is_negative = $thing->is_negative;
 
     Returns true if $thing is a negative number.
 
-    `0' is not negative.
+    0 is not negative.
 
-    is_integer
+   is_integer
         $is_an_integer = $thing->is_integer;
 
     Returns true if $thing is an integer.
@@ -354,10 +350,10 @@ DESCRIPTION
         12->is_integer;             # true
         12.34->is_integer;          # false
 
-    is_int
+   is_int
     A synonym for is_integer.
 
-    is_decimal
+   is_decimal
         $is_a_decimal_number = $thing->is_decimal;
 
     Returns true if $thing is a decimal number.
@@ -366,14 +362,14 @@ DESCRIPTION
         12.34->is_decimal;          # true
         ".34"->is_decimal;          # true
 
-    Reference Related Methods
+   Reference Related Methods
     The following core functions are implemented.
 
     tie, tied, ref, vec.
 
-    `tie', `tied', and `undef' don't work on code references.
+    "tie", "tied", and "undef" don't work on code references.
 
-    Array Methods
+   Array Methods
     Array methods work on both arrays and array references:
 
       my $arr = [ 1 .. 10 ];
@@ -381,7 +377,7 @@ DESCRIPTION
 
     Or:
 
-      my @arr = [ 1 .. 10 ];
+      my @arr = ( 1 .. 10 );
       @arr->undef;
 
     List context forces methods to return a list:
@@ -395,106 +391,99 @@ DESCRIPTION
     chained
 
       my @arr = ( 1 .. 10 );
-      @arr->grep(sub { $_ > 3 })->min->say;  # "1\n";
+      @arr->grep(sub { $_ > 3 })->min->say;  # "4\n";
 
     These built-in functions are defined as methods:
 
     pop, push, shift, unshift, delete, undef, exists, bless, tie, tied, ref,
-    grep, map, join, reverse, and sort, each,
+    grep, map, join, reverse, and sort, each.
 
-    vdelete
+    As well as:
+
+   vdelete
     Deletes a specified value from the array.
 
       $a = 1->to(10);
       $a->vdelete(3);         # deletes 3
       $a->vdelete(2)->say;    # "1 4 5 6 7 8 9 10\n"
 
-    uniq
+   uniq
     Removes all duplicate elements from an array and returns the new array
     with no duplicates.
 
        my @array = qw( 1 1 2 3 3 6 6 );
        @return = @array->uniq;    # @return : 1 2 3 6
 
-    first
+   first
     Returns the first element of an array for which a callback returns true:
 
       $arr->first(sub { qr/5/ });
 
-    max
+   max
     Returns the largest numerical value in the array.
 
        $a = 1->to(10);
        $a->max;           # 10
 
-    min
+   min
     Returns the smallest numerical value in the array.
 
        $a = 1->to(10);
        $a->min;           # 1
 
-    mean
+   mean
     Returns the mean of elements of an array.
 
        $a = 1->to(10);
        $a->mean;          # 55/10
 
-    var
+   var
     Returns the variance of the elements of an array.
 
        $a = 1->to(10);
        $a->var;           # 33/4
 
-    svar
+   svar
     Returns the standard variance.
 
       $a = 1->to(10);
       $a->svar;                     # 55/6
 
-    at
+   at
     Returns the element at a specified index. This function does not modify
     the original array.
 
        $a = 1->to(10);
        $a->at(2);                   # 3
 
-    size
-    See length().
-
-    elems
-    See length().
-
-    length
-    `size', `elems' and `length' all return the number of elements in an
+   size, elems, length
+    "size", "elems" and "length" all return the number of elements in an
     array.
 
        my @array = qw(foo bar baz);
        @array->size;   # 3
 
-    elements
-    See `flatten'.
-
-    flatten
+   elements, flatten
         my @copy_of_array = $array->flatten;
 
     Returns the elements of an array ref as an array. This is the same as
-    `@{$array}'.
+    "@{$array}".
 
-    Arrays can be iterated on using `for' and `foreach'. Both take a code
+    Arrays can be iterated on using "for" and "foreach". Both take a code
     reference as the body of the for statement.
 
-    foreach
+   foreach
         @array->foreach(\&code);
 
-    Calls `&code' on each element of the @array in order. &code gets the
+    Calls &code on each element of the @array in order. &code gets the
     element as its argument.
 
         @array->foreach(sub { print $_[0] });  # print each element of the array
 
-    for
+   for
         @array->for(\&code);
 
-    Like foreach, but `&code' is called with the index, the value and the
+    Like foreach, but &code is called with the index, the value and the
     array itself.
 
         my $arr = [ 1 .. 10 ];
@@ -503,26 +492,26 @@ DESCRIPTION
             print "Value #$idx is $value\n";
         });
 
-    sum
+   sum
         my $sum = @array->sum;
 
     Adds together all the elements of the array.
 
-    count
-    Returns the number of elements in array that are `eq' to a specified
+   count
+    Returns the number of elements in array that are "eq" to a specified
     value:
 
       my @array = qw/one two two three three three/;
       my $num = @array->count('three');  # returns 3
 
-    to, upto, downto
-    `to', `upto', and `downto' create array references:
+   to, upto, downto
+    "to", "upto", and "downto" create array references:
 
        1->to(5);      # creates [1, 2, 3, 4, 5]
        1->upto(5);    # creates [1, 2, 3, 4, 5]
        5->downto(5);  # creates [5, 4, 3, 2, 1]
 
-    Those wrap the `..' operator.
+    Those wrap the ".." operator.
 
     Note while working with negative numbers you need to use () so as to
     avoid the wrong evaluation.
@@ -531,38 +520,38 @@ DESCRIPTION
       my $range = -10->to(10);      # wrong, interpreted as -( 10->to(10) )
       my $range = (-10)->to(10);    # this works
 
-    head
-    Returns the first element from `@list'. This differs from shift in that
-    it does not change the array.
+   head
+    Returns the first element from @list. This differs from shift in that it
+    does not change the array.
 
         my $first = @list->head;
 
-    tail
-    Returns all but the first element from `@list'.
+   tail
+    Returns all but the first element from @list.
 
         my @list = qw(foo bar baz quux);
         my @rest = @list->tail;  # [ 'bar', 'baz', 'quux' ]
 
-    Optionally, you can pass a number as argument to ask for the last `$n'
+    Optionally, you can pass a number as argument to ask for the last $n
     elements:
 
         @rest = @list->tail(2); # [ 'baz', 'quux' ]
 
-    slice
-    Returns a list containing the elements from `@list' at the indices
-    `@indices'. In scalar context, returns an array reference.
+   slice
+    Returns a list containing the elements from @list at the indices
+    @indices. In scalar context, returns an array reference.
 
         # Return $list[1], $list[2], $list[4] and $list[8].
         my @sublist = @list->slice(1,2,4,8);
 
-    range
-    `range' returns a list containing the elements from `@list' with indices
-    ranging from `$lower_idx' to `$upper_idx'. It returns an array reference
-    in scalar context.
+   range
+    "range" returns a list containing the elements from @list with indices
+    ranging from $lower_idx to $upper_idx. It returns an array reference in
+    scalar context.
 
         my @sublist = @list->range( $lower_idx, $upper_idx );
 
-    last_index
+   last_index
         my $index = @array->last_index(qr/.../);
 
     Returns the highest index whose element matches the given regular
@@ -576,12 +565,12 @@ DESCRIPTION
         my @things = qw(pear poll potato tomato);
         my $last_p = @things->last_index(qr/^p/); # 2
 
-    Called with no arguments, it corresponds to `$#array' giving the highest
+    Called with no arguments, it corresponds to $#array giving the highest
     index of the array.
 
         my $index = @array->last_index;
 
-    first_index
+   first_index
     Works just like last_index but it will return the index of the *first*
     matching element.
 
@@ -590,27 +579,24 @@ DESCRIPTION
         my @things = qw(pear poll potato tomato);
         my $last_p = @things->first_index(qr/^t/); # 3
 
-    at
+   at
         my $value = $array->at($index);
 
-    Equivalent to `$array->[$index]'.
+    Equivalent to "$array->[$index]".
 
-    Hash Methods
+   Hash Methods
     Hash methods work on both hashes and hash references.
 
     The built in functions work as normal:
 
     delete, exists, keys, values, bless, tie, tied, ref, undef,
 
-    at
-    See `at'.
-
-    get
+   at, get
         my @values = %hash->get(@keys);
 
     Returns the @values of @keys.
 
-    put
+   put
         %hash->put(%other_hash);
 
     Overlays %other_hash on top of %hash.
@@ -618,11 +604,11 @@ DESCRIPTION
        my $h = {a => 1, b => 2};
        $h->put(b => 99, c => 3);    # (a => 1, b => 99, c => 3)
 
-    set
+   set
     Synonym for put.
 
-    each
-    Like `foreach' but for hash references. For each key in the hash, the
+   each
+    Like "foreach" but for hash references. For each key in the hash, the
     code reference is invoked with the key and the corresponding value as
     arguments:
 
@@ -634,26 +620,27 @@ DESCRIPTION
       my %hash = ( foo => 10, bar => 20, baz => 30, quux => 40 );
       %hash->each(sub { print $_[0], ' is ', $_[1], "\n" });
 
-    Unlike regular `each', this each will always iterate through the entire
+    Unlike regular "each", this each will always iterate through the entire
     hash.
 
     Hash keys appear in random order that varies from run to run (this is
     intentional, to avoid calculated attacks designed to trigger algorithmic
-    worst case scenario in `perl''s hash tables).
+    worst case scenario in "perl"'s hash tables).
 
-    You can get a sorted `foreach' by combining `keys', `sort', and
-    `foreach':
+    You can get a sorted "foreach" by combining "keys", "sort", and
+    "foreach":
 
        %hash->keys->sort->foreach(sub {
           print $_[0], ' is ', $hash{$_[0]}, "\n";
        });
 
-    lock_keys
+   lock_keys
         %hash->lock_keys;
 
-    Works as Hash::Util. No more keys may be added to the hash.
+    Works as "lock_keys" in Hash::Util. No more keys may be added to the
+    hash.
 
-    slice
+   slice
     Takes a list of hash keys and returns the corresponding values e.g.
 
       my %hash = (
@@ -664,7 +651,7 @@ DESCRIPTION
 
       print %hash->slice(qw(one five))->join(' and '); # prints "two and six"
 
-    flip
+   flip
     Exchanges values for keys in a hash:
 
         my %things = ( foo => 1, bar => 2, baz => 5 );
@@ -682,12 +669,12 @@ DESCRIPTION
 
         { foo => [ 'bar', 'baz' ] }->flip; # dies
 
-    flatten
+   flatten
         my %hash = $hash_ref->flatten;
 
     Dereferences a hash reference.
 
-    Code Methods
+   Code Methods
     Methods which work on code references.
 
     These are simple wrappers around the Perl core functions. bless, ref,
@@ -705,7 +692,7 @@ DESCRIPTION
 
       my $curried = (\&foo)->curry();
 
-    curry
+   curry
         my $curried_code = $code->curry(5);
 
     Currying takes a code reference and provides the same code, but with the
@@ -763,7 +750,7 @@ DESCRIPTION
     A *box* is an object that contains a primitive variable. Boxes are used
     to endow primitive types with the capabilities of objects which
     essential in strongly typed languages but never strictly required in
-    Perl. Programmers might write something like `my $number = Int->new(5)'.
+    Perl. Programmers might write something like "my $number = Int->new(5)".
     This is manual boxing. To *autobox* is to convert a simple type into an
     object type automatically, or only conceptually. This is done by the
     language.
@@ -773,22 +760,22 @@ DESCRIPTION
     it pleases. Autoboxing is really making simple types such as numbers,
     strings, and arrays appear to be objects.
 
-    `int', `num', `bit', `str', and other types with lower case names, are
+    "int", "num", "bit", "str", and other types with lower case names, are
     primitives. They're fast to operate on, and require no more memory to
-    store than the data held strictly requires. `Int', `Num', `Bit', `Str',
+    store than the data held strictly requires. "Int", "Num", "Bit", "Str",
     and other types with an initial capital letter, are objects. These may
     be subclassed (inherited from) and accept traits, among other things.
     These objects are provided by the system for the sole purpose of
     representing primitive types as objects, though this has many ancillary
-    benefits such as making `is' and `has' work. Perl provides `Int' to
-    encapsulate an `int', `Num' to encapsulate a `num', `Bit' to encapsulate
-    a `bit', and so on. As Perl's implementations of hashes and dynamically
+    benefits such as making "is" and "has" work. Perl provides "Int" to
+    encapsulate an "int", "Num" to encapsulate a "num", "Bit" to encapsulate
+    a "bit", and so on. As Perl's implementations of hashes and dynamically
     expandable arrays store any type, not just objects, Perl programmers
     almost never are required to box primitive types in objects. Perl's
     power makes this feature less essential than it is in other languages.
 
     *autobox*ing makes primitive objects and they're boxed versions
-    equivalent. An `int' may be used as an `Int' with no constructor call,
+    equivalent. An "int" may be used as an "Int" with no constructor call,
     no passing, nothing. This applies to constants too, not just variables.
     This is a more Perl 6 way of doing things.
 
@@ -817,9 +804,9 @@ DESCRIPTION
       print 4.sqrt;
       4.sqrt.print;
 
-    The first of these three equivalents assumes that a global `sqrt()'
+    The first of these three equivalents assumes that a global "sqrt()"
     function exists. This first example would fail to operate if this global
-    function were removed and only a method in the `Num' package was left.
+    function were removed and only a method in the "Num" package was left.
 
     Perl 5 had the beginnings of autoboxing with filehandles:
 
@@ -827,14 +814,14 @@ DESCRIPTION
       open my $file, '<', 'file.txt' or die $!;
       $file->read(my $data, -s $file);
 
-    Here, `read' is a method on a filehandle we opened but *never blessed*.
-    This lets us say things like `$file->print(...)' rather than the often
-    ambagious `print $file ...'.
+    Here, "read" is a method on a filehandle we opened but *never blessed*.
+    This lets us say things like "$file->print(...)" rather than the often
+    ambagious "print $file ...".
 
     To many people, much of the time, it makes more conceptual sense as
     well.
 
-    Reasons to Box Primitive Types
+   Reasons to Box Primitive Types
     What good is all of this?
 
     *   Makes conceptual sense to programmers used to object interfaces as
@@ -854,7 +841,7 @@ DESCRIPTION
         "fakes it".
 
     *   Strings, numbers, arrays, hashes, and so on, each have their own
-        API. Documentation for an `exists' method for arrays doesn't have to
+        API. Documentation for an "exists" method for arrays doesn't have to
         explain how hashes are handled and vice versa.
 
     *   Perl tries to accommodate the notion that the "subject" of a
@@ -863,25 +850,25 @@ DESCRIPTION
 
     Perl is an idiomatic language and this is an important idiom.
 
-    Subject First: An Aside
+   Subject First: An Aside
     Perl's design philosophy promotes the idea that the language should be
-    flexible enough to allow programmers to place the of a statement first.
-    For example, `die $! unless read $file, 60' looks like the primary
-    purpose of the statement is to `die'.
+    flexible enough to allow programmers to place the subject of a statement
+    first. For example, "die $! unless read $file, 60" looks like the
+    primary purpose of the statement is to "die".
 
     While that might be the programmers primary goal, when it isn't, the
     programmer can communicate his real primary intention to programmers by
-    reversing the order of clauses while keeping the exact same logic: `read
-    $file, 60 or die $!'.
+    reversing the order of clauses while keeping the exact same logic: "read
+    $file, 60 or die $!".
 
     Autoboxing is another way of putting the subject first.
 
     Nouns make good subjects, and in programming, variables, constants, and
     object names are the nouns. Function and method names are verbs.
-    `$noun->verb()' focuses the readers attention on the thing being acted
-    on rather than the action being performed. Compare to `$verb($noun)'.
+    "$noun->verb()" focuses the readers attention on the thing being acted
+    on rather than the action being performed. Compare to "$verb($noun)".
 
-    Autoboxing and Method Results
+   Autoboxing and Method Results
     Let's look at some examples of ways an expression could be written.
 
       # Various ways to do the same thing:
@@ -916,17 +903,17 @@ DESCRIPTION
     of use of autoboxing. Providing no other arguments to the method calls,
     however, is not common.
 
-    `Perl6::Contexts' recognizes object context as provided by `->' and
-    coerces `%hash' and `@array' into references, suitable for use with
-    `autobox'. (Note that `autobox' also does this automatically as of
+    "Perl6::Contexts" recognizes object context as provided by "->" and
+    coerces %hash and @array into references, suitable for use with
+    "autobox". (Note that "autobox" also does this automatically as of
     version 2.40.)
 
-    `autobox' associates primitive types, such as references of various
-    sorts, with classes. `autobox::Core' throws into those classes methods
+    "autobox" associates primitive types, such as references of various
+    sorts, with classes. "autobox::Core" throws into those classes methods
     wrapping Perl's built-in functions. In the interest of full disclosure,
-    `Perl6::Contexts' and `autobox::Core' are my creations.
+    "Perl6::Contexts" and "autobox::Core" are my creations.
 
-    Autobox to Simplify Expressions
+   Autobox to Simplify Expressions
     One of my pet peeves in programming is parenthesis that span large
     expression. It seems like about the time I'm getting ready to close the
     parenthesis I opened on the other side of the line, I realize that I've
@@ -943,12 +930,12 @@ DESCRIPTION
       @cgi_vars->map(sub { CGI::param($_[0]) })->join("\n")->concat("\n")->print;
 
     The autoboxed version isn't shorter, but it reads from left to right,
-    and the parenthesis from the `join()' don't span nearly as many
-    characters. The complex expression serving as the value being `join()'ed
+    and the parenthesis from the "join()" don't span nearly as many
+    characters. The complex expression serving as the value being "join()"ed
     in the non-autoboxed version becomes, in the autoboxed version, a value
-    to call the `join()' method on.
+    to call the "join()" method on.
 
-    This `print' statement takes a list of CGI parameter names, reads the
+    This "print" statement takes a list of CGI parameter names, reads the
     values for each parameter, joins them together with newlines, and prints
     them with a newline after the last one.
 
@@ -961,25 +948,12 @@ DESCRIPTION
                ->concat("\n")                    # give it a trailing newline
                ->print;                          # print them all out
 
-    This could also have been written:
-
-      sub { CGI::param($_[0]) }->map(@cgi_vars)  # turn CGI arg names into values
-               ->join("\n")                      # join with newlines
-               ->concat("\n")                    # give it a trailing newline
-               ->print;                          # print them all out
-
-    `map()' is .
-
-    The `map()' method defined in the `autobox::Core::CODE' package takes
-    for its arguments the things to map. The `map()' method defined in the
-    `autobox::Core::ARRAY' package takes for its argument a code reference
-    to apply to each element of the array.
-
     *Here ends the text quoted from the Perl 6 Now manuscript.*
 
 BUGS
     Yes. Report them to the author, scott@slowass.net, or post them to
-    GitHub's bug tracker at https://github.com/scrottie/autobox-Core/issues.
+    GitHub's bug tracker at
+    <https://github.com/scrottie/autobox-Core/issues>.
 
     The API is not yet stable -- Perl 6-ish things and local extensions are
     still being renamed.
@@ -1003,9 +977,9 @@ SEE ALSO
     autobox
     Moose::Autobox
     Perl6::Contexts
-    http://github.com/gitpan/autobox-Core
+    <http://github.com/gitpan/autobox-Core>
     IO::Any
-    Perl 6: http://dev.perl.org/perl6/apocalypse/.
+    Perl 6: <http://dev.perl.org/perl6/apocalypse/>.
 
 AUTHORS
     Scott Walters, scott@slowass.net.
@@ -1013,7 +987,7 @@ AUTHORS
     Michael Schwern and the perl5i contributors for tests, code, and
     feedback.
 
-    JJ contributed a `strip' method for scalars - thanks JJ!
+    JJ contributed a "strip" method for scalars - thanks JJ!
 
     Ricardo SIGNES contributed patches.
 
@@ -1027,7 +1001,7 @@ AUTHORS
     Thanks to Bruno Vecchi for bug fixes and many, many new tests going into
     version 0.8.
 
-    Thanks to http://github.com/daxim daxim/Lars DIECKOW pushing in fixes
+    Thanks to <http://github.com/daxim> daxim/Lars DIECKOW pushing in fixes
     and patches from the RT queue along with fixes to build and additional
     doc examples.
 
