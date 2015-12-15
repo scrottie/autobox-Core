@@ -4,3 +4,4 @@ use warnings;
 use autobox::Core;
 
 ok 'bar'->nm(qr/o+/);
+ok ! 'bar'->nm(qr/bar/);

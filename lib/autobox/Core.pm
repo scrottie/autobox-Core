@@ -1298,8 +1298,8 @@ sub quotemeta  { CORE::quotemeta($_[0]); }
 sub vec        { CORE::vec($_[0], $_[1], $_[2]); }
 sub undef      { $_[0] = undef }
 sub defined    { CORE::defined($_[0]) }
-sub m          { [ $_[0] =~ m{$_[1]} ] }
-sub nm         { [ $_[0] !~ m{$_[1]} ] }
+sub m          { my @ms = $_[0] =~ m{$_[1]} ;  return @ms ? \@ms : undef }
+sub nm         { my @ms = $_[0] =~ m{$_[1]} ;  return @ms ? undef : \@ms }
 sub s          { $_[0] =~ s{$_[1]}{$_[2]} }
 sub split      { wantarray ? split $_[1], $_[0] : [ split $_[1], $_[0] ] }
 
