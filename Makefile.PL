@@ -8,7 +8,7 @@ WriteMakefile(
     PREREQ_PM          => {
         autobox => 2.71,
         'Test::More' => 0.88,
-
+        Want   => 0.26,
     },
     ABSTRACT_FROM      => 'lib/autobox/Core.pm',               # retrieve abstract from module
     AUTHOR             => 'Scott Walters scott@slowass.net',

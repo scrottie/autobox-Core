@@ -7,7 +7,9 @@ Revision history for autobox::Core
 
     New Features
     - Call backtick() qx() instead (but keep backtick around) (thanks jarich)
-    
+
+    Incompatible Changes
+    - s() now returns the modified string or success/fail depending on context
 
 1.30
     New Features
