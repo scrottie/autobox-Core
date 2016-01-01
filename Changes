@@ -3,6 +3,11 @@ Revision history for autobox::Core
 1.31 (not yet released)
     Docs
     - Corrected spelling mistake (thanks Gregor Herrmann)
+    - Document that strings work as regexen (thanks jarich)
+
+    New Features
+    - Call backtick() qx() instead (but keep backtick around) (thanks jarich)
+    
 
 1.30
     New Features
