@@ -11,6 +11,9 @@ Revision history for autobox::Core
     Incompatible Changes
     - s() now returns the modified string or success/fail depending on context
 
+    Fix
+    - m() and nm() were failing to signal failure (thanks grtodd!)
+
 1.30
     New Features
     - first() arguments are now consistent with grep(), so now  you can
