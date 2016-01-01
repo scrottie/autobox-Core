@@ -41,11 +41,12 @@ use 5.008;
 use strict;
 use warnings;
 
-our $VERSION = '1.28';
+our $VERSION = '1.31';
 
 use base 'autobox';
 
 use B;
+use Want ();
 
 # appending the user-supplied arguments allows autobox::Core options to be overridden
 # or extended in the same statement e.g.
@@ -330,9 +331,10 @@ list of values.
   $string->s( qr/cat/, "dog" );
   $string->say;                 # the dog sat on the mat
   
-
-Works the same as C<< s/// >>.  Returns the number of substitutions
-performed, not the target string.
+String substitution.  Works similarly to C<< s/// >>.  
+In boolean context, it returns true/false to indicate whether the substitution succeeded.  C<if>, C<?:>, C<!>, and so on, all provide boolean context.
+It either fails or succeeds, having replaced only one occurance on success -- it doesn't replace globally.
+In scalar context other than boolean context, it returns the modified string (incompatible change, new as of v 1.31).
 
 =head4 undef
 
@@ -1302,8 +1304,18 @@ sub undef      { $_[0] = undef }
 sub defined    { CORE::defined($_[0]) }
 sub m          { [ $_[0] =~ m{$_[1]} ] }
 sub nm         { [ $_[0] !~ m{$_[1]} ] }
-sub s          { $_[0] =~ s{$_[1]}{$_[2]} }
 sub split      { wantarray ? split $_[1], $_[0] : [ split $_[1], $_[0] ] }
+sub s          { 
+    my $success = ( $_[0] =~ s{$_[1]}{$_[2]} ) ? 1 : 0; 
+    if (Want::want('LIST')) {
+        Want::rreturn ($_[0]);
+    } elsif (Want::want('BOOL')) {   # this needs to happen before the SCALAR context test
+        Want::rreturn $success;
+    } elsif (Want::want(qw'SCALAR')) {
+        Want::rreturn $_[0];
+    }
+    return;  # "You have to put this at the end to keep the compiler happy" from Want docs
+}
 
 sub eval       { CORE::eval "$_[0]"; }
 sub system     { CORE::system @_; }
