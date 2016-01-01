@@ -288,11 +288,11 @@ than C<< $string->length >> it will just return C<$string>.
 
     say "Hello"->center(4);        # "Hello";   
 
-=head4 backtick
+=head4 qx
 
-    my $output = $string->backtick;
+    my $output = $string->qx;
 
-Runs $string as a command just like C<`$string`>.
+Runs $string as a command just enclosing it backticks, as in C<`$string`>.
 
 =head4 nm
 
@@ -1308,6 +1308,7 @@ sub split      { wantarray ? split $_[1], $_[0] : [ split $_[1], $_[0] ] }
 sub eval       { CORE::eval "$_[0]"; }
 sub system     { CORE::system @_; }
 sub backtick   { `$_[0]`; }
+sub qx         { `$_[0]`; }     # per #16, "backtick should probably be called qx"
 
 #       Numeric functions
 

@@ -33,6 +33,7 @@ ok(1->xor(5) == 0);
 ok("1+5"->eval() == 6);
 
 ok("echo test"->backtick =~ "test");
+ok("echo test"->qx =~ "test");   # qx as an alias to backtick per #16
 
 my $a = 1->to(10);
 ok($a->[0] == 1 && $a->[@$a-1] == 10);
