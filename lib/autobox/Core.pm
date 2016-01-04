@@ -5,7 +5,7 @@ package autobox::Core;
 # o. Lars D implemented a times() method for scalars but there is no doc or comment and I don't see the point; commented it out for now.
 #    (scrottie)
 # o. @array->random ?
-# o. "5->times(sub { print "hi\n"}); # XXX likely to change but it's in the code so bloody doc it so I have incentive to rethink it". 
+# o. "5->times(sub { print "hi\n"}); # XXX likely to change but it's in the code so bloody doc it so I have incentive to rethink it".
 #    well?  do we want this?  (scrottie)
 # o. kill head() and tail() -- does it really make sense to try to emulate linked lists with Perl arrays?  cute idea, but, uh. (scrottie)
 # o. "There's currently no counterpart to the C<< \ >> operator" -- but should we back away from trying to name operators and
@@ -87,7 +87,7 @@ autobox::Core - Provide core functions to autoboxed scalars, arrays and hashes.
   [10, 20, 30, 40, 50]->pop->say;
   [10, 20, 30, 40, 50]->shift->say;
 
-  my $lala = "Lalalalala\n"; 
+  my $lala = "Lalalalala\n";
   "chomp: "->concat($lala->chomp, " ", $lala)->say;
 
   my $hashref = { foo => 10, bar => 20, baz => 30, qux => 40 };
@@ -133,7 +133,7 @@ F<autobox::Core> makes it easier to avoid parentheses pile ups and
 messy dereferencing syntaxes.
 
 F<autobox::Core> is mostly glue.  It presents existing functions with a new
-interface, while adding few extra. Most of the methods read like 
+interface, while adding few extra. Most of the methods read like
 C<< sub hex { CORE::hex($_[0]) } >>.  In addition to built-ins from
 L<perlfunc> that operate on hashes, arrays, scalars, and code references,
 some Perl 6-ish things have been included, and some keywords like
@@ -205,7 +205,7 @@ L<pack|perlfunc/pack>, L<reverse|perlfunc/reverse> (always in scalar
 context), L<rindex|perlfunc/rindex>,
 L<sprintf|perlfunc/sprintf>, L<substr|perlfunc/substr>, L<uc|perlfunc/uc>
 L<ucfirst|perlfunc/ucfirst>, L<unpack|perlfunc/unpack>, L<quotemeta|perlfunc/quotemeta>,
-L<vec|perlfunc/vec>, L<undef|perlfunc/undef>, 
+L<vec|perlfunc/vec>, L<undef|perlfunc/undef>,
 L<split|perlfunc/split>, L<system|perlfunc/system>, L<eval|perlfunc/eval>.
 
 In addition, so are each of the following:
@@ -214,7 +214,7 @@ In addition, so are each of the following:
 
    $string1->concat($string2);
 
-Concatenates C<$string2> to C<$string1>. This 
+Concatenates C<$string2> to C<$string1>. This
 corresponds to the C<.> operator used to join two strings.  Returns the
 joined strings.
 
@@ -234,7 +234,7 @@ can also remove specific characters from the beginning and the end of
 string.
 
    '    hello'->trim;                   # 'hello'
-   '*+* hello *+*'->trim("*+");         # ' hello ' 
+   '*+* hello *+*'->trim("*+");         # ' hello '
    ' *+* hello *+*'->trim("*+");        # ' *+* hello'
 
 =head4 ltrim
@@ -287,7 +287,7 @@ C<$character> defaults to " ".
 C<center()> will never truncate C<$string>.  If $length is less
 than C<< $string->length >> it will just return C<$string>.
 
-    say "Hello"->center(4);        # "Hello";   
+    say "Hello"->center(4);        # "Hello";
 
 =head4 qx
 
@@ -330,8 +330,8 @@ list of values.
   my $string = "the cat sat on the mat";
   $string->s( qr/cat/, "dog" );
   $string->say;                 # the dog sat on the mat
-  
-String substitution.  Works similarly to C<< s/// >>.  
+
+String substitution.  Works similarly to C<< s/// >>.
 In boolean context, it returns true/false to indicate whether the substitution succeeded.  C<if>, C<?:>, C<!>, and so on, all provide boolean context.
 It either fails or succeeds, having replaced only one occurance on success -- it doesn't replace globally.
 In scalar context other than boolean context, it returns the modified string (incompatible change, new as of v 1.31).
@@ -369,7 +369,7 @@ These are methods having to do with input and ouptut, not filehandles.
 
     $string->print;
 
-Prints a string or a list of strings.  Returns true if successful.  
+Prints a string or a list of strings.  Returns true if successful.
 
 =head4 say
 
@@ -383,7 +383,7 @@ Methods related to boolean operations.
 
 =head4 and
 
-C<and> corresponds to C<&&>.  Returns true if both operands are true.  
+C<and> corresponds to C<&&>.  Returns true if both operands are true.
 
         if( $a->and($b) ) {
             ...
@@ -542,7 +542,7 @@ L<undef|perlfunc/undef>, L<exists|perlfunc/exists>,
 L<bless|perlfunc/bless>, L<tie|perlfunc/tie>, L<tied|perlfunc/tied>,
 L<ref|perlfunc/ref>, L<grep|perlfunc/grep>, L<map|perlfunc/map>,
 L<join|perlfunc/join>, L<reverse|perlfunc/reverse>, and
-L<sort|perlfunc/sort>, L<each|perlfunc/each>. 
+L<sort|perlfunc/sort>, L<each|perlfunc/each>.
 
 As well as:
 
@@ -556,7 +556,7 @@ Deletes a specified value from the array.
 
 =head4 uniq
 
-Removes all duplicate elements from an array and returns the new array 
+Removes all duplicate elements from an array and returns the new array
 with no duplicates.
 
    my @array = qw( 1 1 2 3 3 6 6 );
@@ -691,7 +691,7 @@ L<shift|perlfunc/shift> in that it does not change the array.
 
 =head4 tail
 
-Returns all but the first element from C<@list>. 
+Returns all but the first element from C<@list>.
 
     my @list = qw(foo bar baz quux);
     my @rest = @list->tail;  # [ 'bar', 'baz', 'quux' ]
@@ -807,7 +807,7 @@ You can get a sorted C<foreach> by combining C<keys>, C<sort>, and C<foreach>:
       print $_[0], ' is ', $hash{$_[0]}, "\n";
    });
 
-=head4 lock_keys  
+=head4 lock_keys
 
     %hash->lock_keys;
 
@@ -855,7 +855,7 @@ Dereferences a hash reference.
 Methods which work on code references.
 
 These are simple wrappers around the Perl core functions.
-L<bless|perlfunc/bless>, L<ref|perlfunc/ref>, 
+L<bless|perlfunc/bless>, L<ref|perlfunc/ref>,
 
 Due to Perl's precedence rules, some autoboxed literals may need to be
 parenthesized.  For instance, this works:
@@ -892,14 +892,14 @@ the first argument filled in.
 
 =over 4
 
-=item * 
+=item *
 
 File and socket operations are already implemented in an object-oriented
 fashion care of L<IO::Handle>, L<IO::Socket::INET>, and L<IO::Any>.
 
 =item *
 
-Functions listed in the L<perlfunc> headings 
+Functions listed in the L<perlfunc> headings
 
 =over 4
 
@@ -947,7 +947,7 @@ Functions listed in the L<perlfunc> headings
 
 =item *
 
-(Most) binary operators 
+(Most) binary operators
 
 =back
 
@@ -995,7 +995,7 @@ no passing, nothing.  This applies to constants too, not just variables.
 This is a more Perl 6 way of doing things.
 
   # Perl 6 - autoboxing associates classes with primitives types:
- 
+
   print 4.sqrt, "\n";
 
   print [ 1 .. 20 ].elems, "\n";
@@ -1305,8 +1305,8 @@ sub defined    { CORE::defined($_[0]) }
 sub m          { my @ms = $_[0] =~ m{$_[1]} ;  return @ms ? \@ms : undef }
 sub nm         { my @ms = $_[0] =~ m{$_[1]} ;  return @ms ? undef : \@ms }
 sub split      { wantarray ? split $_[1], $_[0] : [ split $_[1], $_[0] ] }
-sub s          { 
-    my $success = ( $_[0] =~ s{$_[1]}{$_[2]} ) ? 1 : 0; 
+sub s          {
+    my $success = ( $_[0] =~ s{$_[1]}{$_[2]} ) ? 1 : 0;
     if (Want::want('LIST')) {
         Want::rreturn ($_[0]);
     } elsif (Want::want('BOOL')) {   # this needs to happen before the SCALAR context test
