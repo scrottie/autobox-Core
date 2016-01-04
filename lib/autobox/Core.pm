@@ -1,41 +1,5 @@
 package autobox::Core;
 
-# TODO:
-
-# o. Lars D implemented a times() method for scalars but there is no doc or comment and I don't see the point; commented it out for now.
-#    (scrottie)
-# o. @array->random ?
-# o. "5->times(sub { print "hi\n"}); # XXX likely to change but it's in the code so bloody doc it so I have incentive to rethink it".
-#    well?  do we want this?  (scrottie)
-# o. kill head() and tail() -- does it really make sense to try to emulate linked lists with Perl arrays?  cute idea, but, uh. (scrottie)
-# o. "There's currently no counterpart to the C<< \ >> operator" -- but should we back away from trying to name operators and
-#    only do built-in functions? (scrottie)
-# o. I no longer think that center() belongs here; plenty of modules offer text formatting (scrottie)
-# o. don't overlap with autobox::List::Util.  or else do.  but decide.
-# o. make jive with MooseX::Autobox or whatever it is
-# v/ regenerate README
-# o. steal perl5i's docs too
-# o. IO::Any?
-# o. "appending the user-supplied arguments allows autobox::Core options to be overridden" -- document this if we haven't already
-# v/ more Hash::Util methods?
-# o. "If this goes over well, I'll make L<Langauge::Functional> a dependency and expose its function as methods on the correct data types. Or maybe I will do this anyway."
-#    ... maybe there should be filter, fold, reduce, etc methods
-# o. support 'my IO::Handle $io; $io->open('<', $fn);'. undef values belonging to
-#   SVs having associated types should dispatch to that class. of course, just using
-#   core, this could be made to work too -- open() is a built-in, after all. the
-#   autobox::Core::open would have to know how to handle $_[0] being undef and
-#   assigning the open'ed handle into $_[0].
-
-#
-# from http://search.cpan.org/~miyagawa/PSGI-1.03/PSGI/FAQ.pod:
-#
-# body.each { |buf| request.write(buf) }
-#
-#would just magically work whether body is an Array, FileIO object or an object that implements iterators. Perl doesn't have such a beautiful thing in the language unless autobox is loaded. PSGI should not make autobox as a requirement, so we only support a simple array ref or file handle.
-#
-# ... perl5i should unify interfaces to IO handles, arrays, hashes, objects, etc as much as possible.
-
-
 use 5.008;
 
 use strict;
