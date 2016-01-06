@@ -1197,6 +1197,10 @@ for a particular purpose.
 
 Scott Walters, scott@slowass.net.
 
+Tomasz Konojacki has been assisting with maint.
+
+Jacinta Richardson improved documentation and tidied up the interface.
+
 Michael Schwern and the L<perl5i> contributors for tests, code, and feedback.
 
 JJ contributed a C<strip> method for scalars - thanks JJ!
@@ -1214,7 +1218,7 @@ Thanks to Bruno Vecchi for bug fixes and many, many new tests going into version
 Thanks to L<http://github.com/daxim> daxim/Lars DIECKOW pushing in fixes and patches from the RT queue
 along with fixes to build and additional doc examples.
 
-Jacinta Richardson improved documentation.
+Thanks to everyone else who sent fixes or suggestions -- apologies if I failed to include you here!
 
 =cut
 
