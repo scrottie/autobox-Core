@@ -297,7 +297,7 @@ list of values.
 
 String substitution.  Works similarly to C<< s/// >>.
 In boolean context, it returns true/false to indicate whether the substitution succeeded.  C<if>, C<?:>, C<!>, and so on, all provide boolean context.
-It either fails or succeeds, having replaced only one occurance on success -- it doesn't replace globally.
+It either fails or succeeds, having replaced only one occurrence on success -- it doesn't replace globally.
 In scalar context other than boolean context, it returns the modified string (incompatible change, new as of v 1.31).
 
 =head4 undef
