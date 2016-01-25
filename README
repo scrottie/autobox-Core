@@ -23,7 +23,7 @@ SYNOPSIS
       [10, 20, 30, 40, 50]->pop->say;
       [10, 20, 30, 40, 50]->shift->say;
 
-      my $lala = "Lalalalala\n"; 
+      my $lala = "Lalalalala\n";
       "chomp: "->concat($lala->chomp, " ", $lala)->say;
 
       my $hashref = { foo => 10, bar => 20, baz => 30, qux => 40 };
@@ -103,7 +103,8 @@ DESCRIPTION
 
     Anything which takes a regular expression, such as split and m, usually
     take it in the form of a compiled regex ("qr//"). Any modifiers can be
-    attached to the "qr" normally.
+    attached to the "qr" normally. Bare strings may be used in place of
+    regular expressions, and Perl will compile it to a regex, as usual.
 
     These built in functions are implemented for scalars, they work just
     like normal: chomp, chop,chr crypt, index, lc lcfirst, length, ord,
@@ -132,7 +133,7 @@ DESCRIPTION
     string.
 
        '    hello'->trim;                   # 'hello'
-       '*+* hello *+*'->trim("*+");         # ' hello ' 
+       '*+* hello *+*'->trim("*+");         # ' hello '
        ' *+* hello *+*'->trim("*+");        # ' *+* hello'
 
    ltrim
@@ -149,9 +150,10 @@ DESCRIPTION
 
    split
         my @split_string = $string->split(qr/.../);
+        my @split_string = $string->split(' ');
 
     A wrapper around split. It takes the regular expression as a compiled
-    regex.
+    regex, or a string which Perl parses as a regex.
 
        print "10, 20, 30, 40"->split(qr{, ?})->elements, "\n";
        "hi there"->split(qr/ */);           # h i t h e r e
@@ -181,10 +183,10 @@ DESCRIPTION
 
         say "Hello"->center(4);        # "Hello";
 
-   backtick
-        my $output = $string->backtick;
+   qx
+        my $output = $string->qx;
 
-    Runs $string as a command just like `$string`.
+    Runs $string as a command just enclosing it backticks, as in `$string`.
 
    nm
         if( $foo->nm(qr/bar/) ) {
@@ -219,8 +221,12 @@ DESCRIPTION
       $string->s( qr/cat/, "dog" );
       $string->say;                 # the dog sat on the mat
 
-    Works the same as "s///". Returns the number of substitutions performed,
-    not the target string.
+    String substitution. Works similarly to "s///". In boolean context, it
+    returns true/false to indicate whether the substitution succeeded. "if",
+    "?:", "!", and so on, all provide boolean context. It either fails or
+    succeeds, having replaced only one occurrence on success -- it doesn't
+    replace globally. In scalar context other than boolean context, it
+    returns the modified string (incompatible change, new as of v 1.31).
 
    undef
         $string->undef;
@@ -657,7 +663,7 @@ DESCRIPTION
         my %things = ( foo => 1, bar => 2, baz => 5 );
         my %flipped = %things->flip; # { 1 => foo, 2 => bar, 5 => baz }
 
-    If there is more than one occurence of a certain value, any one of the
+    If there is more than one occurrence of a certain value, any one of the
     keys may end up as the value. This is because of the random ordering of
     hash keys.
 
@@ -780,7 +786,7 @@ DESCRIPTION
     This is a more Perl 6 way of doing things.
 
       # Perl 6 - autoboxing associates classes with primitives types:
- 
+
       print 4.sqrt, "\n";
 
       print [ 1 .. 20 ].elems, "\n";
@@ -984,6 +990,10 @@ SEE ALSO
 AUTHORS
     Scott Walters, scott@slowass.net.
 
+    Tomasz Konojacki has been assisting with maint.
+
+    Jacinta Richardson improved documentation and tidied up the interface.
+
     Michael Schwern and the perl5i contributors for tests, code, and
     feedback.
 
@@ -1005,5 +1015,6 @@ AUTHORS
     and patches from the RT queue along with fixes to build and additional
     doc examples.
 
-    Jacinta Richardson improved documentation.
+    Thanks to everyone else who sent fixes or suggestions -- apologies if I
+    failed to include you here!
 
