@@ -1,8 +1,12 @@
 Revision history for autobox::Core
 
-1.31 (not yet released)
+1.32
     Docs
-    - Corrected spelling mistakes (thanks Gregor Herrmann)
+    - Corrected spelling mistake (thanks again Gregor Herrmann)
+
+1.31
+    Docs
+    - Corrected spelling mistake (thanks Gregor Herrmann)
     - Document that strings work as regexen (thanks jarich)
 
     New Features
