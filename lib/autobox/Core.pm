@@ -1218,6 +1218,8 @@ Thanks to Bruno Vecchi for bug fixes and many, many new tests going into version
 Thanks to L<http://github.com/daxim> daxim/Lars DIECKOW pushing in fixes and patches from the RT queue
 along with fixes to build and additional doc examples.
 
+Thanks to Johan Lindstrom for bug reports.
+
 Thanks to everyone else who sent fixes or suggestions -- apologies if I failed to include you here!
 
 =cut
