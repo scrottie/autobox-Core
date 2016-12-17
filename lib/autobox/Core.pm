@@ -1699,10 +1699,13 @@ sub count {
 sub uniq {
     my $arr = CORE::shift;
 
-    # shamelessly from List::MoreUtils
-    my %uniq;
-    my @res = CORE::map { $uniq{$_}++ == 0 ? $_ : () } @$arr;
+    # shamelessly stolen from List::MoreUtils
+    # fix for code stolen from List::MoreUtils shamelessly stolen from List::MoreUtils
 
+    my %seen = ();
+    my $k;
+    my $seen_undef;
+    my @res = CORE::grep { CORE::defined $_ ? not $seen{ $k = $_ }++ : CORE::not $seen_undef++ } @$arr;
     return wantarray ? @res : \@res;
 }
 
