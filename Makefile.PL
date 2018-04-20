@@ -1,3 +1,6 @@
+use strict;
+use warnings;
+
 use ExtUtils::MakeMaker;
 
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
@@ -6,9 +9,9 @@ WriteMakefile(
     NAME               => 'autobox::Core',
     VERSION_FROM       => 'lib/autobox/Core.pm',               # finds $VERSION
     PREREQ_PM          => {
-        autobox => 2.71,
+        autobox => 2.86,
         'Test::More' => 0.88,
-        Want   => 0.26,
+        Want   => 0.29,
     },
     ABSTRACT_FROM      => 'lib/autobox/Core.pm',               # retrieve abstract from module
     AUTHOR             => 'Scott Walters scott@slowass.net',
