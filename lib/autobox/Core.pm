@@ -716,6 +716,15 @@ matching element.
 
 Equivalent to C<< $array->[$index] >>.
 
+=head4 pick
+
+Picks random element in the given array.
+
+    my $arrayref = [ 1, 6, 8, 3, 2, 9, 5, 7, 4, 0 ];
+    printf("%s\n", join(", ", $arrayref->pick()));
+    printf("%s\n", join(", ", $arrayref->pick(2)));
+    printf("%s\n", join(", ", $arrayref->pick(3)));
+
 =head3 Hash Methods
 
 Hash methods work on both hashes and hash references.
@@ -1598,6 +1607,26 @@ sub sort {
     my $sub = CORE::shift() || sub { $a cmp $b };
     my @res = CORE::sort { $sub->($a, $b) } @$arr;
     return wantarray ? @res : \@res;
+}
+
+sub pick {
+    my $arr = CORE::shift;
+    my $cnt = CORE::shift;
+
+    $cnt = 1 unless CORE::defined $cnt;
+    if ( CORE::ref $arr eq 'ARRAY' ) {
+        my $length = $#$arr;
+        my @picked = ();
+        while (scalar @picked != $cnt) {
+            my $pos = int(rand($length + 2));
+            if (CORE::defined $arr->[$pos]) {
+                CORE::push @picked, $arr->[$pos];
+                $arr->[$pos] = undef;
+            }
+        }
+
+        return wantarray ? @picked : \@picked;
+    }
 }
 
 # functionalish stuff
