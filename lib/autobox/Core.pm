@@ -1614,19 +1614,9 @@ sub pick {
     my $cnt = CORE::shift;
 
     $cnt = 1 unless CORE::defined $cnt;
-    if ( CORE::ref $arr eq 'ARRAY' ) {
-        my $length = $#$arr;
-        my @picked = ();
-        while (scalar @picked != $cnt) {
-            my $pos = int(rand($length + 2));
-            if (CORE::defined $arr->[$pos]) {
-                CORE::push @picked, $arr->[$pos];
-                $arr->[$pos] = undef;
-            }
-        }
+    my @picked = List::Util::sample($cnt, @$arr);
 
-        return wantarray ? @picked : \@picked;
-    }
+    return wantarray ? @picked : \@picked;
 }
 
 # functionalish stuff
