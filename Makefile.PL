@@ -12,6 +12,7 @@ WriteMakefile(
         autobox => 2.86,
         'Test::More' => 0.88,
         Want   => 0.29,
+        'List::Util' => 1.54,
     },
     ABSTRACT_FROM      => 'lib/autobox/Core.pm',               # retrieve abstract from module
     AUTHOR             => 'Scott Walters scott@slowass.net',
