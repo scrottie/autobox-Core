@@ -10,6 +10,7 @@ our $VERSION = '1.33';
 use base 'autobox';
 
 use B;
+use Scalar::Util ();
 use Want ();
 
 # appending the user-supplied arguments allows autobox::Core options to be overridden
@@ -396,13 +397,17 @@ The following operators were also included:
     $number->dec();
     # $number is smaller by 1.
 
-C<dec> corresponds to C<++>.  Decrements subject, will decrement character
+C<dec> corresponds to C<-->. Decrements subject, will decrement character
 strings too: 'b' decrements to 'a'.
+
+This method can also be used on readonly values, in which case it will return a decremented copy of the subject, and the subject itself will not be changed.
 
 =head4 inc
 
-C<inc> corresponds to C<++>.  Increments subject, will increment character
+C<inc> corresponds to C<++>. Increments subject, will increment character
 strings too. 'a' increments to 'b'.
+
+This method can also be used on readonly values, in which case it will return a incremented copy of the subject, and the subject itself will not be changed.
 
 =head4 mod
 
@@ -1343,8 +1348,10 @@ sub strip  {
 
 # operator schizzle
 sub and  { $_[0] && $_[1]; }
-sub dec  { my $t = CORE::shift @_; --$t; }
-sub inc  { my $t = CORE::shift @_; ++$t; }
+
+sub dec { Scalar::Util::readonly($_[0]) ? do { --(my $t = $_[0]) } : --$_[0] }
+sub inc { Scalar::Util::readonly($_[0]) ? do { ++(my $t = $_[0]) } : ++$_[0] }
+
 sub mod  { $_[0] % $_[1]; }
 sub neg  { -$_[0]; }
 sub not  { !$_[0]; }

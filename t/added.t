@@ -12,9 +12,13 @@ ok(1);
 ok(1->and(5));
 ok(!1->and(0));
 
-ok(1->dec == 0);
+my $int_to_dec = 1;
+$int_to_dec->dec;
+is $int_to_dec, 0, 'decremented an int';
 
-ok(1->inc == 2);
+my $int_to_inc = 1;
+$int_to_inc->inc;
+is $int_to_inc, 2, 'incremented an int';
 
 ok(5->mod(2) == 1);
 
