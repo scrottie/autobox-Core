@@ -470,6 +470,15 @@ Returns true if $thing is a decimal number.
     12.34->is_decimal;          # true
     ".34"->is_decimal;          # true
 
+=head4 times
+
+    $number->times( sub { say "Hello $_" } );
+
+Calls the given coderef $number times, passing in values from zero to $number - 1.
+
+This can also be used without a coderef, in which case it returns an array containing
+zero up to $number - 1 in list context, or a reference to such an array in scalar context.
+
 =head3 Reference Related Methods
 
 The following core functions are implemented.
@@ -1323,14 +1332,15 @@ sub downto  {
     return wantarray ? @$res : $res
 }
 
-# Lars D didn't explain the intention of this code either in a comment or in docs and I don't see the point
-#sub times {
-#   if ($_[1]) {
-#     for (0..$_[0]-1) { $_[1]->($_); }; $_[0];
-#   } else {
-#       0..$_[0]-1
-#   }
-#}
+sub times {
+    my @range = 0..$_[0]-1;
+
+    if ($_[1]) {
+        for (@range) { $_[1]->($_); }; $_[0];
+    } else {
+        return wantarray ? @range : \@range;
+    }
+}
 
 # doesn't minipulate scalars but works on scalars
 
