@@ -21,7 +21,11 @@ use Want ();
 #    use autobox::Core UNIVERSAL => 'Data::Dumper';     # enable a Dumper() method for all types
 
 sub import {
-    shift->SUPER::import(DEFAULT => 'autobox::Core::', @_);
+    shift->SUPER::import(
+        DEFAULT => 'autobox::Core::',
+        UNDEF   => 'autobox::Core::',
+        @_
+    );
 }
 
 =encoding UTF-8
@@ -1907,7 +1911,6 @@ sub last_index {
 }
 
 ##############################################################################################
-
 #
 # CODE
 #
@@ -1921,5 +1924,16 @@ sub ref      { CORE::ref   $_[0] }
 
 sub curry  { my $code = CORE::shift; my @args = @_; sub { CORE::unshift @_, @args; goto &$code; }; }
 
-1;
+##############################################################################################
+#
+# UNDEF
+#
 
+package autobox::Core::UNDEF;
+
+sub defined { 0 }
+
+# make any other method a no-op
+sub AUTOLOAD { '' }
+
+1;
