@@ -380,6 +380,26 @@ true.
             ...
         }
 
+=head4 if_true
+
+Runs the given coderef if the subject is true.
+
+    $bool->if_true( sub { say "It's true" } );
+
+An additional coderef can be given to be run in the event that the subject is false.
+
+    $bool->if_true( sub { say "It's true" }, else => sub { say "It ain't so" } );
+
+=head4 if_false
+
+Runs the given coderef if the subject is false.
+
+    $bool->if_false( sub { say "It ain't so" } );
+
+An additional coderef can be given to be run in the event that the subject is true.
+
+    $bool->if_true( sub { say "It ain't so" }, else => sub { say "It's true" } );
+
 =head3 Number Related Methods
 
 Methods related to numbers.
@@ -1368,6 +1388,32 @@ sub not  { !$_[0]; }
 sub or   { $_[0] || $_[1]; }
 sub pow  { $_[0] ** $_[1]; }
 sub xor  { $_[0] xor $_[1]; }
+
+sub if_true {
+    my ($self, $code, %opt) = @_;
+
+    if($self) {
+        $code->();
+    }
+    elsif(my $other = $opt{else}) {
+         $other->();
+    }
+    $self;
+}
+
+sub if_false {
+    my ($self, $code, %opt) = @_;
+
+    if($self) {
+        if(my $other = $opt{else}) {
+            $other->();
+        }
+    }
+    else {
+        $code->();
+    }
+    $self;
+}
 
 # rpt should go
 sub repeat  { $_[0] x $_[1]; }
