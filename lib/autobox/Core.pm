@@ -10,6 +10,7 @@ our $VERSION = '1.33';
 use base 'autobox';
 
 use B;
+use Scalar::Util ();
 use Want ();
 
 # appending the user-supplied arguments allows autobox::Core options to be overridden
@@ -20,7 +21,11 @@ use Want ();
 #    use autobox::Core UNIVERSAL => 'Data::Dumper';     # enable a Dumper() method for all types
 
 sub import {
-    shift->SUPER::import(DEFAULT => 'autobox::Core::', @_);
+    shift->SUPER::import(
+        DEFAULT => 'autobox::Core::',
+        UNDEF   => 'autobox::Core::',
+        @_
+    );
 }
 
 =encoding UTF-8
@@ -379,6 +384,26 @@ true.
             ...
         }
 
+=head4 if_true
+
+Runs the given coderef if the subject is true.
+
+    $bool->if_true( sub { say "It's true" } );
+
+An additional coderef can be given to be run in the event that the subject is false.
+
+    $bool->if_true( sub { say "It's true" }, else => sub { say "It ain't so" } );
+
+=head4 if_false
+
+Runs the given coderef if the subject is false.
+
+    $bool->if_false( sub { say "It ain't so" } );
+
+An additional coderef can be given to be run in the event that the subject is true.
+
+    $bool->if_true( sub { say "It ain't so" }, else => sub { say "It's true" } );
+
 =head3 Number Related Methods
 
 Methods related to numbers.
@@ -396,13 +421,17 @@ The following operators were also included:
     $number->dec();
     # $number is smaller by 1.
 
-C<dec> corresponds to C<++>.  Decrements subject, will decrement character
+C<dec> corresponds to C<-->. Decrements subject, will decrement character
 strings too: 'b' decrements to 'a'.
+
+This method can also be used on readonly values, in which case it will return a decremented copy of the subject, and the subject itself will not be changed.
 
 =head4 inc
 
-C<inc> corresponds to C<++>.  Increments subject, will increment character
+C<inc> corresponds to C<++>. Increments subject, will increment character
 strings too. 'a' increments to 'b'.
+
+This method can also be used on readonly values, in which case it will return a incremented copy of the subject, and the subject itself will not be changed.
 
 =head4 mod
 
@@ -464,6 +493,15 @@ Returns true if $thing is a decimal number.
     12->is_decimal;             # false
     12.34->is_decimal;          # true
     ".34"->is_decimal;          # true
+
+=head4 times
+
+    $number->times( sub { say "Hello $_" } );
+
+Calls the given coderef $number times, passing in values from zero to $number - 1.
+
+This can also be used without a coderef, in which case it returns an array containing
+zero up to $number - 1 in list context, or a reference to such an array in scalar context.
 
 =head3 Reference Related Methods
 
@@ -1318,14 +1356,15 @@ sub downto  {
     return wantarray ? @$res : $res
 }
 
-# Lars D didn't explain the intention of this code either in a comment or in docs and I don't see the point
-#sub times {
-#   if ($_[1]) {
-#     for (0..$_[0]-1) { $_[1]->($_); }; $_[0];
-#   } else {
-#       0..$_[0]-1
-#   }
-#}
+sub times {
+    my @range = 0..$_[0]-1;
+
+    if ($_[1]) {
+        for (@range) { $_[1]->($_); }; $_[0];
+    } else {
+        return wantarray ? @range : \@range;
+    }
+}
 
 # doesn't minipulate scalars but works on scalars
 
@@ -1343,14 +1382,42 @@ sub strip  {
 
 # operator schizzle
 sub and  { $_[0] && $_[1]; }
-sub dec  { my $t = CORE::shift @_; --$t; }
-sub inc  { my $t = CORE::shift @_; ++$t; }
+
+sub dec { Scalar::Util::readonly($_[0]) ? do { --(my $t = $_[0]) } : --$_[0] }
+sub inc { Scalar::Util::readonly($_[0]) ? do { ++(my $t = $_[0]) } : ++$_[0] }
+
 sub mod  { $_[0] % $_[1]; }
 sub neg  { -$_[0]; }
 sub not  { !$_[0]; }
 sub or   { $_[0] || $_[1]; }
 sub pow  { $_[0] ** $_[1]; }
 sub xor  { $_[0] xor $_[1]; }
+
+sub if_true {
+    my ($self, $code, %opt) = @_;
+
+    if($self) {
+        $code->();
+    }
+    elsif(my $other = $opt{else}) {
+         $other->();
+    }
+    $self;
+}
+
+sub if_false {
+    my ($self, $code, %opt) = @_;
+
+    if($self) {
+        if(my $other = $opt{else}) {
+            $other->();
+        }
+    }
+    else {
+        $code->();
+    }
+    $self;
+}
 
 # rpt should go
 sub repeat  { $_[0] x $_[1]; }
@@ -1844,7 +1911,6 @@ sub last_index {
 }
 
 ##############################################################################################
-
 #
 # CODE
 #
@@ -1858,5 +1924,16 @@ sub ref      { CORE::ref   $_[0] }
 
 sub curry  { my $code = CORE::shift; my @args = @_; sub { CORE::unshift @_, @args; goto &$code; }; }
 
-1;
+##############################################################################################
+#
+# UNDEF
+#
 
+package autobox::Core::UNDEF;
+
+sub defined { 0 }
+
+# make any other method a no-op
+sub AUTOLOAD { '' }
+
+1;

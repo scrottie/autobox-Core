@@ -5,6 +5,7 @@ use autobox::Core;
 
 my $foo = 'foo';
 is $foo->undef, undef;
+ok ! $foo->defined;
 
 is_deeply [1,2,3]->undef, [];
 is_deeply {foo => 123}->undef, +{};
